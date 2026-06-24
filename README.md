@@ -16,6 +16,8 @@ This repository now includes a complete visual identity + key screen prototype w
 - Reward redemption flow
 - Icon-only bottom navigation
 
+Design Inspired: https://dribbble.com/shots/27139208-Kids-Educational-App-Branding
+
 ## Run locally
 
 Open `index.html` in a browser, or serve the directory:
