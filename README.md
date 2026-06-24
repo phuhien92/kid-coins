@@ -18,9 +18,9 @@ This repository now includes a complete visual identity + key screen prototype w
 
 ## Run locally
 
-Open `/home/runner/work/kid-coins/kid-coins/index.html` in a browser, or serve the directory:
+Open `index.html` in a browser, or serve the directory:
 
 ```bash
-cd /home/runner/work/kid-coins/kid-coins
+cd kid-coins
 python3 -m http.server 8000
 ```
