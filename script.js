@@ -3,6 +3,7 @@ const navButtons = document.querySelectorAll(".bottom-nav button");
 const earnButtons = document.querySelectorAll(".earn-btn");
 const redeemButtons = document.querySelectorAll(".redeem-btn");
 const chips = document.querySelectorAll(".chip");
+const progressBars = document.querySelectorAll(".progress-bar");
 const celebration = document.getElementById("celebration");
 const rewardText = document.getElementById("reward-text");
 
@@ -42,4 +43,11 @@ chips.forEach((chip) => {
   chip.addEventListener("click", () => {
     chip.classList.toggle("selected");
   });
+});
+
+progressBars.forEach((bar) => {
+  const complete = Number(bar.dataset.complete || 0);
+  const total = Number(bar.dataset.total || 1);
+  const width = total > 0 ? (complete / total) * 100 : 0;
+  bar.style.width = `${Math.max(0, Math.min(100, width))}%`;
 });

@@ -180,7 +180,7 @@ main {
 }
 
 .progress-bar {
-  width: 71%;
+  width: 0;
   height: 100%;
   background: linear-gradient(90deg, var(--earn), var(--achievement));
 }
