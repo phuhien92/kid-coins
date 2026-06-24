@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kid Coins — Earn & Learn</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="brand">
+          <div class="coin-mascot" aria-hidden="true">🪙</div>
+          <div>
+            <p class="kicker">Earn & Learn</p>
+            <h1>Kid Coins</h1>
+          </div>
+        </div>
+        <p class="hero-copy">
+          Turn chores, homework, hygiene, and self-care into a joyful coin adventure.
+        </p>
+      </header>
+
+      <main>
+        <section id="onboarding" class="screen active-screen">
+          <h2>Pick your quest goals</h2>
+          <div class="chip-grid" role="group" aria-label="Onboarding purpose selection">
+            <button class="chip selected">🌟 Build habits</button>
+            <button class="chip">📚 Learn money basics</button>
+            <button class="chip">🏆 Stay motivated</button>
+            <button class="chip">🤝 Team up with family</button>
+          </div>
+          <button class="primary">Start Adventure</button>
+        </section>
+
+        <section id="dashboard" class="screen">
+          <h2>Coin Balance</h2>
+          <div class="card balance">
+            <p>Total Coins</p>
+            <strong>245</strong>
+            <span>+25 today</span>
+          </div>
+          <div class="mascot-row" aria-hidden="true">
+            <div class="blob mint">😊</div>
+            <div class="blob peach">🌼</div>
+            <div class="blob lavender">🛹</div>
+          </div>
+        </section>
+
+        <section id="tasks" class="screen">
+          <h2>Tasks</h2>
+          <div class="task-group">
+            <h3>Daily</h3>
+            <article class="card task-card">
+              <div>
+                <strong>Brush teeth</strong>
+                <p>Mood: 😀</p>
+              </div>
+              <button class="earn-btn" data-coins="10">+10</button>
+            </article>
+            <article class="card task-card">
+              <div>
+                <strong>Homework time</strong>
+                <p>Mood: 🙂</p>
+              </div>
+              <button class="earn-btn" data-coins="20">+20</button>
+            </article>
+          </div>
+          <div class="task-group">
+            <h3>One-time</h3>
+            <article class="card task-card">
+              <div>
+                <strong>Clean bookshelf</strong>
+                <p>Mood: 😎</p>
+              </div>
+              <button class="earn-btn" data-coins="30">+30</button>
+            </article>
+          </div>
+        </section>
+
+        <section id="progress" class="screen">
+          <h2>Progress</h2>
+          <div class="card">
+            <p>Weekly streak</p>
+            <div class="progress-track"><div class="progress-bar"></div></div>
+            <small>5/7 days complete</small>
+          </div>
+          <div class="card">
+            <p>Achievement level</p>
+            <strong>Purple Star Explorer</strong>
+          </div>
+        </section>
+
+        <section id="rewards" class="screen">
+          <h2>Rewards Shop</h2>
+          <article class="card reward-card">
+            <div>
+              <strong>Movie night</strong>
+              <p>120 coins</p>
+            </div>
+            <button class="redeem-btn">Redeem</button>
+          </article>
+          <article class="card reward-card">
+            <div>
+              <strong>Park trip</strong>
+              <p>200 coins</p>
+            </div>
+            <button class="redeem-btn">Redeem</button>
+          </article>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Primary navigation">
+        <button data-target="dashboard" title="Home">🏠</button>
+        <button data-target="tasks" title="Tasks">✅</button>
+        <button data-target="rewards" title="Rewards">🎁</button>
+        <button data-target="progress" title="Profile">👤</button>
+      </nav>
+    </div>
+
+    <div id="celebration" class="celebration hidden" role="status" aria-live="polite">
+      <p>Great Job! 🎉</p>
+      <p id="reward-text">You earned +10 coins!</p>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

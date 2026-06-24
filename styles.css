@@ -1,0 +1,227 @@
+:root {
+  --mint: #c9f6e5;
+  --lavender: #dfd3ff;
+  --peach: #ffd9c8;
+  --lemon: #fff4b8;
+  --ink: #3d3562;
+  --earn: #1fa85f;
+  --achievement: #7850d0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Nunito", "Comic Sans MS", "Trebuchet MS", sans-serif;
+  background: linear-gradient(180deg, var(--mint), #f7f5ff);
+  color: var(--ink);
+}
+
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 1rem 1rem 5.5rem;
+}
+
+.hero,
+.screen,
+.card,
+.bottom-nav,
+.celebration {
+  border-radius: 24px;
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--peach), var(--lavender));
+  padding: 1rem;
+  box-shadow: 0 8px 20px rgb(91 70 160 / 18%);
+}
+
+.brand {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.coin-mascot,
+.blob {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  display: grid;
+  place-content: center;
+  font-size: 1.6rem;
+}
+
+.coin-mascot {
+  background: var(--lemon);
+}
+
+.kicker {
+  margin: 0;
+  font-weight: 700;
+  color: var(--achievement);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0 0 0.5rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+main {
+  margin-top: 1rem;
+}
+
+.screen {
+  display: none;
+  gap: 0.75rem;
+  flex-direction: column;
+}
+
+.active-screen {
+  display: flex;
+}
+
+.chip-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.chip,
+.primary,
+.earn-btn,
+.redeem-btn,
+.bottom-nav button {
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+}
+
+.chip {
+  background: #fff;
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+}
+
+.chip.selected,
+.primary {
+  background: var(--achievement);
+  color: #fff;
+}
+
+.primary {
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+
+.card {
+  background: #fff;
+  padding: 0.9rem;
+  box-shadow: 0 6px 16px rgb(77 54 140 / 12%);
+}
+
+.balance strong {
+  font-size: 2rem;
+  color: var(--earn);
+}
+
+.mascot-row {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.mint {
+  background: var(--mint);
+}
+.peach {
+  background: var(--peach);
+}
+.lavender {
+  background: var(--lavender);
+}
+
+.task-card,
+.reward-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.earn-btn {
+  background: var(--earn);
+  color: white;
+  padding: 0.5rem 0.8rem;
+  font-weight: 700;
+}
+
+.redeem-btn {
+  background: var(--achievement);
+  color: #fff;
+  padding: 0.5rem 0.9rem;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: #efe9ff;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 71%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--earn), var(--achievement));
+}
+
+.bottom-nav {
+  position: fixed;
+  inset: auto 0 0;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  background: rgb(255 255 255 / 90%);
+  backdrop-filter: blur(5px);
+}
+
+.bottom-nav button {
+  font-size: 1.3rem;
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.celebration {
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%) scale(0.8);
+  width: min(90vw, 320px);
+  padding: 1rem;
+  background: radial-gradient(circle at center, var(--lemon), var(--peach));
+  text-align: center;
+  box-shadow: 0 12px 24px rgb(93 61 180 / 30%);
+  transition: all 0.25s ease;
+}
+
+.celebration.show {
+  transform: translateX(-50%) scale(1);
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
