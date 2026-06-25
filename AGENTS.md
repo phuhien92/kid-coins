@@ -137,6 +137,21 @@ pnpm db:migrate    # apply pending migrations
 pnpm db:studio     # open Drizzle Studio (DB GUI)
 ```
 
+## Branching workflow
+
+- **`main`** — production. Deploy-ready at all times. Only merged from `develop` via PR.
+- **`develop`** — integration branch. Feature branches merge here first. Must pass CI.
+- **Feature branches** — branched from `develop`, merged back via PR.
+
+```
+feature/*  →  develop  →  main
+```
+
+Before merging to `main`:
+- PR must have 1 approval
+- All CI checks must pass (`pnpm build`, `pnpm test:run`)
+- Branch must be up to date with `main`
+
 ## Key patterns
 
 - **Server Components** for data-fetching pages (parent dashboard, task lists)
