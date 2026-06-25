@@ -11,7 +11,9 @@
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",
@@ -32,6 +34,9 @@
     ]
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.4.6",
+    "@storybook/react": "^10.4.6",
+    "@storybook/react-vite": "^10.4.6",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -43,8 +48,10 @@
     "@vitest/coverage-v8": "^4.1.9",
     "drizzle-kit": "^0.31.10",
     "jsdom": "^29.1.1",
+    "storybook": "^10.4.6",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vite": "^8.1.0",
     "vitest": "^4.1.9"
   }
 }
