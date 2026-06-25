@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earnie — Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:#FBF8EF; --cream-card:#FCFAF3; --ink:#1C1B17; --ink-soft:#5C5A50;
+    --green:#2F7A55; --green-dk:#245F42; --green-tint:#CFE7D8;
+    --coin:#F4D34E; --coin-dk:#E3BE34;
+    --lav:#C7CAF4; --purple:#7B6BE6; --purple-dk:#5E4FCB; --lavpale:#DEE0FA;
+    --mint:#C7E9D4; --peach:#F8D3B2; --lemon:#F7E68C; --coral:#F0A6A0; --sky:#CDE7F2;
+    --font-d:"Fredoka",system-ui,sans-serif;
+    --font-b:"Nunito",system-ui,sans-serif;
+    --shadow:0 14px 32px -16px rgba(28,27,23,.32);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin:0; min-height:100%; }
+  body {
+    font-family: var(--font-b);
+    color: var(--ink);
+    background: var(--cream);
+    background-image:
+      radial-gradient(circle at 10% 8%,  rgba(199,202,244,.30), transparent 32%),
+      radial-gradient(circle at 92% 6%,  rgba(199,233,212,.34), transparent 30%),
+      radial-gradient(circle at 85% 96%, rgba(248,211,178,.26), transparent 36%);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  /* ---- SCREENS ---- */
+  .screen {
+    width: 100%;
+    max-width: 420px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .screen.active {
+    display: flex;
+    animation: screenIn .32s cubic-bezier(.2,1,.4,1) both;
+  }
+  @keyframes screenIn {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:none; }
+  }
+
+  /* ---- BRAND HEADER ---- */
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .brand .mark { width:40px; height:40px; }
+  .brand .word { font-family:var(--font-d); font-weight:700; font-size:26px; letter-spacing:-.01em; }
+  .brand .dot  { color:var(--green); }
+
+  /* ---- CARD ---- */
+  .card {
+    width: 100%;
+    background: var(--cream-card);
+    border: 2.5px solid var(--ink);
+    border-radius: 26px;
+    padding: 28px 26px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-family: var(--font-d);
+    font-weight: 700;
+    font-size: 26px;
+    margin: 0 0 4px;
+    line-height: 1.05;
+  }
+  .card-sub {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+  }
+
+  /* ---- GOOGLE BUTTON ---- */
+  .google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    padding: 13px 16px;
+    background: #fff;
+    border: 2.5px solid var(--ink);
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: var(--font-d);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink);
+    box-shadow: 0 4px 0 rgba(28,27,23,.12);
+    transition: transform .08s, box-shadow .08s;
+    margin-bottom: 18px;
+  }
+  .google-btn:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(28,27,23,.12); }
+  .google-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+  }
+
+  /* ---- DIVIDER ---- */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: rgba(28,27,23,.1);
+    border-radius: 1px;
+  }
+  .divider span {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    flex: 0 0 auto;
+  }
+
+  /* ---- FORM FIELDS ---- */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 13px;
+  }
+  .field label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .field input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2.5px solid var(--ink);
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: var(--font-b);
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field input::placeholder { color: var(--ink-soft); font-weight: 600; }
+  .field input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(47,122,85,.12); }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .field-row label { margin: 0; }
+  .forgot { font-size: 12px; font-weight: 800; color: var(--purple); cursor: pointer; text-decoration: none; }
+
+  /* ---- BUTTONS ---- */
+  .green-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
+    background: var(--green);
+    border: 2.5px solid var(--ink);
+    border-radius: 16px;
+    color: #fff;
+    font-family: var(--font-d);
+    font-weight: 600;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 var(--green-dk);
+    transition: transform .08s, box-shadow .08s;
+    margin-top: 6px;
+  }
+  .green-btn:active { transform:translateY(4px); box-shadow:0 1px 0 var(--green-dk); }
+
+  .ghost-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: #fff;
+    border: 2.5px solid var(--ink);
+    border-radius: 16px;
+    color: var(--ink);
+    font-family: var(--font-d);
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background .12s;
+    margin-top: 10px;
+  }
+  .ghost-btn:hover { background: rgba(28,27,23,.04); }
+
+  /* ---- FOOTER LINK ---- */
+  .foot-link {
+    margin-top: 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .foot-link a {
+    color: var(--green);
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* ============================================================
+     PROFILE SELECTION
+  ============================================================ */
+  #screen-profile .card-title { text-align:center; }
+  #screen-profile .card-sub  { text-align:center; margin-bottom:28px; }
+
+  .profiles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  .profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 12px 16px;
+    background: #fff;
+    border: 2.5px solid var(--ink);
+    border-radius: 22px;
+    cursor: pointer;
+    transition: transform .1s, box-shadow .1s;
+    box-shadow: 0 4px 0 rgba(28,27,23,.07);
+    position: relative;
+  }
+  .profile-card:hover  { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(28,27,23,.1); }
+  .profile-card:active { transform: translateY(1px);  box-shadow: 0 2px 0 rgba(28,27,23,.07); }
+
+  .profile-ava {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .profile-ava .pin-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--lav);
+    border: 2.5px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .profile-name {
+    font-family: var(--font-d);
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1;
+    text-align: center;
+  }
+  .profile-role {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    text-align: center;
+  }
+
+  .profile-card.parent .profile-role { color: var(--purple); }
+
+  .add-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 12px 16px;
+    background: var(--lavpale);
+    border: 2.5px dashed var(--purple);
+    border-radius: 22px;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .add-profile:hover { background: #d4d8f8; }
+  .add-profile .plus {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2.5px solid var(--ink);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-family: var(--font-d);
+    font-weight: 700;
+    color: var(--purple);
+  }
+  .add-profile .add-label {
+    font-family: var(--font-d);
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--purple);
+    text-align: center;
+  }
+
+  .signout-link {
+    margin-top: 22px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: center;
+    cursor: pointer;
+  }
+  .signout-link:hover { color: var(--ink); }
+
+  /* ============================================================
+     PIN SCREEN
+  ============================================================ */
+  #screen-pin {
+    gap: 0;
+  }
+  .pin-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    width: 100%;
+  }
+  .pin-ava {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    background: var(--lav);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    box-shadow: 0 6px 0 rgba(28,27,23,.12);
+  }
+  .pin-name {
+    font-family: var(--font-d);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .pin-prompt {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  .pin-dots {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  .pin-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2.5px solid var(--ink);
+    background: #fff;
+    transition: background .15s, transform .15s;
+  }
+  .pin-dot.filled {
+    background: var(--green);
+    border-color: var(--green);
+    transform: scale(1.15);
+  }
+  .pin-dot.error {
+    background: var(--coral);
+    border-color: var(--coral);
+    animation: shake .35s ease;
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    20%      { transform:translateX(-6px); }
+    40%      { transform:translateX(6px); }
+    60%      { transform:translateX(-4px); }
+    80%      { transform:translateX(4px); }
+  }
+
+  .pin-pad {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .pin-key {
+    aspect-ratio: 1;
+    border: 2.5px solid var(--ink);
+    border-radius: 18px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--font-d);
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--ink);
+    box-shadow: 0 4px 0 rgba(28,27,23,.1);
+    transition: transform .08s, box-shadow .08s, background .08s;
+    user-select: none;
+    -webkit-user-select: none;
+    line-height: 1;
+  }
+  .pin-key:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(28,27,23,.1); }
+  .pin-key .sub  { font-size: 9px; font-weight:800; letter-spacing:.1em; color:var(--ink-soft); font-family:var(--font-b); margin-top:2px; text-transform:uppercase; }
+  .pin-key.special { background:var(--cream-card); font-size:22px; }
+  .pin-key.special:active { background:var(--cream); }
+  .pin-key.empty { background:transparent; border:none; box-shadow:none; cursor:default; pointer-events:none; }
+
+  .pin-cancel {
+    margin-top: 22px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-align: center;
+  }
+  .pin-cancel:hover { color: var(--ink); }
+  .pin-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .pin-hint a { color: var(--purple); cursor: pointer; font-weight: 800; }
+
+  /* ---- error message ---- */
+  .error-msg {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--coral);
+    text-align: center;
+    min-height: 18px;
+    margin-bottom: 12px;
+    transition: opacity .2s;
+  }
+  .error-msg:empty { opacity:0; }
+
+  /* ---- back button ---- */
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    font-family: var(--font-d);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 20px;
+    align-self: flex-start;
+  }
+  .back-btn:hover { color: var(--ink); }
+  .back-btn .arr {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 2px solid var(--ink);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  /* ---- FORGOT / EMAIL-SENT screens ---- */
+  .mascot-bounce {
+    width: 110px; height: 110px;
+    animation: mascotBounce 2.4s ease-in-out infinite;
+    margin-bottom: 4px;
+  }
+  @keyframes mascotBounce {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50%     { transform: translateY(-10px) rotate(3deg); }
+  }
+  .email-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green-tint); border: 2px solid var(--ink);
+    border-radius: 999px; padding: 8px 16px;
+    font-family: var(--font-d); font-weight: 600; font-size: 14px;
+    color: var(--green-dk); margin: 4px 0 20px;
+  }
+  .steps {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 22px;
+  }
+  .step {
+    display: flex; align-items: center; gap: 13px;
+    background: #fff; border: 2px solid var(--ink);
+    border-radius: 14px; padding: 11px 14px;
+  }
+  .step .num {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2.5px solid var(--ink); background: var(--coin);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-d); font-weight: 700; font-size: 15px;
+    flex: 0 0 auto;
+  }
+  .step .txt { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .resend-row {
+    text-align: center; font-size: 13px; font-weight: 700;
+    color: var(--ink-soft); margin-top: 14px;
+  }
+  .resend-row a { color: var(--green); font-weight: 800; cursor: pointer; }
+  .resend-row .countdown { color: var(--ink-soft); }
+
+  /* ---- ONBOARDING ---- */
+  .progress-steps {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; margin-bottom: 28px; width: 100%;
+  }
+  .pstep {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2.5px solid var(--ink); background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-d); font-weight: 700; font-size: 15px;
+    flex: 0 0 auto; position: relative; z-index: 1;
+    transition: background .2s;
+  }
+  .pstep.done   { background: var(--green); color: #fff; border-color: var(--green); }
+  .pstep.active { background: var(--coin);  border-color: var(--ink); }
+  .pstep-line {
+    flex: 1; height: 3px; background: rgba(28,27,23,.14);
+    border-radius: 2px; max-width: 48px;
+  }
+  .pstep-line.done { background: var(--green); }
+  .onboard-label {
+    font-size: 11.5px; font-weight: 800; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: .08em;
+    text-align: center; margin-bottom: 6px;
+  }
+
+  .avatar-grid {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
+    margin-bottom: 18px;
+  }
+  .avatar-opt {
+    aspect-ratio: 1; border: 2.5px solid var(--ink); border-radius: 50%;
+    background: #fff; display: flex; align-items: center;
+    justify-content: center; font-size: 28px; cursor: pointer;
+    transition: transform .1s, background .1s, box-shadow .1s;
+  }
+  .avatar-opt:hover  { transform: scale(1.06); }
+  .avatar-opt.sel {
+    background: var(--green-tint); border-color: var(--green);
+    box-shadow: 0 4px 0 var(--green-dk); transform: translateY(-2px);
+  }
+
+  .pw-strength { margin-top: 7px; }
+  .pw-bars { display: flex; gap: 5px; margin-bottom: 4px; }
+  .pw-bar {
+    flex: 1; height: 5px; border-radius: 3px;
+    background: rgba(28,27,23,.1); transition: background .25s;
+  }
+  .pw-bar.s1 { background: var(--coral); }
+  .pw-bar.s2 { background: var(--coin); }
+  .pw-bar.s3 { background: var(--green); }
+  .pw-bar.s4 { background: var(--green); }
+  .pw-label { font-size: 11.5px; font-weight: 800; color: var(--ink-soft); }
+
+  .terms-row {
+    display: flex; align-items: flex-start; gap: 11px;
+    margin: 14px 0 6px;
+  }
+  .terms-row input[type=checkbox] {
+    width: 20px; height: 20px; border: 2.5px solid var(--ink);
+    border-radius: 6px; cursor: pointer; flex: 0 0 auto; margin-top: 1px;
+    accent-color: var(--green);
+  }
+  .terms-row label {
+    font-size: 13px; font-weight: 700; color: var(--ink-soft); cursor: pointer;
+    line-height: 1.45;
+  }
+  .terms-row label a { color: var(--purple); font-weight: 800; }
+
+  .goal-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .goal-opt {
+    border: 2.5px solid var(--ink); border-radius: 18px; background: #fff;
+    padding: 14px 12px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 7px;
+    transition: transform .1s, background .1s, box-shadow .12s;
+  }
+  .goal-opt .em  { font-size: 28px; }
+  .goal-opt .lab { font-family: var(--font-d); font-weight: 600; font-size: 15px; }
+  .goal-opt.sel  {
+    background: var(--green-tint); box-shadow: 0 4px 0 var(--green-dk);
+    transform: translateY(-2px);
+  }
+
+  .welcome-summary {
+    display: flex; align-items: center; gap: 13px;
+    border: 2.5px solid var(--ink); border-radius: 18px;
+    background: var(--cream-card); padding: 14px 16px;
+    margin: 16px 0 20px; box-shadow: 0 4px 0 rgba(28,27,23,.08);
+  }
+  .welcome-summary .wa {
+    width: 52px; height: 52px; border-radius: 50%; border: 2.5px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex: 0 0 auto;
+  }
+  .welcome-summary .wt { font-family: var(--font-d); font-weight: 600; font-size: 16px; }
+  .welcome-summary .ws { font-size: 12px; font-weight: 800; color: var(--ink-soft); margin-top: 2px; }
+
+  /* password toggle */
+  .pw-wrap { position:relative; }
+  .pw-wrap input { padding-right: 46px; }
+  .pw-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 17px;
+    color: var(--ink-soft);
+    padding: 0;
+    line-height: 1;
+  }
+
+  /* ---- COIN decoration ---- */
+  .coin { display:inline-block; width:1em; height:1em; border-radius:50%; background:var(--coin); border:1.6px solid var(--ink); vertical-align:-.14em; position:relative; }
+  .coin::after { content:""; position:absolute; inset:.18em; border-radius:50%; border:1px solid rgba(28,27,23,.45); }
+</style>
+</head>
+<body>
+
+<!-- ========== MASCOT SPRITE ========== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="m-penny" viewBox="0 0 100 100">
+    <circle cx="50" cy="51" r="40" fill="#F4D34E" stroke="#1C1B17" stroke-width="4.5"/>
+    <path d="M50 11 a40 40 0 0 1 0 80" fill="none" stroke="#1C1B17" stroke-width="4.5" opacity=".25"/>
+    <circle cx="50" cy="51" r="32" fill="none" stroke="#1C1B17" stroke-width="2.4" opacity=".35"/>
+    <path d="M33 46 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M55 46 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M37 58 q13 13 26 0" fill="none" stroke="#1C1B17" stroke-width="4.2" stroke-linecap="round"/>
+    <circle cx="35" cy="62" r="4" fill="#F0A6A0" opacity=".7"/>
+    <circle cx="65" cy="62" r="4" fill="#F0A6A0" opacity=".7"/>
+  </symbol>
+  <symbol id="m-penny-cheer" viewBox="0 0 120 140">
+    <path d="M52 96 q-8 18 -16 24" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M68 96 q10 16 6 30" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M30 64 q-16 -10 -20 -28" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M90 64 q18 -8 24 -26" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="10" cy="36" r="4.5" fill="#F4D34E" stroke="#1C1B17" stroke-width="3"/>
+    <circle cx="114" cy="38" r="4.5" fill="#F4D34E" stroke="#1C1B17" stroke-width="3"/>
+    <circle cx="60" cy="58" r="38" fill="#F4D34E" stroke="#1C1B17" stroke-width="4.5"/>
+    <path d="M60 20 a38 38 0 0 1 0 76" fill="none" stroke="#1C1B17" stroke-width="4.5" opacity=".25"/>
+    <path d="M44 52 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M64 52 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M46 62 q14 16 28 0" fill="#1C1B17"/>
+    <path d="M52 70 q8 6 16 0" fill="#F0A6A0"/>
+  </symbol>
+</defs></svg>
+
+
+<!-- =====================================================================
+     SCREEN 1 — LOGIN
+====================================================================== -->
+<div class="screen active" id="screen-login">
+
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+    <span class="word">Earnie<span class="dot">.</span></span>
+  </div>
+
+  <div class="card">
+    <h1 class="card-title">Welcome back!</h1>
+    <p class="card-sub">Sign in to your family account</p>
+
+    <!-- Google -->
+    <button class="google-btn" id="googleBtn">
+      <svg class="google-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="divider"><span>or</span></div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label>Password</label>
+        <a class="forgot" id="forgotLink">Forgot?</a>
+      </div>
+      <div class="pw-wrap">
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        <button class="pw-toggle" id="pwToggle" tabindex="-1">👁️</button>
+      </div>
+    </div>
+
+    <div class="error-msg" id="loginError"></div>
+
+    <button class="green-btn" id="signinBtn">Sign in →</button>
+  </div>
+
+  <p class="foot-link">New to Earnie? <a id="signupLink">Create a family account</a></p>
+</div>
+
+
+<!-- =====================================================================
+     SCREEN 4 — FORGOT PASSWORD
+====================================================================== -->
+<div class="screen" id="screen-forgot">
+  <button class="back-btn" id="forgotBack"><span class="arr">‹</span> Back to sign in</button>
+  <div class="card">
+    <h1 class="card-title">Reset password</h1>
+    <p class="card-sub">Enter the email for your Earnie account and we'll send a reset link right away.</p>
+    <div class="field">
+      <label>Email address</label>
+      <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="error-msg" id="forgotError"></div>
+    <button class="green-btn" id="sendResetBtn">Send reset link →</button>
+    <button class="ghost-btn" id="forgotCancelBtn">Cancel</button>
+  </div>
+</div>
+
+<!-- =====================================================================
+     SCREEN 5 — EMAIL SENT
+====================================================================== -->
+<div class="screen" id="screen-email-sent">
+  <svg class="mascot-bounce" viewBox="0 0 100 100">
+    <use href="#m-penny"/>
+  </svg>
+  <div class="card">
+    <h1 class="card-title" style="text-align:center">Check your inbox!</h1>
+    <p class="card-sub" style="text-align:center;margin-bottom:12px">We sent a reset link to</p>
+    <div style="text-align:center">
+      <span class="email-chip">✉️ <span id="sentEmailDisplay">your email</span></span>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div class="txt">Open the email from Earnie</div></div>
+      <div class="step"><div class="num">2</div><div class="txt">Click the reset link inside</div></div>
+      <div class="step"><div class="num">3</div><div class="txt">Set your new password</div></div>
+    </div>
+    <button class="green-btn" id="backToSigninBtn">Back to sign in</button>
+    <div class="resend-row">
+      Didn't get it? <a id="resendBtn">Resend email</a> <span class="countdown" id="countdown"></span>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================================
+     SCREEN 6 — SIGN UP
+====================================================================== -->
+<div class="screen" id="screen-signup">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+    <span class="word">Earnie<span class="dot">.</span></span>
+  </div>
+  <div class="card">
+    <h1 class="card-title">Create an account</h1>
+    <p class="card-sub">Start your family's coin adventure</p>
+    <button class="google-btn" id="googleSignupBtn">
+      <svg class="google-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+      </svg>
+      Sign up with Google
+    </button>
+    <div class="divider"><span>or</span></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="su-email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="su-pw" placeholder="Choose a strong password">
+        <button class="pw-toggle" id="suPwToggle" tabindex="-1">👁️</button>
+      </div>
+      <div class="pw-strength">
+        <div class="pw-bars">
+          <div class="pw-bar" id="pb1"></div>
+          <div class="pw-bar" id="pb2"></div>
+          <div class="pw-bar" id="pb3"></div>
+          <div class="pw-bar" id="pb4"></div>
+        </div>
+        <div class="pw-label" id="pwLabel"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Confirm password</label>
+      <input type="password" id="su-pw2" placeholder="Repeat your password">
+    </div>
+    <div class="terms-row">
+      <input type="checkbox" id="terms">
+      <label for="terms">I agree to Earnie's <a>Terms of Service</a> and <a>Privacy Policy</a></label>
+    </div>
+    <div class="error-msg" id="suError"></div>
+    <button class="green-btn" id="suSubmitBtn">Create account →</button>
+  </div>
+  <p class="foot-link">Already have an account? <a id="backToLoginLink">Sign in</a></p>
+</div>
+
+<!-- =====================================================================
+     SCREEN 7 — ONBOARD 1: ABOUT YOUR FAMILY
+====================================================================== -->
+<div class="screen" id="screen-onb-1">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+    <span class="word">Earnie<span class="dot">.</span></span>
+  </div>
+  <div class="progress-steps">
+    <div class="pstep active">1</div>
+    <div class="pstep-line"></div>
+    <div class="pstep">2</div>
+    <div class="pstep-line"></div>
+    <div class="pstep">3</div>
+  </div>
+  <div class="card">
+    <div class="onboard-label">Step 1 of 3</div>
+    <h1 class="card-title">About your family</h1>
+    <p class="card-sub">We'll personalise Earnie just for you</p>
+    <div class="field">
+      <label>Your first name</label>
+      <input type="text" id="onb-parent-name" placeholder="e.g. Sam" autocomplete="given-name">
+    </div>
+    <div class="field">
+      <label>Family name <span style="font-weight:600;color:var(--ink-soft);text-transform:none;letter-spacing:0">· optional</span></label>
+      <input type="text" id="onb-family-name" placeholder="e.g. The Rivera Family" autocomplete="family-name">
+    </div>
+    <div class="error-msg" id="onb1Error"></div>
+    <button class="green-btn" id="onb1Btn">Continue →</button>
+  </div>
+</div>
+
+<!-- =====================================================================
+     SCREEN 8 — ONBOARD 2: ADD FIRST KID
+====================================================================== -->
+<div class="screen" id="screen-onb-2">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+    <span class="word">Earnie<span class="dot">.</span></span>
+  </div>
+  <div class="progress-steps">
+    <div class="pstep done">✓</div>
+    <div class="pstep-line done"></div>
+    <div class="pstep active">2</div>
+    <div class="pstep-line"></div>
+    <div class="pstep">3</div>
+  </div>
+  <div class="card">
+    <div class="onboard-label">Step 2 of 3</div>
+    <h1 class="card-title">Add your first kid</h1>
+    <p class="card-sub">Pick an avatar and tell us their name</p>
+    <div class="avatar-grid" id="avatarGrid">
+      <div class="avatar-opt sel" data-avatar="🧒" style="background:var(--mint)">🧒</div>
+      <div class="avatar-opt" data-avatar="👦" style="background:var(--lemon)">👦</div>
+      <div class="avatar-opt" data-avatar="👧" style="background:var(--peach)">👧</div>
+      <div class="avatar-opt" data-avatar="🧒‍♀️" style="background:var(--lav)">🧒‍♀️</div>
+      <div class="avatar-opt" data-avatar="🦊" style="background:var(--coin)">🦊</div>
+      <div class="avatar-opt" data-avatar="🐼" style="background:var(--sky)">🐼</div>
+      <div class="avatar-opt" data-avatar="🦁" style="background:var(--mint)">🦁</div>
+      <div class="avatar-opt" data-avatar="🐨" style="background:var(--lavpale)">🐨</div>
+    </div>
+    <div class="field">
+      <label>Kid's name</label>
+      <input type="text" id="onb-kid-name" placeholder="e.g. Mia" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input type="number" id="onb-kid-age" placeholder="e.g. 8" min="4" max="17" style="width:120px">
+    </div>
+    <div class="error-msg" id="onb2Error"></div>
+    <button class="green-btn" id="onb2Btn">Continue →</button>
+    <button class="ghost-btn" id="onb2Back">← Back</button>
+  </div>
+</div>
+
+<!-- =====================================================================
+     SCREEN 9 — ONBOARD 3: FIRST GOAL
+====================================================================== -->
+<div class="screen" id="screen-onb-3">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+    <span class="word">Earnie<span class="dot">.</span></span>
+  </div>
+  <div class="progress-steps">
+    <div class="pstep done">✓</div>
+    <div class="pstep-line done"></div>
+    <div class="pstep done">✓</div>
+    <div class="pstep-line done"></div>
+    <div class="pstep active">3</div>
+  </div>
+  <div class="card">
+    <div class="onboard-label">Step 3 of 3</div>
+    <h1 class="card-title" id="onb3Title">What is she saving for?</h1>
+    <p class="card-sub">Pick a goal to get started</p>
+    <div class="goal-grid" id="goalGrid">
+      <div class="goal-opt sel" data-goal="🚲" data-label="A bike"><div class="em">🚲</div><div class="lab">A bike</div></div>
+      <div class="goal-opt" data-goal="🎮" data-label="New game"><div class="em">🎮</div><div class="lab">New game</div></div>
+      <div class="goal-opt" data-goal="🧸" data-label="A toy"><div class="em">🧸</div><div class="lab">A toy</div></div>
+      <div class="goal-opt" data-goal="📚" data-label="Books"><div class="em">📚</div><div class="lab">Books</div></div>
+      <div class="goal-opt" data-goal="🐶" data-label="Pet stuff"><div class="em">🐶</div><div class="lab">Pet stuff</div></div>
+      <div class="goal-opt" data-goal="❤️" data-label="Give back"><div class="em">❤️</div><div class="lab">Give back</div></div>
+    </div>
+    <div class="field" style="margin-top:4px">
+      <label>Roughly how much does it cost?</label>
+      <input type="number" id="onb-goal-amt" placeholder="e.g. 50" min="1" style="width:160px">
+    </div>
+    <div class="error-msg" id="onb3Error"></div>
+    <button class="green-btn" id="onb3Btn">Let's do this! 🎉</button>
+    <button class="ghost-btn" id="onb3Back">← Back</button>
+  </div>
+</div>
+
+<!-- =====================================================================
+     SCREEN 10 — WELCOME / ALL SET
+====================================================================== -->
+<div class="screen" id="screen-welcome">
+  <svg class="mascot-bounce" viewBox="0 0 120 140" style="width:130px;height:130px">
+    <use href="#m-penny-cheer"/>
+  </svg>
+  <div class="card" style="text-align:center">
+    <h1 class="card-title">You're all set! 🎉</h1>
+    <p class="card-sub" style="margin-bottom:0">Earnie is ready for your family</p>
+    <div class="welcome-summary" id="welcomeSummary">
+      <div class="wa" id="welcomeAva" style="background:var(--mint)">🧒</div>
+      <div>
+        <div class="wt" id="welcomeKidName">Mia</div>
+        <div class="ws" id="welcomeGoalLine">🚲 Saving for A bike</div>
+      </div>
+    </div>
+    <button class="green-btn" id="welcomeStartBtn">Start earning →</button>
+  </div>
+  <p class="foot-link" style="margin-top:18px">👨‍👩‍👧 <span id="welcomeFamilyName">The Rivera Family</span></p>
+</div>
+
+<!-- =====================================================================
+     SCREEN 2 — PROFILE SELECTION
+====================================================================== -->
+<div class="screen" id="screen-profile">
+
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+    <span class="word">Earnie<span class="dot">.</span></span>
+  </div>
+
+  <div class="card">
+    <h1 class="card-title">Who's playing today?</h1>
+    <p class="card-sub">Tap your profile to continue</p>
+
+    <div class="profiles-grid">
+
+      <!-- Parent -->
+      <div class="profile-card parent" id="parentCard">
+        <div class="profile-ava" style="background:var(--lav)">
+          🧑
+          <div class="pin-badge">🔒</div>
+        </div>
+        <div class="profile-name">Sam</div>
+        <div class="profile-role">Parent</div>
+      </div>
+
+      <!-- Kid: Mia -->
+      <div class="profile-card" id="kidCard1">
+        <div class="profile-ava" style="background:var(--mint)">🧒</div>
+        <div class="profile-name">Mia</div>
+        <div class="profile-role">Age 8</div>
+      </div>
+
+      <!-- Kid: Leo -->
+      <div class="profile-card" id="kidCard2">
+        <div class="profile-ava" style="background:var(--lemon)">👦</div>
+        <div class="profile-name">Leo</div>
+        <div class="profile-role">Age 11</div>
+      </div>
+
+      <!-- Add profile -->
+      <div class="add-profile" id="addProfile">
+        <div class="plus">+</div>
+        <div class="add-label">Add a kid</div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="signout-link" id="signOutLink">← Sign out</p>
+</div>
+
+
+<!-- =====================================================================
+     SCREEN 3 — PARENT PIN
+====================================================================== -->
+<div class="screen" id="screen-pin">
+
+  <button class="back-btn" id="pinBack"><span class="arr">‹</span> Back</button>
+
+  <div class="pin-header">
+    <div class="pin-ava">🧑</div>
+    <div class="pin-name">Hi, Sam 👋</div>
+    <div class="pin-prompt">Enter your 4-digit PIN</div>
+  </div>
+
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+
+  <div class="error-msg" id="pinError"></div>
+
+  <div class="pin-pad" id="pinPad">
+    <div class="pin-key" data-key="1">1<span class="sub"></span></div>
+    <div class="pin-key" data-key="2">2<span class="sub">ABC</span></div>
+    <div class="pin-key" data-key="3">3<span class="sub">DEF</span></div>
+    <div class="pin-key" data-key="4">4<span class="sub">GHI</span></div>
+    <div class="pin-key" data-key="5">5<span class="sub">JKL</span></div>
+    <div class="pin-key" data-key="6">6<span class="sub">MNO</span></div>
+    <div class="pin-key" data-key="7">7<span class="sub">PQRS</span></div>
+    <div class="pin-key" data-key="8">8<span class="sub">TUV</span></div>
+    <div class="pin-key" data-key="9">9<span class="sub">WXYZ</span></div>
+    <div class="pin-key empty"></div>
+    <div class="pin-key" data-key="0">0</div>
+    <div class="pin-key special" data-key="del">⌫</div>
+  </div>
+
+  <p class="pin-cancel" id="pinCancel">Use password instead</p>
+  <p class="pin-hint">Forgot PIN? <a id="resetPin">Reset it</a></p>
+
+</div>
+
+
+<script>
+  var CORRECT_PIN = '1234'; // demo PIN
+
+  // ---- screen helpers ----
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    var el = document.getElementById(id);
+    el.classList.add('active');
+  }
+
+  // ---- LOGIN ----
+  document.getElementById('pwToggle').addEventListener('click', function() {
+    var inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    this.textContent = inp.type === 'password' ? '👁️' : '🙈';
+  });
+
+  function doLogin() {
+    var email = document.getElementById('email').value.trim();
+    var pw    = document.getElementById('password').value;
+    var err   = document.getElementById('loginError');
+    if (!email) { err.textContent = 'Please enter your email address.'; return; }
+    if (!pw)    { err.textContent = 'Please enter your password.';  return; }
+    err.textContent = '';
+    show('screen-profile');
+  }
+
+  document.getElementById('signinBtn').addEventListener('click', doLogin);
+  document.getElementById('password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('googleBtn').addEventListener('click', function() {
+    document.getElementById('loginError').textContent = '';
+    show('screen-profile');
+  });
+  document.getElementById('signupLink').addEventListener('click', function() {
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('suError').textContent = '';
+    show('screen-signup');
+  });
+
+  // ---- SIGN UP ----
+  var onbState = { avatar:'🧒', parentName:'', familyName:'', kidName:'', kidAge:'', goal:'🚲', goalLabel:'A bike', goalAmt:'' };
+
+  document.getElementById('backToLoginLink').addEventListener('click', function() {
+    show('screen-login');
+  });
+
+  document.getElementById('suPwToggle').addEventListener('click', function() {
+    var inp = document.getElementById('su-pw');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    this.textContent = inp.type === 'password' ? '👁️' : '🙈';
+  });
+
+  document.getElementById('su-pw').addEventListener('input', function() {
+    var v = this.value;
+    var score = 0;
+    if (v.length >= 6)  score++;
+    if (v.length >= 10) score++;
+    if (/[A-Z]/.test(v) || /[0-9]/.test(v)) score++;
+    if (/[^a-zA-Z0-9]/.test(v) && v.length >= 8) score++;
+    var bars   = ['pb1','pb2','pb3','pb4'];
+    var labels = ['','Weak','Fair','Good','Strong'];
+    bars.forEach(function(id, i) {
+      var b = document.getElementById(id);
+      b.className = 'pw-bar' + (i < score ? ' s' + score : '');
+    });
+    document.getElementById('pwLabel').textContent = v.length ? labels[score] || 'Weak' : '';
+  });
+
+  document.getElementById('googleSignupBtn').addEventListener('click', function() {
+    document.getElementById('suError').textContent = '';
+    show('screen-onb-1');
+  });
+
+  document.getElementById('suSubmitBtn').addEventListener('click', function() {
+    var email = document.getElementById('su-email').value.trim();
+    var pw    = document.getElementById('su-pw').value;
+    var pw2   = document.getElementById('su-pw2').value;
+    var terms = document.getElementById('terms').checked;
+    var err   = document.getElementById('suError');
+    if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email address.'; return; }
+    if (pw.length < 6)  { err.textContent = 'Password must be at least 6 characters.'; return; }
+    if (pw !== pw2)     { err.textContent = 'Passwords don\'t match — please check.'; return; }
+    if (!terms)         { err.textContent = 'Please agree to the terms to continue.'; return; }
+    err.textContent = '';
+    show('screen-onb-1');
+  });
+
+  // ---- ONBOARD 1: FAMILY ----
+  document.getElementById('onb1Btn').addEventListener('click', function() {
+    var name = document.getElementById('onb-parent-name').value.trim();
+    var err  = document.getElementById('onb1Error');
+    if (!name) { err.textContent = 'Please enter your first name.'; return; }
+    err.textContent = '';
+    onbState.parentName  = name;
+    onbState.familyName  = document.getElementById('onb-family-name').value.trim() || 'The ' + name + ' Family';
+    show('screen-onb-2');
+  });
+
+  // ---- ONBOARD 2: KID ----
+  document.getElementById('avatarGrid').addEventListener('click', function(e) {
+    var opt = e.target.closest('.avatar-opt'); if (!opt) return;
+    this.querySelectorAll('.avatar-opt').forEach(function(x){ x.classList.remove('sel'); });
+    opt.classList.add('sel');
+    onbState.avatar = opt.dataset.avatar;
+  });
+
+  document.getElementById('onb2Btn').addEventListener('click', function() {
+    var name = document.getElementById('onb-kid-name').value.trim();
+    var age  = document.getElementById('onb-kid-age').value.trim();
+    var err  = document.getElementById('onb2Error');
+    if (!name) { err.textContent = 'Please enter your kid\'s name.'; return; }
+    if (!age || isNaN(age) || age < 4 || age > 17) { err.textContent = 'Please enter an age between 4 and 17.'; return; }
+    err.textContent = '';
+    onbState.kidName = name;
+    onbState.kidAge  = age;
+    // update goal screen title
+    var pronoun = ''; // keep neutral
+    document.getElementById('onb3Title').textContent = 'What is ' + name + ' saving for?';
+    show('screen-onb-3');
+  });
+  document.getElementById('onb2Back').addEventListener('click', function() { show('screen-onb-1'); });
+
+  // ---- ONBOARD 3: GOAL ----
+  document.getElementById('goalGrid').addEventListener('click', function(e) {
+    var opt = e.target.closest('.goal-opt'); if (!opt) return;
+    this.querySelectorAll('.goal-opt').forEach(function(x){ x.classList.remove('sel'); });
+    opt.classList.add('sel');
+    onbState.goal      = opt.dataset.goal;
+    onbState.goalLabel = opt.dataset.label;
+  });
+
+  document.getElementById('onb3Btn').addEventListener('click', function() {
+    var amt = document.getElementById('onb-goal-amt').value.trim();
+    var err = document.getElementById('onb3Error');
+    if (!amt || isNaN(amt) || Number(amt) < 1) { err.textContent = 'Please enter a target amount (e.g. 50).'; return; }
+    err.textContent = '';
+    onbState.goalAmt = amt;
+    // build welcome screen
+    document.getElementById('welcomeAva').textContent   = onbState.avatar;
+    document.getElementById('welcomeKidName').textContent  = onbState.kidName;
+    document.getElementById('welcomeGoalLine').textContent = onbState.goal + ' Saving for ' + onbState.goalLabel;
+    document.getElementById('welcomeFamilyName').textContent = onbState.familyName;
+    show('screen-welcome');
+  });
+  document.getElementById('onb3Back').addEventListener('click', function() { show('screen-onb-2'); });
+
+  // ---- WELCOME ----
+  document.getElementById('welcomeStartBtn').addEventListener('click', function() {
+    // Add the new kid to the profile grid
+    var grid   = document.querySelector('.profiles-grid');
+    var addBtn = document.getElementById('addProfile');
+    var newCard = document.createElement('div');
+    newCard.className = 'profile-card';
+    newCard.innerHTML =
+      '<div class="profile-ava" style="background:var(--mint)">' + onbState.avatar + '</div>' +
+      '<div class="profile-name">' + onbState.kidName + '</div>' +
+      '<div class="profile-role">Age ' + onbState.kidAge + '</div>';
+    newCard.addEventListener('click', function() {
+      flashProfile(newCard, function() { window.location.href = 'Earnie - Kid Web App.html'; });
+    });
+    grid.insertBefore(newCard, addBtn);
+    show('screen-profile');
+  });
+
+  // ---- FORGOT PASSWORD ----
+  document.getElementById('forgotLink').addEventListener('click', function() {
+    var email = document.getElementById('email').value.trim();
+    if (email) document.getElementById('resetEmail').value = email;
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('forgotError').textContent = '';
+    show('screen-forgot');
+  });
+  document.getElementById('forgotBack').addEventListener('click', function() {
+    show('screen-login');
+  });
+  document.getElementById('forgotCancelBtn').addEventListener('click', function() {
+    show('screen-login');
+  });
+
+  document.getElementById('sendResetBtn').addEventListener('click', function() {
+    var email = document.getElementById('resetEmail').value.trim();
+    var err = document.getElementById('forgotError');
+    if (!email || !email.includes('@')) {
+      err.textContent = 'Please enter a valid email address.';
+      return;
+    }
+    err.textContent = '';
+    document.getElementById('sentEmailDisplay').textContent = email;
+    show('screen-email-sent');
+    startResendCountdown();
+  });
+
+  document.getElementById('backToSigninBtn').addEventListener('click', function() {
+    show('screen-login');
+  });
+
+  var resendTimer = null;
+  function startResendCountdown() {
+    var btn = document.getElementById('resendBtn');
+    var cd  = document.getElementById('countdown');
+    var secs = 30;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.4';
+    cd.textContent = '(' + secs + 's)';
+    clearInterval(resendTimer);
+    resendTimer = setInterval(function() {
+      secs--;
+      if (secs <= 0) {
+        clearInterval(resendTimer);
+        btn.style.pointerEvents = '';
+        btn.style.opacity = '';
+        cd.textContent = '';
+      } else {
+        cd.textContent = '(' + secs + 's)';
+      }
+    }, 1000);
+  }
+  document.getElementById('resendBtn').addEventListener('click', function() {
+    if (this.style.pointerEvents === 'none') return;
+    startResendCountdown();
+  });
+
+  // ---- PROFILE SELECTION ----
+  document.getElementById('parentCard').addEventListener('click', function() {
+    resetPin();
+    show('screen-pin');
+  });
+  document.getElementById('kidCard1').addEventListener('click', function() {
+    // Navigate to Kid App (in real build, route to kid dashboard)
+    flashProfile(this, function() {
+      window.location.href = 'Earnie - Kid Web App.html';
+    });
+  });
+  document.getElementById('kidCard2').addEventListener('click', function() {
+    flashProfile(this, function() {
+      window.location.href = 'Earnie - Kid Web App.html';
+    });
+  });
+  document.getElementById('addProfile').addEventListener('click', function() {
+    alert('In the real app, this would open an "Add a kid" flow.');
+  });
+  document.getElementById('signOutLink').addEventListener('click', function() {
+    show('screen-login');
+  });
+
+  function flashProfile(card, cb) {
+    card.style.background = 'var(--green-tint)';
+    setTimeout(function() { card.style.background = ''; if (cb) cb(); }, 280);
+  }
+
+  // ---- PIN ----
+  var pinValue = '';
+
+  function resetPin() {
+    pinValue = '';
+    updateDots();
+    document.getElementById('pinError').textContent = '';
+  }
+
+  function updateDots() {
+    for (var i = 0; i < 4; i++) {
+      var d = document.getElementById('d' + i);
+      d.classList.toggle('filled', i < pinValue.length);
+      d.classList.remove('error');
+    }
+  }
+
+  function shakeError(msg) {
+    for (var i = 0; i < 4; i++) {
+      var d = document.getElementById('d' + i);
+      d.classList.remove('filled');
+      d.classList.add('error');
+    }
+    document.getElementById('pinError').textContent = msg;
+    setTimeout(function() {
+      for (var i = 0; i < 4; i++) {
+        document.getElementById('d' + i).classList.remove('error');
+      }
+      pinValue = '';
+      updateDots();
+    }, 700);
+  }
+
+  document.getElementById('pinPad').addEventListener('click', function(e) {
+    var key = e.target.closest('.pin-key');
+    if (!key || key.classList.contains('empty')) return;
+    var k = key.dataset.key;
+    if (k === 'del') {
+      pinValue = pinValue.slice(0, -1);
+      updateDots();
+      document.getElementById('pinError').textContent = '';
+    } else {
+      if (pinValue.length >= 4) return;
+      pinValue += k;
+      updateDots();
+      if (pinValue.length === 4) {
+        setTimeout(function() {
+          if (pinValue === CORRECT_PIN) {
+            // Navigate to Parent App
+            window.location.href = 'Earnie - Parent Web App.html';
+          } else {
+            shakeError('Wrong PIN — try again');
+          }
+        }, 150);
+      }
+    }
+  });
+
+  // keyboard support for PIN
+  document.addEventListener('keydown', function(e) {
+    var active = document.querySelector('.screen.active');
+    if (!active || active.id !== 'screen-pin') return;
+    if (e.key >= '0' && e.key <= '9') {
+      if (pinValue.length < 4) {
+        pinValue += e.key;
+        updateDots();
+        if (pinValue.length === 4) {
+          setTimeout(function() {
+            if (pinValue === CORRECT_PIN) {
+              window.location.href = 'Earnie - Parent Web App.html';
+            } else {
+              shakeError('Wrong PIN — try again');
+            }
+          }, 150);
+        }
+      }
+    } else if (e.key === 'Backspace') {
+      pinValue = pinValue.slice(0, -1);
+      updateDots();
+      document.getElementById('pinError').textContent = '';
+    }
+  });
+
+  document.getElementById('pinBack').addEventListener('click', function() {
+    resetPin();
+    show('screen-profile');
+  });
+  document.getElementById('pinCancel').addEventListener('click', function() {
+    resetPin();
+    show('screen-profile');
+  });
+  document.getElementById('resetPin').addEventListener('click', function() {
+    resetPin();
+    show('screen-login');
+  });
+</script>
+</body>
+</html>

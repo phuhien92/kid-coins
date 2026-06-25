@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earnie — Parent Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF8EF;--cream-card:#FCFAF3;--ink:#1C1B17;--ink-soft:#5C5A50;
+    --green:#2F7A55;--green-dk:#245F42;--green-tint:#CFE7D8;
+    --coin:#F4D34E;--coin-dk:#E3BE34;
+    --lav:#C7CAF4;--lav-dk:#9AA0EC;--purple:#7B6BE6;--purple-dk:#5E4FCB;
+    --mint:#C7E9D4;--peach:#F8D3B2;--lemon:#F7E68C;--lavpale:#DEE0FA;
+    --font-d:"Fredoka",system-ui,sans-serif;--font-b:"Nunito",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-b);color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;
+    background:var(--cream);
+    background-image:radial-gradient(circle at 14% 16%,rgba(199,202,244,.34),transparent 36%),
+      radial-gradient(circle at 86% 10%,rgba(199,233,212,.36),transparent 34%),
+      radial-gradient(circle at 82% 92%,rgba(248,211,178,.30),transparent 40%);}
+
+  .hdr{display:flex;align-items:center;gap:10px;}
+  .hdr .mark{width:32px;height:32px;}
+  .hdr .word{font-family:var(--font-d);font-weight:700;font-size:21px;}
+  .hdr .dot{color:var(--green);}
+  .hdr .tag{font-family:var(--font-d);font-weight:600;font-size:12px;background:var(--lavpale);color:var(--purple-dk);
+    border:2px solid var(--ink);border-radius:999px;padding:3px 11px;margin-left:4px;display:flex;align-items:center;gap:5px;}
+
+  .stagewrap{display:flex;align-items:center;gap:22px;}
+  .arrow{width:46px;height:46px;border-radius:50%;border:2.5px solid var(--ink);background:#fff;cursor:pointer;
+    font-size:20px;font-family:var(--font-d);font-weight:700;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 0 var(--ink);transition:transform .08s;}
+  .arrow:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);}
+  .arrow:disabled{opacity:.3;cursor:default;box-shadow:none;}
+
+  .phone{width:320px;height:680px;border:6px solid var(--ink);border-radius:44px;background:var(--cream-card);
+    position:relative;overflow:hidden;box-shadow:0 26px 50px -20px rgba(28,27,23,.45);}
+  .scr-stack{position:absolute;inset:0;}
+  .layer{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;
+    opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .32s ease,transform .32s ease,visibility .32s;}
+  .layer.active{opacity:1;visibility:visible;transform:none;}
+  .ppad{padding:18px 18px;}
+  .statusbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:800;flex:0 0 auto;}
+
+  .footer-note{font-size:12.5px;font-weight:700;color:var(--ink-soft);max-width:340px;text-align:center;}
+  .dots{display:flex;gap:7px;}
+  .dots i{width:8px;height:8px;border-radius:50%;background:rgba(28,27,23,.2);transition:all .2s;}
+  .dots i.on{background:var(--purple);width:20px;border-radius:5px;}
+
+  /* shared bits */
+  .avatar{width:42px;height:42px;border-radius:50%;border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:21px;flex:0 0 auto;}
+  .chipbtn{font-family:var(--font-d);font-weight:600;font-size:13px;border:2px solid var(--ink);border-radius:999px;padding:7px 13px;background:#fff;cursor:pointer;}
+  .greenbtn{font-family:var(--font-d);font-weight:600;font-size:16px;color:#fff;background:var(--green);border:2.5px solid var(--ink);border-radius:16px;padding:14px;width:100%;cursor:pointer;box-shadow:0 4px 0 var(--green-dk);transition:transform .08s,box-shadow .08s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .greenbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--green-dk);}
+  .purplebtn{font-family:var(--font-d);font-weight:600;font-size:16px;color:#fff;background:var(--purple);border:2.5px solid var(--ink);border-radius:16px;padding:14px;width:100%;cursor:pointer;box-shadow:0 4px 0 var(--purple-dk);transition:transform .08s,box-shadow .08s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .purplebtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--purple-dk);}
+  .ghostbtn{font-family:var(--font-d);font-weight:600;font-size:15px;color:var(--ink);background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:13px;width:100%;cursor:pointer;}
+  .coin{display:inline-block;width:1em;height:1em;border-radius:50%;background:var(--coin);border:1.6px solid var(--ink);vertical-align:-.14em;position:relative;box-shadow:inset -.12em -.12em 0 rgba(28,27,23,.12);}
+  .coin::after{content:"";position:absolute;inset:.18em;border-radius:50%;border:1px solid rgba(28,27,23,.45);}
+  .backbtn{width:34px;height:34px;border-radius:11px;border:2px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;font-weight:800;flex:0 0 auto;}
+  .scrollarea{overflow:auto;flex:1;}
+
+  /* ---- FAMILY ---- */
+  .topgreet{display:flex;align-items:center;justify-content:space-between;}
+  .parent-ava{width:46px;height:46px;border-radius:50%;border:2.5px solid var(--ink);background:var(--lav);display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .gear{width:40px;height:40px;border-radius:12px;border:2px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .summrow{display:flex;gap:10px;}
+  .summ{flex:1;border:2.5px solid var(--ink);border-radius:16px;padding:11px 13px;background:#fff;}
+  .summ small{font-size:10.5px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+  .summ b{font-family:var(--font-d);font-weight:700;font-size:22px;display:flex;align-items:center;gap:5px;margin-top:2px;}
+  .kidcard{border:2.5px solid var(--ink);border-radius:20px;background:#fff;padding:14px;margin-bottom:12px;cursor:pointer;transition:transform .1s;box-shadow:0 4px 0 rgba(28,27,23,.08);}
+  .kidcard:active{transform:scale(.99);}
+  .kidcard .top{display:flex;align-items:center;gap:11px;}
+  .kidcard .nm{font-family:var(--font-d);font-weight:600;font-size:17px;}
+  .kidcard .age{font-size:12px;font-weight:800;color:var(--ink-soft);}
+  .goalchip{margin-left:auto;font-family:var(--font-d);font-weight:600;font-size:12px;background:var(--green-tint);border:2px solid var(--ink);border-radius:999px;padding:4px 11px;display:flex;align-items:center;gap:5px;}
+  .pbar{height:11px;border:2px solid var(--ink);border-radius:999px;background:var(--lavpale);overflow:hidden;margin-top:11px;}
+  .pbar i{display:block;height:100%;background:var(--coin);}
+  .pmeta{display:flex;align-items:center;justify-content:space-between;margin-top:7px;font-size:12px;font-weight:800;color:var(--ink-soft);}
+  .pmeta .v{color:var(--green-dk);display:flex;align-items:center;gap:4px;}
+  .addgoal{border:2.5px dashed var(--purple);border-radius:18px;background:var(--lavpale);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+  .addgoal .ic{width:42px;height:42px;border-radius:50%;border:2.5px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .addgoal b{font-family:var(--font-d);font-weight:600;font-size:15.5px;display:block;}
+  .addgoal p{font-size:12px;font-weight:700;color:var(--ink-soft);margin:2px 0 0;}
+
+  /* ---- CHAT ---- */
+  .chathead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:2px solid rgba(28,27,23,.1);flex:0 0 auto;}
+  .ai-ava{width:38px;height:38px;border-radius:50%;border:2.5px solid var(--ink);background:var(--lav);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .chathead .nm{font-family:var(--font-d);font-weight:600;font-size:16px;line-height:1;}
+  .chathead .for{font-size:11.5px;font-weight:800;color:var(--purple-dk);display:flex;align-items:center;gap:4px;margin-top:3px;}
+  .chatbody{flex:1;overflow:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px;}
+  .bub{max-width:80%;padding:11px 14px;border:2px solid var(--ink);font-size:13.5px;font-weight:600;line-height:1.4;border-radius:16px;}
+  .bub.ai{align-self:flex-start;background:#fff;border-bottom-left-radius:5px;}
+  .bub.me{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:5px;}
+  .bub.plan{background:var(--lavpale);border-color:var(--ink);}
+  .typing{align-self:flex-start;background:#fff;border:2px solid var(--ink);border-radius:16px;border-bottom-left-radius:5px;padding:13px 15px;display:flex;gap:5px;}
+  .typing span{width:7px;height:7px;border-radius:50%;background:var(--purple);animation:blink 1.2s infinite;}
+  .typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+  .quickrow{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px 4px;flex:0 0 auto;}
+  .quick{font-family:var(--font-d);font-weight:600;font-size:13px;border:2px solid var(--ink);border-radius:999px;padding:8px 14px;background:#fff;cursor:pointer;box-shadow:0 3px 0 rgba(28,27,23,.12);transition:transform .08s;}
+  .quick:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(28,27,23,.12);}
+  .quick.go{background:var(--purple);color:#fff;border-color:var(--ink);box-shadow:0 3px 0 var(--purple-dk);}
+  .inputbar{display:flex;align-items:center;gap:9px;padding:12px 14px;border-top:2px solid rgba(28,27,23,.1);flex:0 0 auto;}
+  .inputbar .realinput{flex:1;border:2px solid var(--ink);border-radius:999px;padding:10px 15px;font-size:13px;font-weight:700;color:var(--ink);background:#fff;font-family:var(--font-b);outline:none;}
+  .inputbar .realinput::placeholder{color:var(--ink-soft);font-weight:700;}
+  .inputbar .realinput:focus{border-color:var(--purple);}
+  .sendbtn{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--ink);background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex:0 0 auto;}
+
+  /* approvals inbox */
+  .approvebox{border:2.5px solid var(--ink);border-radius:18px;background:#fff;overflow:hidden;margin-bottom:14px;box-shadow:0 4px 0 var(--coin-dk);}
+  .approvebox .ahead{background:var(--coin);padding:9px 14px;font-family:var(--font-d);font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:7px;border-bottom:2px solid var(--ink);}
+  .approvebox .abadge{margin-left:auto;background:var(--ink);color:var(--cream);font-size:11px;border-radius:999px;padding:1px 8px;}
+  .areq{display:flex;align-items:center;gap:11px;padding:12px 14px;}
+  .areq .ava{width:38px;height:38px;border-radius:50%;border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto;}
+  .areq .mid b{font-family:var(--font-d);font-weight:600;font-size:14px;display:block;}
+  .areq .mid small{font-size:11.5px;font-weight:800;color:var(--ink-soft);}
+  .areq .cost{font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--green-dk);display:flex;align-items:center;gap:4px;}
+  .areq .acts{display:flex;gap:8px;padding:0 14px 12px;}
+  .areq-wrap{border-top:2px solid rgba(28,27,23,.08);}
+  .areq-wrap:first-child{border-top:none;}
+  .miniyes{flex:1;font-family:var(--font-d);font-weight:600;font-size:13px;border:2px solid var(--ink);border-radius:999px;padding:7px;background:var(--green);color:#fff;cursor:pointer;box-shadow:0 3px 0 var(--green-dk);}
+  .miniyes:active{transform:translateY(2px);box-shadow:0 1px 0 var(--green-dk);}
+  .minino{flex:0 0 auto;font-family:var(--font-d);font-weight:600;font-size:13px;border:2px solid var(--ink);border-radius:999px;padding:7px 16px;background:#fff;color:var(--ink-soft);cursor:pointer;}
+
+  /* ---- RECOMMENDATION / ROADMAP ---- */
+  .sectlabel{font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;}
+  .aireccard{border:2.5px solid var(--ink);border-radius:20px;background:#fff;overflow:hidden;}
+  .aireccard .rhead{background:var(--purple);color:#fff;padding:13px 15px;display:flex;align-items:center;gap:10px;}
+  .aireccard .rhead .ai-ava{background:var(--lav);}
+  .aireccard .rhead b{font-family:var(--font-d);font-weight:600;font-size:15px;line-height:1.15;}
+  .goalbanner{display:flex;align-items:center;gap:12px;padding:14px 15px;border-bottom:2px solid rgba(28,27,23,.1);}
+  .goalbanner .em{width:48px;height:48px;border-radius:14px;border:2.5px solid var(--ink);background:var(--peach);display:flex;align-items:center;justify-content:center;font-size:26px;flex:0 0 auto;}
+  .goalbanner .ttl{font-family:var(--font-d);font-weight:600;font-size:18px;line-height:1.1;}
+  .goalbanner .sub{font-size:12px;font-weight:800;color:var(--ink-soft);margin-top:2px;}
+  .statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;}
+  .statgrid .st{padding:12px 6px;text-align:center;border-right:2px solid rgba(28,27,23,.1);}
+  .statgrid .st:last-child{border-right:none;}
+  .statgrid .st b{font-family:var(--font-d);font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;gap:3px;}
+  .statgrid .st small{font-size:10px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;display:block;margin-top:2px;}
+
+  .taskline{display:flex;align-items:center;gap:11px;border:2px solid var(--ink);border-radius:14px;background:#fff;padding:10px 12px;margin-bottom:9px;}
+  .taskline .ic{width:38px;height:38px;border-radius:11px;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto;}
+  .taskline .mid{flex:1;min-width:0;}
+  .taskline .mid b{font-family:var(--font-d);font-weight:600;font-size:14px;display:block;}
+  .taskline .mid small{font-size:11px;font-weight:800;color:var(--green);display:flex;align-items:center;gap:4px;margin-top:1px;}
+  .tog{width:44px;height:26px;border-radius:999px;border:2.5px solid var(--ink);background:#fff;position:relative;cursor:pointer;flex:0 0 auto;transition:background .15s;}
+  .tog i{position:absolute;top:1.5px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--ink);transition:left .15s;}
+  .tog.on{background:var(--green);}
+  .tog.on i{left:20px;background:#fff;}
+
+  .rmilestone{position:relative;padding-left:32px;}
+  .rmilestone::before{content:"";position:absolute;left:12px;top:6px;bottom:10px;width:3px;background:repeating-linear-gradient(var(--ink),var(--ink) 5px,transparent 5px,transparent 9px);}
+  .rms{position:relative;margin-bottom:13px;}
+  .rms .dot{position:absolute;left:-32px;top:0;width:26px;height:26px;border-radius:50%;border:2.5px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;}
+  .rms.now .dot{background:var(--coin);}
+  .rms b{font-family:var(--font-d);font-weight:600;font-size:14.5px;}
+  .rms p{font-size:12px;color:var(--ink-soft);font-weight:700;margin:1px 0 0;}
+
+  .editrow{display:flex;align-items:center;gap:10px;border:2px solid var(--ink);border-radius:14px;background:#fff;padding:11px 13px;margin-bottom:10px;}
+  .editrow .lbl{font-family:var(--font-d);font-weight:600;font-size:13px;color:var(--ink-soft);flex:0 0 84px;}
+  .editrow .val{font-family:var(--font-d);font-weight:600;font-size:15px;margin-left:auto;display:flex;align-items:center;gap:5px;}
+  .editrow .pen{font-size:13px;opacity:.5;}
+
+  /* ---- CONFIRM ---- */
+  .celebrate{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;}
+  .conf{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+  .conf i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:fall linear infinite;}
+  @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:0;}10%{opacity:1;}100%{transform:translateY(600px) rotate(420deg);opacity:.9;}}
+  .cheer{width:150px;height:150px;animation:bounce 1.4s ease-in-out infinite;}
+  @keyframes bounce{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-12px) rotate(4deg);}}
+  .well{font-family:var(--font-d);font-weight:700;font-size:32px;text-transform:uppercase;margin-top:4px;line-height:1;}
+  .donecard{border:2.5px solid var(--ink);border-radius:16px;background:#fff;padding:13px 15px;width:100%;text-align:left;display:flex;align-items:center;gap:11px;}
+
+  .toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--cream);
+    font-family:var(--font-d);font-weight:600;font-size:13.5px;padding:11px 18px;border-radius:999px;opacity:0;transition:all .3s;pointer-events:none;z-index:20;display:flex;align-items:center;gap:7px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- mascot sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="m-penny" viewBox="0 0 100 100">
+    <circle cx="50" cy="51" r="40" fill="#F4D34E" stroke="#1C1B17" stroke-width="4.5"/>
+    <path d="M50 11 a40 40 0 0 1 0 80" fill="none" stroke="#1C1B17" stroke-width="4.5" opacity=".25"/>
+    <circle cx="50" cy="51" r="32" fill="none" stroke="#1C1B17" stroke-width="2.4" opacity=".35"/>
+    <path d="M33 46 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M55 46 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M37 58 q13 13 26 0" fill="none" stroke="#1C1B17" stroke-width="4.2" stroke-linecap="round"/>
+    <circle cx="35" cy="62" r="4" fill="#F0A6A0" opacity=".7"/><circle cx="65" cy="62" r="4" fill="#F0A6A0" opacity=".7"/>
+  </symbol>
+  <symbol id="m-penny-cheer" viewBox="0 0 120 140">
+    <path d="M52 96 q-8 18 -16 24" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M68 96 q10 16 6 30" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M30 64 q-16 -10 -20 -28" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M90 64 q18 -8 24 -26" fill="none" stroke="#1C1B17" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="10" cy="36" r="4.5" fill="#F4D34E" stroke="#1C1B17" stroke-width="3"/>
+    <circle cx="114" cy="38" r="4.5" fill="#F4D34E" stroke="#1C1B17" stroke-width="3"/>
+    <circle cx="60" cy="58" r="38" fill="#F4D34E" stroke="#1C1B17" stroke-width="4.5"/>
+    <path d="M60 20 a38 38 0 0 1 0 76" fill="none" stroke="#1C1B17" stroke-width="4.5" opacity=".25"/>
+    <path d="M44 52 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M64 52 q6 -8 12 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M46 62 q14 16 28 0" fill="#1C1B17"/><path d="M52 70 q8 6 16 0" fill="#F0A6A0"/>
+  </symbol>
+  <symbol id="m-lumi" viewBox="0 0 100 100">
+    <path d="M50 14 C74 14 86 32 86 54 C86 78 70 90 50 90 C30 90 14 78 14 54 C14 32 26 14 50 14 Z" fill="#C7CAF4" stroke="#1C1B17" stroke-width="4.5"/>
+    <path d="M34 50 q6 -7 12 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M54 50 q6 -7 12 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M38 60 q12 12 24 0" fill="none" stroke="#1C1B17" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="36" cy="64" r="3.6" fill="#A98CE0" opacity=".7"/><circle cx="64" cy="64" r="3.6" fill="#A98CE0" opacity=".7"/>
+  </symbol>
+</defs></svg>
+
+<div class="hdr">
+  <svg class="mark" viewBox="0 0 100 100"><use href="#m-penny"/></svg>
+  <span class="word">Earnie<span class="dot">.</span></span>
+  <span class="tag">🛡️ Parent mode</span>
+</div>
+
+<div class="stagewrap">
+  <button class="arrow" id="prev">‹</button>
+  <div class="phone"><div class="scr-stack" id="stack">
+
+    <!-- 1. FAMILY -->
+    <div class="layer" data-screen="family">
+      <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="ppad" style="flex:1;display:flex;flex-direction:column;gap:15px;overflow:hidden;">
+        <div class="topgreet">
+          <div style="display:flex;align-items:center;gap:11px;">
+            <div class="parent-ava">🧑</div>
+            <div>
+              <div style="font-family:var(--font-d);font-weight:600;font-size:18px;line-height:1">Hi, Sam</div>
+              <div style="font-size:12px;font-weight:800;color:var(--ink-soft);margin-top:2px">2 kids · 3 active goals</div>
+            </div>
+          </div>
+          <div class="gear">⚙️</div>
+        </div>
+
+        <div class="summrow">
+          <div class="summ"><small>Family saved</small><b><span class="coin"></span> 4,180</b></div>
+          <div class="summ"><small>This week</small><b style="color:var(--green-dk)">+520</b></div>
+        </div>
+
+        <div class="scrollarea">
+          <div class="approvebox" id="approveBox">
+            <div class="ahead">⏳ Needs your OK <span class="abadge" id="appCount">1</span></div>
+            <div id="appList">
+              <div class="areq-wrap" data-req="leo-movie">
+                <div class="areq">
+                  <div class="ava" style="background:var(--lemon)">👦</div>
+                  <div class="mid"><b>Leo wants Movie night pick</b><small>Reward redemption</small></div>
+                  <div class="cost"><span class="coin"></span> 450</div>
+                </div>
+                <div class="acts">
+                  <button class="miniyes" data-approve="leo-movie">✓ Approve</button>
+                  <button class="minino" data-decline="leo-movie">Not now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sectlabel" style="margin-bottom:9px">Your kids</div>
+
+          <div class="kidcard" data-go="chat" data-kid="Mia">
+            <div class="top">
+              <div class="avatar" style="background:var(--mint)">🧒</div>
+              <div><div class="nm">Mia</div><div class="age">Age 8</div></div>
+              <div class="goalchip">🚲 Bike fund</div>
+            </div>
+            <div class="pbar"><i style="width:48%"></i></div>
+            <div class="pmeta"><span>48% of goal</span><span class="v"><span class="coin"></span> 1,200 / 2,500</span></div>
+          </div>
+
+          <div class="kidcard" data-go="chat" data-kid="Leo">
+            <div class="top">
+              <div class="avatar" style="background:var(--lemon)">👦</div>
+              <div><div class="nm">Leo</div><div class="age">Age 11</div></div>
+              <div class="goalchip">🎧 Headphones</div>
+            </div>
+            <div class="pbar"><i style="width:72%"></i></div>
+            <div class="pmeta"><span>72% of goal</span><span class="v"><span class="coin"></span> 2,160 / 3,000</span></div>
+          </div>
+
+          <div class="addgoal" data-go="chat" data-kid="Mia">
+            <div class="ic"><svg width="26" height="26"><use href="#m-lumi"/></svg></div>
+            <div>
+              <b>Set a goal with Earnie AI</b>
+              <p>Chat to build a savings roadmap for any kid</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="toast" id="famToast"></div>
+    </div>
+
+    <!-- 2. AI COACH CHAT -->
+    <div class="layer" data-screen="chat">
+      <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="chathead">
+        <div class="backbtn" data-go="family">‹</div>
+        <div class="ai-ava"><svg width="24" height="24"><use href="#m-lumi"/></svg></div>
+        <div>
+          <div class="nm">Earnie AI Coach</div>
+          <div class="for">🛡️ Setting a goal for <span id="chatKid">Mia</span></div>
+        </div>
+      </div>
+      <div class="chatbody" id="chatBody"></div>
+      <div class="quickrow" id="quickRow"></div>
+      <div class="inputbar">
+        <input class="realinput" id="chatInput" placeholder="Type your own answer…" autocomplete="off">
+        <div class="sendbtn" id="sendBtn">↑</div>
+      </div>
+    </div>
+
+    <!-- 3. RECOMMENDATION -->
+    <div class="layer" data-screen="recommend">
+      <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="chathead" style="border:none;padding-bottom:6px">
+        <div class="backbtn" data-go="chat">‹</div>
+        <div style="font-family:var(--font-d);font-weight:600;font-size:18px">Earnie's plan</div>
+      </div>
+      <div class="ppad" style="flex:1;display:flex;flex-direction:column;gap:13px;overflow:auto;padding-top:4px">
+        <div class="aireccard">
+          <div class="rhead">
+            <div class="ai-ava"><svg width="22" height="22"><use href="#m-lumi"/></svg></div>
+            <b>I built a plan to get Mia to her new bike in about 12 weeks ✨</b>
+          </div>
+          <div class="goalbanner">
+            <div class="em">🚲</div>
+            <div><div class="ttl">New bike fund</div><div class="sub">For Mia · age 8</div></div>
+          </div>
+          <div class="statgrid">
+            <div class="st"><b><span class="coin"></span>2,500</b><small>Target</small></div>
+            <div class="st"><b>~12 wk</b><small>Timeline</small></div>
+            <div class="st"><b>210/wk</b><small>Pace</small></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sectlabel" style="margin-bottom:8px">Recommended weekly tasks</div>
+          <div class="taskline"><div class="ic" style="background:var(--mint)">🐕</div><div class="mid"><b>Walk the dog</b><small><span class="coin"></span> +12 · daily</small></div><div style="font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--green-dk)">84/wk</div></div>
+          <div class="taskline"><div class="ic" style="background:var(--peach)">🛏️</div><div class="mid"><b>Make your bed</b><small><span class="coin"></span> +6 · daily</small></div><div style="font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--green-dk)">42/wk</div></div>
+          <div class="taskline"><div class="ic" style="background:var(--lemon)">📚</div><div class="mid"><b>Read 20 minutes</b><small><span class="coin"></span> +10 · 4×/wk</small></div><div style="font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--green-dk)">40/wk</div></div>
+          <div class="taskline"><div class="ic" style="background:var(--lav)">🧹</div><div class="mid"><b>Tidy room</b><small><span class="coin"></span> +15 · weekly</small></div><div style="font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--green-dk)">45/wk</div></div>
+        </div>
+
+        <div class="bub plan" style="max-width:100%;font-size:12.5px">💡 <b>Tip:</b> This pace is gentle for an 8-year-old. You can fine-tune tasks and milestones next.</div>
+      </div>
+      <div class="ppad" style="padding-top:6px;display:flex;gap:10px">
+        <button class="ghostbtn" style="flex:1" data-go="chat">Adjust</button>
+        <button class="purplebtn" style="flex:1.4" data-go="roadmap">Build roadmap →</button>
+      </div>
+    </div>
+
+    <!-- 4. ROADMAP BUILDER -->
+    <div class="layer" data-screen="roadmap">
+      <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="chathead" style="border:none;padding-bottom:6px">
+        <div class="backbtn" data-go="recommend">‹</div>
+        <div style="font-family:var(--font-d);font-weight:600;font-size:18px">Build the roadmap</div>
+      </div>
+      <div class="ppad" style="flex:1;display:flex;flex-direction:column;gap:14px;overflow:auto;padding-top:4px">
+        <div>
+          <div class="sectlabel" style="margin-bottom:8px">Goal details</div>
+          <div class="editrow"><span class="lbl">Goal</span><span class="val">🚲 New bike <span class="pen">✏️</span></span></div>
+          <div class="editrow"><span class="lbl">Target</span><span class="val"><span class="coin"></span> 2,500 <span class="pen">✏️</span></span></div>
+          <div class="editrow"><span class="lbl">Deadline</span><span class="val">12 weeks <span class="pen">✏️</span></span></div>
+        </div>
+
+        <div>
+          <div class="sectlabel" style="margin-bottom:8px">Tasks <span style="color:var(--ink-soft);font-weight:700;text-transform:none">· toggle what Mia does</span></div>
+          <div class="taskline"><div class="ic" style="background:var(--mint)">🐕</div><div class="mid"><b>Walk the dog</b><small><span class="coin"></span> +12 · daily</small></div><div class="tog on" data-tog><i></i></div></div>
+          <div class="taskline"><div class="ic" style="background:var(--peach)">🛏️</div><div class="mid"><b>Make your bed</b><small><span class="coin"></span> +6 · daily</small></div><div class="tog on" data-tog><i></i></div></div>
+          <div class="taskline"><div class="ic" style="background:var(--lemon)">📚</div><div class="mid"><b>Read 20 minutes</b><small><span class="coin"></span> +10 · 4×/wk</small></div><div class="tog on" data-tog><i></i></div></div>
+          <div class="taskline"><div class="ic" style="background:var(--lav)">🧹</div><div class="mid"><b>Tidy room</b><small><span class="coin"></span> +15 · weekly</small></div><div class="tog" data-tog><i></i></div></div>
+        </div>
+
+        <div>
+          <div class="sectlabel" style="margin-bottom:10px">Milestones</div>
+          <div class="rmilestone">
+            <div class="rms now"><div class="dot">★</div><b>Week 4 · 800 coins</b><p>Unlock a “halfway” badge</p></div>
+            <div class="rms"><div class="dot">2</div><b>Week 8 · 1,700 coins</b><p>Pick the bike colour together</p></div>
+            <div class="rms"><div class="dot">🎉</div><b>Week 12 · 2,500 coins</b><p>Bike day — goal complete!</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppad" style="padding-top:6px"><button class="greenbtn" data-go="confirm">Activate roadmap for Mia ✓</button></div>
+      <div class="toast" id="rmToast"></div>
+    </div>
+
+    <!-- 5. CONFIRM -->
+    <div class="layer" data-screen="confirm">
+      <div class="statusbar"><span>9:41</span><span></span></div>
+      <div class="celebrate ppad">
+        <div class="conf" id="confetti"></div>
+        <svg class="cheer" viewBox="0 0 120 140"><use href="#m-penny-cheer"/></svg>
+        <div class="well">Roadmap live!</div>
+        <p style="font-size:14px;font-weight:700;color:var(--ink-soft);max-width:26ch;line-height:1.4;margin:0">Mia's bike plan is set. She'll see her new tasks the next time she opens Earnie.</p>
+        <div class="donecard" style="margin-top:6px">
+          <div class="avatar" style="background:var(--mint)">🧒</div>
+          <div style="flex:1">
+            <div style="font-family:var(--font-d);font-weight:600;font-size:15px">New bike · 🚲</div>
+            <div style="font-size:11.5px;font-weight:800;color:var(--ink-soft)">3 tasks · 12-week roadmap</div>
+          </div>
+          <div style="font-family:var(--font-d);font-weight:700;color:var(--green-dk);font-size:13px">Active</div>
+        </div>
+      </div>
+      <div class="ppad" style="padding-top:0;display:flex;gap:10px">
+        <button class="ghostbtn" style="flex:1" data-go="chat">Set another</button>
+        <button class="purplebtn" style="flex:1.2" data-go="family">Back to family</button>
+      </div>
+    </div>
+
+  </div></div>
+  <button class="arrow" id="next">›</button>
+</div>
+
+<div class="dots" id="dots"></div>
+<p class="footer-note">Tap a kid to chat with Earnie AI, build their savings roadmap, then activate it — or use ‹ › to walk the flow.</p>
+
+<script>
+  var ORDER=['family','chat','recommend','roadmap','confirm'];
+  var current='family';
+
+  function show(id){
+    if(ORDER.indexOf(id)<0)return;
+    current=id;
+    document.querySelectorAll('.layer').forEach(function(l){l.classList.toggle('active',l.dataset.screen===id);});
+    var idx=ORDER.indexOf(id);
+    document.querySelectorAll('#dots i').forEach(function(d,i){d.classList.toggle('on',i===idx);});
+    document.getElementById('prev').disabled=idx<=0;
+    document.getElementById('next').disabled=idx>=ORDER.length-1;
+    if(id==='chat')startChat();
+    if(id==='confirm')makeConfetti();
+  }
+
+  // dots
+  var dotsEl=document.getElementById('dots');
+  ORDER.forEach(function(){var i=document.createElement('i');dotsEl.appendChild(i);});
+
+  // nav
+  document.addEventListener('click',function(e){
+    var go=e.target.closest('[data-go]');
+    if(go){
+      var kid=go.dataset.kid;
+      if(kid)document.getElementById('chatKid').textContent=kid;
+      show(go.dataset.go);
+    }
+    var tog=e.target.closest('[data-tog]');
+    if(tog){
+      tog.classList.toggle('on');
+      var t=document.getElementById('rmToast');
+      t.innerHTML=tog.classList.contains('on')?'✓ Task added to plan':'Task removed';
+      t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1600);
+    }
+    var ap=e.target.closest('[data-approve]'), dec=e.target.closest('[data-decline]');
+    if(ap||dec){
+      var key=(ap||dec).dataset.approve||(ap||dec).dataset.decline;
+      var wrap=document.querySelector('[data-req="'+key+'"]');
+      if(wrap)wrap.remove();
+      var list=document.getElementById('appList');
+      var box=document.getElementById('approveBox');
+      if(list && !list.querySelector('.areq-wrap'))box.style.display='none';
+      famToast(ap?'✓ Approved — 450 coins sent to Leo':'Declined — Leo keeps the coins');
+    }
+  });
+
+  function famToast(msg){
+    var t=document.getElementById('famToast');t.textContent=msg;t.classList.add('show');
+    clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1900);
+  }
+
+  // ---- CHAT ENGINE ----
+  var SCRIPT=[
+    {ai:"Hi Sam! 👋 Let's set a goal for <b id='k'></b>. What's the big picture you have in mind?",
+     chips:["💰 Save for something","🔁 Build a habit","📚 Learn about money","❤️ Give back"]},
+    {ai:"Love it 💚 What is she saving up for?",
+     chips:["🚲 A new bike","🎮 A game console","✈️ A school trip","✍️ Type my own"]},
+    {ai:"Nice choice! Roughly what does it cost?",
+     chips:["About $80","About $150","About $250","Not sure yet"]},
+    {ai:"Got it. And by when would she like to reach it?",
+     chips:["In 1 month","In 3 months","In 6 months","No deadline"]},
+    {ai:"Perfect. I'll turn that into <b>2,500 coins over ~12 weeks</b> with chores Mia can handle — gentle and achievable. Ready to see the plan?",
+     chips:["✨ See recommended plan"],go:"recommend"}
+  ];
+  var chatStarted=false, step=0, awaiting=null;
+  var body=document.getElementById('chatBody'), quick=document.getElementById('quickRow');
+  var chatInput=document.getElementById('chatInput');
+
+  function startChat(){
+    if(chatStarted)return; chatStarted=true; step=0; awaiting=null;
+    body.innerHTML=''; quick.innerHTML=''; if(chatInput)chatInput.value='';
+    aiSay(0);
+  }
+  function scrollChat(){body.scrollTop=body.scrollHeight;}
+  function aiSay(i){
+    quick.innerHTML='';
+    var typing=document.createElement('div');typing.className='typing';typing.innerHTML='<span></span><span></span><span></span>';
+    body.appendChild(typing);scrollChat();
+    setTimeout(function(){
+      typing.remove();
+      var b=document.createElement('div');b.className='bub ai';b.innerHTML=SCRIPT[i].ai;
+      body.appendChild(b);
+      var k=b.querySelector('#k'); if(k)k.textContent=document.getElementById('chatKid').textContent;
+      scrollChat();
+      showChips(i);
+    },820);
+  }
+  function showChips(i){
+    quick.innerHTML=''; awaiting=i;
+    SCRIPT[i].chips.forEach(function(label){
+      var c=document.createElement('div');
+      c.className='quick'+(SCRIPT[i].go?' go':'');
+      c.textContent=label;
+      c.addEventListener('click',function(){
+        if(/Type my own/.test(label)){ if(chatInput)chatInput.focus(); return; }
+        if(SCRIPT[i].go){show(SCRIPT[i].go);return;}
+        advance(i,label);
+      });
+      quick.appendChild(c);
+    });
+    scrollChat();
+  }
+
+  function advance(i,label){
+    var me=document.createElement('div');me.className='bub me';me.textContent=label;
+    body.appendChild(me);quick.innerHTML='';awaiting=null;scrollChat();
+    step=i+1;
+    if(step<SCRIPT.length)setTimeout(function(){aiSay(step);},340);
+  }
+
+  function sendTyped(){
+    var txt=chatInput.value.trim(); if(!txt||awaiting==null)return;
+    var i=awaiting; chatInput.value='';
+    if(SCRIPT[i].go){ var me=document.createElement('div');me.className='bub me';me.textContent=txt;body.appendChild(me);scrollChat();show(SCRIPT[i].go);return; }
+    advance(i,txt);
+  }
+  document.getElementById('sendBtn').addEventListener('click',sendTyped);
+  chatInput.addEventListener('keydown',function(e){if(e.key==='Enter')sendTyped();});
+
+  // confetti
+  function makeConfetti(){
+    var c=document.getElementById('confetti');c.innerHTML='';
+    var cols=['#2F7A55','#F4D34E','#7B6BE6','#C7CAF4','#F8D3B2','#C7E9D4'];
+    for(var i=0;i<26;i++){var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+      s.style.animationDuration=(2.2+Math.random()*1.8)+'s';s.style.animationDelay=(Math.random()*1.4)+'s';
+      if(Math.random()>.5)s.style.borderRadius='50%';c.appendChild(s);}
+  }
+
+  // arrows + keys
+  document.getElementById('prev').addEventListener('click',function(){var i=ORDER.indexOf(current);if(i>0)show(ORDER[i-1]);});
+  document.getElementById('next').addEventListener('click',function(){var i=ORDER.indexOf(current);if(i<ORDER.length-1)show(ORDER[i+1]);});
+  document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')document.getElementById('prev').click();if(e.key==='ArrowRight')document.getElementById('next').click();});
+
+  // reset chat when leaving so re-entry restarts cleanly
+  var _origShow=show;
+  show=function(id){ if(id!=='chat')chatStarted=false; _origShow(id); };
+
+  show('family');
+</script>
+</body>
+</html>
