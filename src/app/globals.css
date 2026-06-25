@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Earnie color palette ── */
+  --color-cream: #FBF8EF;
+  --color-cream-card: #FCFAF3;
+  --color-ink: #1C1B17;
+  --color-ink-soft: #5C5A50;
+  --color-line: rgba(28, 27, 23, 0.12);
+
+  --color-green: #2F7A55;
+  --color-green-dk: #245F42;
+  --color-green-tint: #CFE7D8;
+
+  --color-purple: #7B6BE6;
+  --color-purple-dk: #5E4FCB;
+  --color-lav-pale: #DEE0FA;
+  --color-lav: #C7CAF4;
+
+  --color-coin: #F4D34E;
+  --color-coin-dk: #E3BE34;
+  --color-mint: #C7E9D4;
+  --color-peach: #F8D3B2;
+  --color-lemon: #F7E68C;
+  --color-coral: #F0A6A0;
+  --color-sky: #CDE7F2;
+
+  /* ── Border radius ── */
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+
+  /* ── Shadow ── */
+  --shadow-card: 0 10px 26px -14px rgba(28, 27, 23, 0.30);
+
+  /* ── Font families (loaded in layout.tsx via next/font) ── */
+  --font-display: var(--font-fredoka);
+  --font-body: var(--font-nunito);
+}
+
+:root {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body), Nunito, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
