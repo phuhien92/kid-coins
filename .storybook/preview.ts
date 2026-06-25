@@ -6,9 +6,9 @@ const preview: Preview = {
     backgrounds: {
       default: "cream",
       values: [
-        { name: "cream", value: "#FBF8EF" },
+        { name: "cream", value: "var(--color-cream)" },
         { name: "white", value: "#ffffff" },
-        { name: "ink", value: "#1C1B17" },
+        { name: "ink", value: "var(--color-ink)" },
       ],
     },
     viewport: {

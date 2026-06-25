@@ -138,6 +138,15 @@ export const streaks = pgTable("streaks", {
   lastCompletedDate: timestamp("last_completed_date"),
 });
 
+export const badges = pgTable("badges", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  kidId: uuid("kid_id")
+    .notNull()
+    .references(() => kidProfiles.id, { onDelete: "cascade" }),
+  slug: text("slug").notNull(),
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+});
+
 // ── Relations ──
 
 export const familiesRelations = relations(families, ({ many }) => ({
@@ -150,11 +159,39 @@ export const kidProfilesRelations = relations(kidProfiles, ({ one, many }) => ({
     fields: [kidProfiles.familyId],
     references: [families.id],
   }),
-  character: one(characters),
+  character: one(characters, {
+    fields: [kidProfiles.id],
+    references: [characters.kidId],
+  }),
   tasks: many(tasks),
   completions: many(taskCompletions),
   transactions: many(coinTransactions),
   redemptions: many(redemptionRequests),
   goals: many(goals),
-  streak: one(streaks),
+  badges: many(badges),
+  streak: one(streaks, {
+    fields: [kidProfiles.id],
+    references: [streaks.kidId],
+  }),
+}));
+
+export const charactersRelations = relations(characters, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [characters.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const streaksRelations = relations(streaks, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [streaks.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const badgesRelations = relations(badges, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [badges.kidId],
+    references: [kidProfiles.id],
+  }),
 }));

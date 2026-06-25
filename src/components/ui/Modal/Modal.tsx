@@ -12,6 +12,8 @@ export type ModalProps = {
   children: React.ReactNode;
   width?: ModalWidth;
   className?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 };
 
 const widthClasses: Record<ModalWidth, string> = {
@@ -19,7 +21,7 @@ const widthClasses: Record<ModalWidth, string> = {
   md: "w-[min(440px,100%)]",
 };
 
-function Modal({ open, onClose, children, width = "md", className }: ModalProps) {
+function Modal({ open, onClose, children, width = "md", className, "aria-label": ariaLabel, "aria-labelledby": ariaLabelledby }: ModalProps) {
   React.useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -48,6 +50,8 @@ function Modal({ open, onClose, children, width = "md", className }: ModalProps)
           <motion.div
             role="dialog"
             aria-modal="true"
+            aria-label={ariaLabel ?? (ariaLabelledby ? undefined : "Dialog")}
+            aria-labelledby={ariaLabelledby}
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 24 }}
