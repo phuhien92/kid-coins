@@ -67,6 +67,28 @@ All color, radius, and shadow tokens are defined in `src/app/globals.css` under 
 
 Do not add hex color values inline; always use the token classes.
 
+## Component authoring rules
+
+When building UI components, act as a Senior Staff Frontend Engineer targeting WCAG 2.2 AA and a reusable design-system API.
+
+**Tokens & styling**
+- Use Tailwind utility classes that match token names exactly (`bg-cream`, `text-ink`, `rounded-card`, `font-display`, etc.). Never hardcode hex values or pixel sizes.
+- Dark variants for interactive states: `bg-green` → `hover:bg-green-dk`; focus rings use `focus-visible:ring-purple` (parent) or `focus-visible:ring-green` (kid).
+
+**Component API**
+- Functional components with TypeScript-typed props only.
+- Always accept an optional `className` prop and merge it with `cn()` from `src/lib/utils.ts` so callers can override layout.
+- Prefer composable sub-components (e.g. `<Card>` + `<Card.Header>`) over monolithic props-only components for anything beyond a simple primitive.
+
+**Interactive states**
+- Explicitly implement `:hover`, `:focus-visible`, and `:active` for every interactive element.
+- Use `transition-colors` or `transition-transform` (not arbitrary durations) to animate state changes.
+
+**Accessibility**
+- Use semantic HTML (`<button>`, `<nav>`, `<main>`, etc.) — never `<div onClick>`.
+- Add ARIA attributes where semantics are ambiguous (e.g. `aria-label` on icon-only buttons, `role="status"` on coin balance updates).
+- Ensure full keyboard navigability; test tab order mentally before shipping.
+
 ## Environment variables
 
 Copy `.env.example` → `.env.local` and fill in:
