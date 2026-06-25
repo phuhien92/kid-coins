@@ -151,3 +151,5 @@ pnpm db:studio     # open Drizzle Studio (DB GUI)
 - Interactive prototypes: `design_handoff_earnie/Earnie - *.html`
 - DB schema: `src/lib/schema.ts`
 - Type definitions: `src/types/index.ts`
+- Product context & design principles: `PRODUCT.md`
+- Full design system spec (colors, typography, elevation, components): `DESIGN.md`
