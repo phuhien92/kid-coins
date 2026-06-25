@@ -6,26 +6,70 @@ import {
   timestamp,
   uuid,
   pgEnum,
+  json,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+// ── Enums ──────────────────────────────────────────────────────────────────
+
 export const taskTypeEnum = pgEnum("task_type", ["daily", "once"]);
+
+export const taskCompletionStatusEnum = pgEnum("task_completion_status", [
+  "pending",   // kid marked done, awaiting parent review
+  "approved",  // parent approved, coins credited
+  "denied",    // parent denied, optimistic update rolled back
+]);
+
 export const redemptionStatusEnum = pgEnum("redemption_status", [
   "pending",
   "approved",
   "denied",
 ]);
+
 export const transactionTypeEnum = pgEnum("transaction_type", [
-  "earned",
-  "redeemed",
-  "adjusted",
+  "earned",    // task approved
+  "redeemed",  // reward redemption approved
+  "adjusted",  // manual parent adjustment
 ]);
+
+export const activityTypeEnum = pgEnum("activity_type", [
+  "task_completed",   // kid submitted a completion
+  "task_approved",    // parent approved
+  "task_denied",      // parent denied
+  "reward_redeemed",  // kid requested redemption
+  "reward_approved",  // parent approved redemption
+  "reward_denied",    // parent denied redemption
+  "coins_adjusted",   // parent manually adjusted balance
+  "kid_added",        // new kid profile created
+]);
+
+// ── Tables ─────────────────────────────────────────────────────────────────
 
 export const families = pgTable("families", {
   id: uuid("id").defaultRandom().primaryKey(),
-  parentUserId: text("parent_user_id").notNull().unique(), // Supabase auth user id
+  parentUserId: text("parent_user_id").notNull().unique(), // Supabase auth UID
   name: text("name").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/**
+ * One row per family. Created automatically when a family is registered.
+ * Stores all parent-configurable toggles so they survive across sessions
+ * without hitting the families table for every settings read.
+ */
+export const familySettings = pgTable("family_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  familyId: uuid("family_id")
+    .notNull()
+    .unique()
+    .references(() => families.id, { onDelete: "cascade" }),
+  // Approval modes
+  requireTaskApproval: boolean("require_task_approval").notNull().default(true),
+  requireRedemptionApproval: boolean("require_redemption_approval").notNull().default(true),
+  // Notification prefs
+  weeklyAiSummary: boolean("weekly_ai_summary").notNull().default(true),
+  quietHours: boolean("quiet_hours").notNull().default(false),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const kidProfiles = pgTable("kid_profiles", {
@@ -66,6 +110,16 @@ export const tasks = pgTable("tasks", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+/**
+ * One row per task completion attempt.
+ *
+ * Flow:
+ *   1. Kid taps "done" → row inserted with status = "pending"
+ *   2. Parent approves → status = "approved", kid balance credited, coinTransaction created
+ *   3. Parent denies  → status = "denied", optimistic update on kid's UI rolled back
+ *
+ * If familySettings.requireTaskApproval = false, the API auto-approves on insert.
+ */
 export const taskCompletions = pgTable("task_completions", {
   id: uuid("id").defaultRandom().primaryKey(),
   taskId: uuid("task_id")
@@ -75,7 +129,10 @@ export const taskCompletions = pgTable("task_completions", {
     .notNull()
     .references(() => kidProfiles.id, { onDelete: "cascade" }),
   coinsEarned: integer("coins_earned").notNull(),
+  status: taskCompletionStatusEnum("status").notNull().default("pending"),
+  rejectionReason: text("rejection_reason"),
   completedAt: timestamp("completed_at").defaultNow().notNull(),
+  resolvedAt: timestamp("resolved_at"), // set when approved or denied
 });
 
 export const coinTransactions = pgTable("coin_transactions", {
@@ -95,6 +152,7 @@ export const rewards = pgTable("rewards", {
     .notNull()
     .references(() => families.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
+  description: text("description"),
   coinCost: integer("coin_cost").notNull(),
   emoji: text("emoji").notNull().default("🎁"),
   isActive: boolean("is_active").notNull().default(true),
@@ -111,6 +169,7 @@ export const redemptionRequests = pgTable("redemption_requests", {
     .references(() => rewards.id, { onDelete: "cascade" }),
   status: redemptionStatusEnum("status").notNull().default("pending"),
   coinsSpent: integer("coins_spent").notNull(),
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   resolvedAt: timestamp("resolved_at"),
 });
@@ -147,11 +206,44 @@ export const badges = pgTable("badges", {
   earnedAt: timestamp("earned_at").defaultNow().notNull(),
 });
 
-// ── Relations ──
+/**
+ * Append-only event log driving the parent dashboard activity feed.
+ * payload is a JSON object whose shape depends on `type` — kept flexible
+ * so new event types don't require schema migrations.
+ *
+ * Examples:
+ *   task_approved  → { taskTitle: string, coinsEarned: number, completionId: string }
+ *   reward_redeemed → { rewardTitle: string, coinsSpent: number, requestId: string }
+ *   coins_adjusted  → { delta: number, reason: string }
+ */
+export const activityLog = pgTable("activity_log", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  familyId: uuid("family_id")
+    .notNull()
+    .references(() => families.id, { onDelete: "cascade" }),
+  kidId: uuid("kid_id").references(() => kidProfiles.id, { onDelete: "set null" }),
+  type: activityTypeEnum("type").notNull(),
+  payload: json("payload").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
-export const familiesRelations = relations(families, ({ many }) => ({
+// ── Relations ──────────────────────────────────────────────────────────────
+
+export const familiesRelations = relations(families, ({ one, many }) => ({
+  settings: one(familySettings, {
+    fields: [families.id],
+    references: [familySettings.familyId],
+  }),
   kids: many(kidProfiles),
   rewards: many(rewards),
+  activityLog: many(activityLog),
+}));
+
+export const familySettingsRelations = relations(familySettings, ({ one }) => ({
+  family: one(families, {
+    fields: [familySettings.familyId],
+    references: [families.id],
+  }),
 }));
 
 export const kidProfilesRelations = relations(kidProfiles, ({ one, many }) => ({
@@ -173,12 +265,51 @@ export const kidProfilesRelations = relations(kidProfiles, ({ one, many }) => ({
     fields: [kidProfiles.id],
     references: [streaks.kidId],
   }),
+  activityLog: many(activityLog),
 }));
 
 export const charactersRelations = relations(characters, ({ one }) => ({
   kid: one(kidProfiles, {
     fields: [characters.kidId],
     references: [kidProfiles.id],
+  }),
+}));
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  kid: one(kidProfiles, {
+    fields: [tasks.kidId],
+    references: [kidProfiles.id],
+  }),
+  completions: many(taskCompletions),
+}));
+
+export const taskCompletionsRelations = relations(taskCompletions, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskCompletions.taskId],
+    references: [tasks.id],
+  }),
+  kid: one(kidProfiles, {
+    fields: [taskCompletions.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const rewardsRelations = relations(rewards, ({ one, many }) => ({
+  family: one(families, {
+    fields: [rewards.familyId],
+    references: [families.id],
+  }),
+  redemptions: many(redemptionRequests),
+}));
+
+export const redemptionRequestsRelations = relations(redemptionRequests, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [redemptionRequests.kidId],
+    references: [kidProfiles.id],
+  }),
+  reward: one(rewards, {
+    fields: [redemptionRequests.rewardId],
+    references: [rewards.id],
   }),
 }));
 
@@ -192,6 +323,17 @@ export const streaksRelations = relations(streaks, ({ one }) => ({
 export const badgesRelations = relations(badges, ({ one }) => ({
   kid: one(kidProfiles, {
     fields: [badges.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
+  family: one(families, {
+    fields: [activityLog.familyId],
+    references: [families.id],
+  }),
+  kid: one(kidProfiles, {
+    fields: [activityLog.kidId],
     references: [kidProfiles.id],
   }),
 }));

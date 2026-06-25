@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Badge, ProgressBar } from "@/components/ui";
+import { Badge, Page, ProgressBar } from "@/components/ui";
 import { PennyMascot } from "@/components/kid/PennyMascot";
 import { useKidHomeData } from "@/context/KidContext";
 
@@ -21,15 +21,12 @@ export default function KidHomePage() {
   const taskCopy = pendingTaskCount === 1 ? "task" : "tasks";
 
   return (
-    // `flex-1` fills the layout main's reserved (viewport − tab bar) area,
-    // so the bottom CTA sits cleanly above the mobile tab bar.
-    <div className="flex-1 flex flex-col">
-      {/* Top bar — just the streak badge; the sidebar carries the brand at md+ */}
-      <header className="flex items-center justify-end px-5 pt-5">
+    <Page>
+      <Page.Header>
         <Badge variant="streak" aria-label={`${streak}-day streak`}>
           <span aria-hidden>🔥</span> {streak}
         </Badge>
-      </header>
+      </Page.Header>
 
       {/* Hero — balance is the screen */}
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-10 text-center">
@@ -115,6 +112,6 @@ export default function KidHomePage() {
           </div>
         </div>
       </Link>
-    </div>
+    </Page>
   );
 }

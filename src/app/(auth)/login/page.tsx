@@ -42,7 +42,7 @@ export default function LoginPage() {
       }
 
       posthog?.capture("parent_signed_in");
-      router.push("/parent/home");
+      router.push("/profile-picker");
     } finally {
       setLoading(false);
     }

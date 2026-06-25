@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -62,6 +62,17 @@ function isActive(pathname: string | null, href: string): boolean {
 /** Desktop sidebar, 230px sticky. Visible md+. */
 export function KidSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  function handleSignOut() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("earnie_char");
+      localStorage.removeItem("earnie_kid_id");
+      localStorage.removeItem("earnie_kid_name");
+    }
+    router.push("/profile-picker");
+  }
+
   return (
     <aside
       aria-label="Primary navigation"
@@ -95,6 +106,15 @@ export function KidSidebar() {
           );
         })}
       </nav>
+
+      <div className="mt-auto border-t border-line pt-4">
+        <button
+          onClick={handleSignOut}
+          className="font-body font-bold text-[13px] text-ink-soft hover:text-ink active:text-ink transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
+        >
+          ← Sign out
+        </button>
+      </div>
     </aside>
   );
 }

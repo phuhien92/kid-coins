@@ -71,6 +71,16 @@ Do not add hex color values inline; always use the token classes.
 
 When building UI components, act as a Senior Staff Frontend Engineer targeting WCAG 2.2 AA and a reusable design-system API.
 
+**No raw layout divs — use design-system components**
+- Never write `<div className="flex-1 flex flex-col">` or similar structural divs directly in pages. Use `<Page>`, `<Page.Header>`, `<Page.Content>` from `src/components/ui/Page/`.
+- Never write raw `<div onClick>` or hand-rolled tab buttons — use the design-system primitives.
+- Limit custom Tailwind classes to the minimum needed. If a layout pattern appears more than once, extract it into a component in `src/components/ui/`.
+
+**Headless UI foundation — Base UI**
+- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui-components/react`). Import subpaths: `@base-ui-components/react/dialog`, `/tabs`, `/switch`, etc.
+- Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` components in `src/components/ui/` are already backed by Base UI — use and extend them, don't duplicate.
+- When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
+
 **Tokens & styling**
 - Use Tailwind utility classes that match token names exactly (`bg-cream`, `text-ink`, `rounded-card`, `font-display`, etc.). Never hardcode hex values or pixel sizes.
 - Dark variants for interactive states: `bg-green` → `hover:bg-green-dk`; focus rings use `focus-visible:ring-purple` (parent) or `focus-visible:ring-green` (kid).
@@ -78,7 +88,7 @@ When building UI components, act as a Senior Staff Frontend Engineer targeting W
 **Component API**
 - Functional components with TypeScript-typed props only.
 - Always accept an optional `className` prop and merge it with `cn()` from `src/lib/utils.ts` so callers can override layout.
-- Prefer composable sub-components (e.g. `<Card>` + `<Card.Header>`) over monolithic props-only components for anything beyond a simple primitive.
+- Prefer composable sub-components (e.g. `<Card>` + `<Card.Header>`, `<Tabs.Root>` + `<Tabs.Tab>`) over monolithic props-only components for anything beyond a simple primitive.
 
 **Interactive states**
 - Explicitly implement `:hover`, `:focus-visible`, and `:active` for every interactive element.

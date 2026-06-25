@@ -45,6 +45,18 @@ export function useKid(): KidSession {
 }
 
 /**
+ * Tasks-page-shaped selector.
+ */
+export function useKidTasksData() {
+  const { tasks, addCoins, streak } = useKid();
+  return {
+    tasks: tasks.filter((t) => t.isActive),
+    addCoins,
+    streak,
+  };
+}
+
+/**
  * Home-page-shaped selector. Keeps the page free of the broader session shape.
  */
 export function useKidHomeData() {
@@ -81,18 +93,22 @@ function useMockKidSession(): KidSession {
 
   const goal: KidSession["goal"] = {
     id: "mock-goal-1",
+    kidId: "mock-kid-1",
     title: "Switch game",
     emoji: "🎮",
     targetAmount: 200,
+    currentAmount: 54,
+    isActive: true,
     current: 54,
     target: 200,
   };
 
   const tasks: Task[] = [
-    { id: "t1", title: "Brush teeth (morning)", type: "daily", coinReward: 1, isActive: true, completedToday: true },
-    { id: "t2", title: "Make your bed", type: "daily", coinReward: 2, isActive: true, completedToday: false },
-    { id: "t3", title: "Read for 20 minutes", type: "daily", coinReward: 5, isActive: true, completedToday: false },
-    { id: "t4", title: "Help set the table", type: "daily", coinReward: 3, isActive: true, completedToday: false },
+    { id: "t1", kidId: "mock-kid-1", title: "Brush teeth (morning)", type: "daily", coinReward: 1, isActive: true, completedToday: true },
+    { id: "t2", kidId: "mock-kid-1", title: "Make your bed", type: "daily", coinReward: 2, isActive: true, completedToday: false },
+    { id: "t3", kidId: "mock-kid-1", title: "Read for 20 minutes", type: "daily", coinReward: 5, isActive: true, completedToday: false },
+    { id: "t4", kidId: "mock-kid-1", title: "Help set the table", type: "daily", coinReward: 3, isActive: true, completedToday: false },
+    { id: "t5", kidId: "mock-kid-1", title: "Clean your room", type: "once", coinReward: 10, isActive: true, completedToday: false },
   ];
 
   const todayEarned = tasks
