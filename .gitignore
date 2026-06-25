@@ -59,3 +59,6 @@ ds-bundle/
 # agent skills
 .claude/
 .impeccable/
+
+# git worktrees
+.worktrees/
