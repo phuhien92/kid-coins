@@ -26,9 +26,15 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+  const isAuthPage = pathname === "/login" || pathname.startsWith("/signup");
+  const isPublicPath = pathname === "/" || isAuthPage || pathname.startsWith("/api") || pathname.startsWith("/profiles");
 
-  // Unauthenticated users can only access auth routes
-  const isPublicPath = pathname === "/" || pathname === "/login" || pathname.startsWith("/signup") || pathname.startsWith("/profiles");
+  // Authenticated users visiting auth pages → redirect to parent home
+  if (user && isAuthPage) {
+    return NextResponse.redirect(new URL("/parent/home", request.url));
+  }
+
+  // Unauthenticated users visiting protected pages → redirect to login
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL("/login", request.url));
   }

@@ -5,27 +5,36 @@ import {
 } from "@/lib/supabase-server";
 
 export async function POST(request: Request) {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { name } = await request.json();
+    const resolvedName = typeof name === "string" && name.trim() ? name.trim() : "My Family";
+
+    const admin = createServiceRoleClient();
+    const { error } = await admin.from("families").insert({
+      parent_user_id: user.id,
+      name: resolvedName,
+    });
+
+    if (error) {
+      console.error("families insert error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("API error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unknown error" },
+      { status: 500 }
+    );
   }
-
-  const { name } = await request.json();
-  const resolvedName = typeof name === "string" && name.trim() ? name.trim() : "My Family";
-
-  const admin = createServiceRoleClient();
-  const { error } = await admin.from("families").insert({
-    parent_user_id: user.id,
-    name: resolvedName,
-  });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ success: true });
 }

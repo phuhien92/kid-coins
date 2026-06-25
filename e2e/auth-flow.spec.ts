@@ -13,36 +13,50 @@ const admin = createClient(supabaseUrl, serviceRoleKey, {
 
 test.describe("Signup → Signin flow", () => {
   test.afterAll(async () => {
-    // Cleanup: find and delete the test user
     const { data: users } = await admin.auth.admin.listUsers();
     const user = users?.users.find((u) => u.email === EMAIL);
     if (user) {
-      // Delete their family row first (cascades to kids, etc.)
       await admin.from("families").delete().eq("parent_user_id", user.id);
       await admin.auth.admin.deleteUser(user.id);
     }
   });
 
   test("full signup and signin experience", async ({ page }) => {
+    page.on("console", (msg) => console.log("[browser]", msg.type(), msg.text()));
+    page.on("pageerror", (err) => console.log("[page error]", err.message));
+
     // ── Signup ──
     await page.goto("/signup");
     await expect(page.getByText("Create your account")).toBeVisible();
 
-    // Step 1: credentials
     await page.fill("#su-email", EMAIL);
     await page.fill("#su-password", PASSWORD);
     await page.fill("#su-confirm", PASSWORD);
     await page.click('button:has-text("Continue")');
 
-    // Step 2: family name
     await expect(page.getByText("About your family")).toBeVisible();
     await page.fill("#su-family-name", FAMILY_NAME);
+
+    // Listen for navigation before clicking
+    const navPromise = page.waitForURL("**/parent/home", { timeout: 20000 });
     await page.click('button:has-text("Create account")');
 
-    // Redirected to parent home
-    await page.waitForURL("/parent/home");
+    // Wait a moment to see if errors appear
+    await page.waitForTimeout(2000);
 
-    // ── Sign out (no UI for this yet, clear browser state) ──
+    const errorEl = page.locator('[role="alert"]');
+    if (await errorEl.isVisible().catch(() => false)) {
+      const text = await errorEl.textContent();
+      console.log("Error on page:", text);
+      await page.screenshot({ path: "test-results/signup-error.png" });
+    }
+
+    console.log("Current URL:", page.url());
+
+    await navPromise;
+    await expect(page).toHaveURL("/parent/home");
+
+    // ── Sign in ──
     await page.evaluate(() => {
       for (const key of Object.keys(localStorage)) {
         if (key.startsWith("sb-")) localStorage.removeItem(key);
@@ -50,7 +64,6 @@ test.describe("Signup → Signin flow", () => {
     });
     await page.context().clearCookies();
 
-    // ── Sign in ──
     await page.goto("/login");
     await expect(page.getByText("Welcome back")).toBeVisible();
 
@@ -58,7 +71,6 @@ test.describe("Signup → Signin flow", () => {
     await page.fill('input[type="password"]', PASSWORD);
     await page.click('button:has-text("Sign in")');
 
-    // Redirected to parent home
     await page.waitForURL("/parent/home");
     await expect(page).toHaveURL("/parent/home");
   });
