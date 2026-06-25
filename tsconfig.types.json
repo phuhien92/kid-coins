@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "declarationDir": "src"
+  },
+  "include": [
+    "src/components/ui/**/*.ts",
+    "src/components/ui/**/*.tsx",
+    "src/lib/utils.ts"
+  ]
+}

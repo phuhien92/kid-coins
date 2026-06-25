@@ -1,0 +1,16 @@
+{
+  "projectId": "c102afee-169d-4bd6-9e38-cdb5f90ed625",
+  "pkg": "kid-coins",
+  "globalName": "KidCoins",
+  "shape": "storybook",
+  "storybookConfigDir": ".storybook",
+  "storybookStatic": ".design-sync/sb-reference",
+  "tsconfig": "./tsconfig.json",
+  "runtimeFontPrefixes": ["Fredoka", "Nunito"],
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "Avatar": { "cardMode": "column" },
+    "Modal": { "cardMode": "single", "primaryStory": "Open" },
+    "Toast": { "cardMode": "single", "primaryStory": "Visible", "skip": ["ui-toast--hidden"] }
+  }
+}
