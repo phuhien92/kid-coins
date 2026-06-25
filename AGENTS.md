@@ -86,7 +86,7 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 
 - **Parents** log in with email + password via Supabase Auth. Their Supabase UID is stored in `families.parentUserId`.
 - **Kids** authenticate with a 4-digit PIN. PINs are hashed (bcrypt) and stored in `kidProfiles.pinHash`. Kids do not have Supabase Auth accounts.
-- Middleware (`src/middleware.ts`) redirects unauthenticated users to `/login`.
+- Auth proxy (`src/proxy.ts`) redirects unauthenticated users to `/login`.
 
 ## Testing
 
