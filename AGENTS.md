@@ -144,6 +144,7 @@ pnpm db:studio     # open Drizzle Studio (DB GUI)
 - **Optimistic UI** for task completion — update balance in KidContext immediately, then confirm via API
 - **Supabase Realtime** for parent→kid sync (approval triggers balance refresh in kid session)
 - **`localStorage`** persists character state (`earnie_char`) and streak; always read on mount, write on change
+- **Feature flags** via PostHog. When the user requests a new feature, ask if it should be gated behind a PostHog feature flag. Consult https://posthog.com/docs/feature-flags/best-practices for guidelines.
 
 ## Reference
 
