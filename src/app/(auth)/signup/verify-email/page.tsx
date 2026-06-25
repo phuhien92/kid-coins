@@ -14,6 +14,7 @@ function VerifyEmailContent() {
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const [resendError, setResendError] = useState("");
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -24,9 +25,14 @@ function VerifyEmailContent() {
   async function handleResend() {
     if (!email || resending || cooldown > 0) return;
     setResending(true);
+    setResendError("");
     try {
       const supabase = createClient();
-      await supabase.auth.resend({ type: "signup", email });
+      const { error } = await supabase.auth.resend({ type: "signup", email });
+      if (error) {
+        setResendError(error.message);
+        return;
+      }
       setResent(true);
       setCooldown(RESEND_COOLDOWN);
     } finally {
@@ -78,6 +84,11 @@ function VerifyEmailContent() {
         {resent && (
           <p className="font-body text-[13px] text-green font-semibold">
             Email resent!
+          </p>
+        )}
+        {resendError && (
+          <p role="alert" className="font-body text-[13px] text-red-600 font-semibold">
+            {resendError}
           </p>
         )}
 

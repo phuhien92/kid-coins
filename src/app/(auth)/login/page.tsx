@@ -70,10 +70,14 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+            <label
+              htmlFor="email"
+              className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
+            >
               Email
             </label>
             <input
+              id="email"
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
@@ -86,7 +90,10 @@ export default function LoginPage() {
           {/* Password */}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+              <label
+                htmlFor="password"
+                className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
+              >
                 Password
               </label>
               <Link
@@ -98,6 +105,7 @@ export default function LoginPage() {
             </div>
             <div className="relative">
               <input
+                id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 placeholder="Enter your password"
@@ -118,7 +126,7 @@ export default function LoginPage() {
 
           {/* Error */}
           {error && (
-            <p className="font-body text-[13px] text-red-600 font-semibold -mt-1">
+            <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
               {error}
             </p>
           )}

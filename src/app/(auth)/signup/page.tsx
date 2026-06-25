@@ -110,11 +110,17 @@ export default function SignupPage() {
 
       // Insert families row if session is already active (email confirmation disabled)
       if (data.session) {
-        await supabase.from("families").insert({
-          parentUserId: data.user!.id,
-          familyName: resolvedName,
+        const { error: dbError } = await supabase.from("families").insert({
+          parent_user_id: data.user!.id,
+          name: resolvedName,
         });
-        router.push("/parent/kids");
+
+        if (dbError) {
+          setError("Account created but family setup failed. Please contact support.");
+          return;
+        }
+
+        router.push("/parent/home");
       } else {
         router.push(
           `/signup/verify-email?email=${encodeURIComponent(email.trim())}`
@@ -169,10 +175,14 @@ export default function SignupPage() {
             <form onSubmit={handleNextStep} noValidate className="flex flex-col gap-4">
               {/* Email */}
               <div className="flex flex-col gap-1.5">
-                <label className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+                <label
+                  htmlFor="su-email"
+                  className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
+                >
                   Email
                 </label>
                 <input
+                  id="su-email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
@@ -184,11 +194,15 @@ export default function SignupPage() {
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <label className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+                <label
+                  htmlFor="su-password"
+                  className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
+                >
                   Password
                 </label>
                 <div className="relative">
                   <input
+                    id="su-password"
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     placeholder="Choose a strong password"
@@ -210,11 +224,15 @@ export default function SignupPage() {
 
               {/* Confirm password */}
               <div className="flex flex-col gap-1.5">
-                <label className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+                <label
+                  htmlFor="su-confirm"
+                  className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
+                >
                   Confirm password
                 </label>
                 <div className="relative">
                   <input
+                    id="su-confirm"
                     type={showConfirm ? "text" : "password"}
                     autoComplete="new-password"
                     placeholder="Repeat your password"
@@ -235,7 +253,7 @@ export default function SignupPage() {
 
               {/* Error */}
               {error && (
-                <p className="font-body text-[13px] text-red-600 font-semibold -mt-1">
+                <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
                   {error}
                 </p>
               )}
@@ -256,13 +274,17 @@ export default function SignupPage() {
 
             <form onSubmit={handleSignup} noValidate className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+                <label
+                  htmlFor="su-family-name"
+                  className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
+                >
                   Family name{" "}
                   <span className="normal-case text-ink-soft font-semibold tracking-normal">
                     · optional
                   </span>
                 </label>
                 <input
+                  id="su-family-name"
                   type="text"
                   autoComplete="family-name"
                   placeholder="e.g. The Rivera Family"
@@ -277,7 +299,7 @@ export default function SignupPage() {
 
               {/* Error */}
               {error && (
-                <p className="font-body text-[13px] text-red-600 font-semibold">
+                <p role="alert" className="font-body text-[13px] text-red-600 font-semibold">
                   {error}
                 </p>
               )}
