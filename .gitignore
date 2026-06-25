@@ -55,3 +55,9 @@ ds-bundle/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# agent skills
+.claude/
+.impeccable/
+DESIGN.md
+PRODUCT.md
