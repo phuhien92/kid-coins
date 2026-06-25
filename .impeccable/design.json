@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-25T07:08:00Z",
+  "title": "Design System: Earnie",
+  "extensions": {
+    "colorMeta": {
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream Paper",
+        "canonical": "oklch(96.2% 0.012 85)",
+        "tonalRamp": [
+          "oklch(15% 0.005 85)",
+          "oklch(25% 0.005 85)",
+          "oklch(45% 0.008 85)",
+          "oklch(60% 0.010 85)",
+          "oklch(75% 0.012 85)",
+          "oklch(88% 0.015 85)",
+          "oklch(96.2% 0.012 85)",
+          "oklch(99% 0.005 85)"
+        ]
+      },
+      "cream-card": {
+        "role": "neutral",
+        "displayName": "Cream Card",
+        "canonical": "oklch(97% 0.012 85)",
+        "tonalRamp": [
+          "oklch(15% 0.005 85)",
+          "oklch(25% 0.005 85)",
+          "oklch(45% 0.008 85)",
+          "oklch(60% 0.010 85)",
+          "oklch(75% 0.012 85)",
+          "oklch(88% 0.015 85)",
+          "oklch(97% 0.012 85)",
+          "oklch(99.5% 0.003 85)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Earnie Ink",
+        "canonical": "oklch(22% 0.006 85)",
+        "tonalRamp": [
+          "oklch(18% 0.005 85)",
+          "oklch(22% 0.006 85)",
+          "oklch(32% 0.008 85)",
+          "oklch(45% 0.008 85)",
+          "oklch(60% 0.010 85)",
+          "oklch(75% 0.012 85)",
+          "oklch(88% 0.015 85)",
+          "oklch(96% 0.012 85)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Ink Soft",
+        "canonical": "oklch(45% 0.008 85)",
+        "tonalRamp": [
+          "oklch(22% 0.006 85)",
+          "oklch(32% 0.008 85)",
+          "oklch(45% 0.008 85)",
+          "oklch(58% 0.010 85)",
+          "oklch(70% 0.012 85)",
+          "oklch(82% 0.014 85)",
+          "oklch(92% 0.014 85)",
+          "oklch(98% 0.008 85)"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Earnie Green",
+        "canonical": "oklch(48% 0.083 158)",
+        "tonalRamp": [
+          "oklch(20% 0.04 158)",
+          "oklch(28% 0.06 158)",
+          "oklch(36% 0.075 158)",
+          "oklch(48% 0.083 158)",
+          "oklch(60% 0.075 158)",
+          "oklch(72% 0.06 158)",
+          "oklch(86% 0.05 158)",
+          "oklch(95% 0.02 158)"
+        ]
+      },
+      "green-dk": {
+        "role": "primary",
+        "displayName": "Green Press",
+        "canonical": "oklch(38% 0.075 158)",
+        "tonalRamp": [
+          "oklch(18% 0.04 158)",
+          "oklch(28% 0.06 158)",
+          "oklch(38% 0.075 158)",
+          "oklch(48% 0.083 158)",
+          "oklch(62% 0.075 158)",
+          "oklch(74% 0.06 158)",
+          "oklch(86% 0.05 158)",
+          "oklch(95% 0.02 158)"
+        ]
+      },
+      "green-tint": {
+        "role": "primary",
+        "displayName": "Green Tint",
+        "canonical": "oklch(88% 0.04 158)",
+        "tonalRamp": [
+          "oklch(28% 0.06 158)",
+          "oklch(40% 0.08 158)",
+          "oklch(55% 0.075 158)",
+          "oklch(68% 0.06 158)",
+          "oklch(78% 0.05 158)",
+          "oklch(88% 0.04 158)",
+          "oklch(94% 0.025 158)",
+          "oklch(98% 0.01 158)"
+        ]
+      },
+      "purple": {
+        "role": "primary",
+        "displayName": "Earnie Purple",
+        "canonical": "oklch(60% 0.158 280)",
+        "tonalRamp": [
+          "oklch(20% 0.08 280)",
+          "oklch(30% 0.12 280)",
+          "oklch(45% 0.15 280)",
+          "oklch(60% 0.158 280)",
+          "oklch(72% 0.12 280)",
+          "oklch(82% 0.09 280)",
+          "oklch(91% 0.05 280)",
+          "oklch(97% 0.02 280)"
+        ]
+      },
+      "purple-dk": {
+        "role": "primary",
+        "displayName": "Purple Press",
+        "canonical": "oklch(50% 0.16 280)",
+        "tonalRamp": [
+          "oklch(18% 0.08 280)",
+          "oklch(30% 0.13 280)",
+          "oklch(40% 0.16 280)",
+          "oklch(50% 0.16 280)",
+          "oklch(62% 0.14 280)",
+          "oklch(75% 0.10 280)",
+          "oklch(88% 0.06 280)",
+          "oklch(96% 0.02 280)"
+        ]
+      },
+      "lav-pale": {
+        "role": "primary",
+        "displayName": "Lavender Pale",
+        "canonical": "oklch(89% 0.05 280)",
+        "tonalRamp": [
+          "oklch(30% 0.12 280)",
+          "oklch(45% 0.14 280)",
+          "oklch(60% 0.12 280)",
+          "oklch(72% 0.09 280)",
+          "oklch(82% 0.07 280)",
+          "oklch(89% 0.05 280)",
+          "oklch(94% 0.03 280)",
+          "oklch(98% 0.01 280)"
+        ]
+      },
+      "lav": {
+        "role": "primary",
+        "displayName": "Lavender Mid",
+        "canonical": "oklch(82% 0.07 280)",
+        "tonalRamp": [
+          "oklch(30% 0.12 280)",
+          "oklch(45% 0.14 280)",
+          "oklch(60% 0.12 280)",
+          "oklch(72% 0.09 280)",
+          "oklch(82% 0.07 280)",
+          "oklch(89% 0.05 280)",
+          "oklch(94% 0.03 280)",
+          "oklch(98% 0.01 280)"
+        ]
+      },
+      "coin": {
+        "role": "secondary",
+        "displayName": "Coin Yellow",
+        "canonical": "oklch(85% 0.155 90)",
+        "tonalRamp": [
+          "oklch(25% 0.08 90)",
+          "oklch(40% 0.13 90)",
+          "oklch(55% 0.16 90)",
+          "oklch(67% 0.16 90)",
+          "oklch(78% 0.16 90)",
+          "oklch(85% 0.155 90)",
+          "oklch(92% 0.10 90)",
+          "oklch(97% 0.04 90)"
+        ]
+      },
+      "coin-dk": {
+        "role": "secondary",
+        "displayName": "Coin Shadow",
+        "canonical": "oklch(78% 0.16 90)",
+        "tonalRamp": [
+          "oklch(25% 0.08 90)",
+          "oklch(40% 0.13 90)",
+          "oklch(55% 0.16 90)",
+          "oklch(67% 0.16 90)",
+          "oklch(78% 0.16 90)",
+          "oklch(85% 0.155 90)",
+          "oklch(92% 0.10 90)",
+          "oklch(97% 0.04 90)"
+        ]
+      },
+      "mint": {
+        "role": "tertiary",
+        "displayName": "Category Mint",
+        "canonical": "oklch(89% 0.06 155)",
+        "tonalRamp": [
+          "oklch(35% 0.08 155)",
+          "oklch(50% 0.09 155)",
+          "oklch(65% 0.08 155)",
+          "oklch(75% 0.07 155)",
+          "oklch(82% 0.07 155)",
+          "oklch(89% 0.06 155)",
+          "oklch(94% 0.04 155)",
+          "oklch(98% 0.02 155)"
+        ]
+      },
+      "peach": {
+        "role": "tertiary",
+        "displayName": "Category Peach",
+        "canonical": "oklch(87% 0.07 55)",
+        "tonalRamp": [
+          "oklch(40% 0.12 55)",
+          "oklch(55% 0.13 55)",
+          "oklch(67% 0.11 55)",
+          "oklch(75% 0.09 55)",
+          "oklch(82% 0.08 55)",
+          "oklch(87% 0.07 55)",
+          "oklch(93% 0.05 55)",
+          "oklch(98% 0.02 55)"
+        ]
+      },
+      "lemon": {
+        "role": "tertiary",
+        "displayName": "Category Lemon",
+        "canonical": "oklch(92% 0.10 95)",
+        "tonalRamp": [
+          "oklch(45% 0.14 95)",
+          "oklch(60% 0.15 95)",
+          "oklch(72% 0.14 95)",
+          "oklch(82% 0.12 95)",
+          "oklch(88% 0.11 95)",
+          "oklch(92% 0.10 95)",
+          "oklch(95% 0.07 95)",
+          "oklch(98% 0.03 95)"
+        ]
+      },
+      "coral": {
+        "role": "tertiary",
+        "displayName": "Category Coral",
+        "canonical": "oklch(78% 0.10 25)",
+        "tonalRamp": [
+          "oklch(40% 0.15 25)",
+          "oklch(55% 0.15 25)",
+          "oklch(65% 0.13 25)",
+          "oklch(72% 0.11 25)",
+          "oklch(78% 0.10 25)",
+          "oklch(86% 0.07 25)",
+          "oklch(93% 0.04 25)",
+          "oklch(98% 0.02 25)"
+        ]
+      },
+      "sky": {
+        "role": "tertiary",
+        "displayName": "Category Sky",
+        "canonical": "oklch(91% 0.04 220)",
+        "tonalRamp": [
+          "oklch(40% 0.10 220)",
+          "oklch(55% 0.10 220)",
+          "oklch(70% 0.08 220)",
+          "oklch(80% 0.06 220)",
+          "oklch(86% 0.05 220)",
+          "oklch(91% 0.04 220)",
+          "oklch(95% 0.025 220)",
+          "oklch(98% 0.01 220)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Coin balance numerals and identity titles. Fredoka 600 at 2rem." },
+      "headline": { "displayName": "Headline", "purpose": "Promo banner, modal titles, AI coach questions." },
+      "title": { "displayName": "Title", "purpose": "Task names, reward names, primary CTA labels." },
+      "body": { "displayName": "Body", "purpose": "Card content, settings descriptions, ghost button labels." },
+      "label": { "displayName": "Label", "purpose": "Chips, count badges, meta lines. The 13px floor." }
+    },
+    "shadows": [
+      { "name": "ambient-card", "value": "0 10px 26px -14px rgba(28, 27, 23, 0.30)", "purpose": "Default lift under every resting card and surface." },
+      { "name": "ambient-modal", "value": "0 30px 60px -20px rgba(28, 27, 23, 0.5)", "purpose": "Deeper ambient lift under the modal panel." },
+      { "name": "stamp-green-5", "value": "0 5px 0 var(--color-green-dk)", "purpose": "Press affordance under the primary green CTA." },
+      { "name": "stamp-green-1-active", "value": "0 1px 0 var(--color-green-dk)", "purpose": "Collapsed shadow on :active for the primary green CTA." },
+      { "name": "stamp-purple-4", "value": "0 4px 0 var(--color-purple-dk)", "purpose": "Press affordance under the primary purple CTA." },
+      { "name": "stamp-purple-1-active", "value": "0 1px 0 var(--color-purple-dk)", "purpose": "Collapsed shadow on :active for the primary purple CTA." },
+      { "name": "stamp-coin-3", "value": "0 3px 0 var(--color-coin-dk)", "purpose": "Press affordance under the streak badge and coin pills." }
+    ],
+    "motion": [
+      { "name": "ease-tap", "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)", "purpose": "Default ease-out for button press, toggle slide, focus border shift. 80–150ms." },
+      { "name": "ease-progress", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Long ease-out for progress bar fill changes. 500ms." },
+      { "name": "ease-modal", "value": "cubic-bezier(0.2, 1.2, 0.4, 1)", "purpose": "Slight-overshoot entrance for modal panel. 300ms. The only non-pure-ease-out in the system." },
+      { "name": "duration-tap", "value": "80ms", "purpose": "Button press feedback." },
+      { "name": "duration-state", "value": "150ms", "purpose": "Focus, hover, toggle." },
+      { "name": "duration-modal", "value": "300ms", "purpose": "Modal entrance / exit." },
+      { "name": "duration-progress", "value": "500ms", "purpose": "Progress bar value change." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "430px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1180px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Green Button",
+      "kind": "button",
+      "refersTo": "button-green",
+      "description": "Kid-side primary CTA. Stamps down on press.",
+      "html": "<button class=\"ds-btn-green\">Collect</button>",
+      "css": ".ds-btn-green { background: var(--color-green); color: #fff; font-family: var(--font-display), Fredoka, system-ui, sans-serif; font-weight: 600; font-size: 17px; border: 3px solid var(--color-ink); border-radius: 18px; padding: 15px 18px; box-shadow: 0 5px 0 var(--color-green-dk); transition: transform 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: pointer; } .ds-btn-green:hover { background: var(--color-green); } .ds-btn-green:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 3px; } .ds-btn-green:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--color-green-dk); } .ds-btn-green:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Primary Purple Button",
+      "kind": "button",
+      "refersTo": "button-purple",
+      "description": "Parent-side primary CTA. Same stamp grammar at a smaller depth.",
+      "html": "<button class=\"ds-btn-purple\">New goal</button>",
+      "css": ".ds-btn-purple { background: var(--color-purple); color: #fff; font-family: var(--font-display), Fredoka, system-ui, sans-serif; font-weight: 600; font-size: 15px; border: 2.5px solid var(--color-ink); border-radius: 14px; padding: 11px 18px; box-shadow: 0 4px 0 var(--color-purple-dk); transition: transform 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: pointer; } .ds-btn-purple:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 3px; } .ds-btn-purple:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--color-purple-dk); } .ds-btn-purple:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action. No stamp; inverts on press.",
+      "html": "<button class=\"ds-btn-ghost\">View</button>",
+      "css": ".ds-btn-ghost { background: #fff; color: var(--color-ink); font-family: var(--font-display), Fredoka, system-ui, sans-serif; font-weight: 600; font-size: 15px; border: 2px solid var(--color-ink); border-radius: 14px; padding: 11px 18px; transition: background 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: pointer; } .ds-btn-ghost:hover { background: rgba(0, 0, 0, 0.05); } .ds-btn-ghost:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 3px; } .ds-btn-ghost:active { background: rgba(0, 0, 0, 0.10); } .ds-btn-ghost:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The default page container. Cream-card on cream, chunky ink border, ambient lift.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Today's tasks</div><div class=\"ds-card-body\">3 of 5 done. Keep it up.</div></div>",
+      "css": ".ds-card { background: var(--color-cream-card); color: var(--color-ink); border: 3px solid var(--color-ink); border-radius: 16px; padding: 20px; box-shadow: 0 10px 26px -14px rgba(28, 27, 23, 0.30); } .ds-card-title { font-family: var(--font-display), Fredoka, system-ui, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.3; margin-bottom: 8px; } .ds-card-body { font-family: var(--font-body), Nunito, system-ui, sans-serif; font-weight: 700; font-size: 15px; line-height: 1.5; color: var(--color-ink); }"
+    },
+    {
+      "name": "Chat Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Pill-radius text input paired with a green send circle. Used in AI coach modal.",
+      "html": "<div class=\"ds-input-row\"><input class=\"ds-input\" type=\"text\" placeholder=\"Type a message…\" /><button class=\"ds-input-send\" aria-label=\"Send\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5M5 12l7-7 7 7\"/></svg></button></div>",
+      "css": ".ds-input-row { display: flex; align-items: center; gap: 9px; } .ds-input { flex: 1; min-width: 0; background: #fff; color: var(--color-ink); font-family: var(--font-body), Nunito, system-ui, sans-serif; font-weight: 700; font-size: 13.5px; border: 2px solid var(--color-ink); border-radius: 999px; padding: 11px 16px; outline: none; transition: border-color 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94); } .ds-input::placeholder { color: var(--color-ink-soft); } .ds-input:focus { border-color: var(--color-purple); } .ds-input:disabled { opacity: 0.5; } .ds-input-send { flex-shrink: 0; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: var(--color-green); color: #fff; border: 2.5px solid var(--color-ink); border-radius: 999px; cursor: pointer; transition: opacity 150ms; } .ds-input-send:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 3px; } .ds-input-send:disabled { opacity: 0.4; pointer-events: none; }"
+    },
+    {
+      "name": "Streak Badge",
+      "kind": "chip",
+      "refersTo": "badge-streak",
+      "description": "The 🔥 12 streak pill in the kid app top bar. The only badge that gets a stamp shadow.",
+      "html": "<span class=\"ds-badge-streak\"><span aria-hidden=\"true\">🔥</span> 12</span>",
+      "css": ".ds-badge-streak { display: inline-flex; align-items: center; gap: 4px; background: var(--color-coin); color: var(--color-ink); font-family: var(--font-display), Fredoka, system-ui, sans-serif; font-weight: 600; font-size: 16px; line-height: 1; border: 2.5px solid var(--color-ink); border-radius: 999px; padding: 7px 14px; box-shadow: 0 3px 0 var(--color-coin-dk); }"
+    },
+    {
+      "name": "Toggle Switch",
+      "kind": "custom",
+      "refersTo": "toggle-track-on",
+      "description": "Settings toggle. Track color and thumb position both change so color is not the sole signal.",
+      "html": "<label class=\"ds-toggle\"><input type=\"checkbox\" class=\"ds-toggle-input\" checked /><span class=\"ds-toggle-track\" aria-hidden=\"true\"><span class=\"ds-toggle-thumb\"></span></span><span class=\"ds-toggle-label\">Daily reminder</span></label>",
+      "css": ".ds-toggle { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; } .ds-toggle-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; } .ds-toggle-track { position: relative; display: inline-block; width: 48px; height: 28px; border: 2.5px solid var(--color-ink); border-radius: 999px; background: #fff; transition: background 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94); } .ds-toggle-input:checked ~ .ds-toggle-track { background: var(--color-green); } .ds-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 999px; background: var(--color-ink); transition: left 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94), background 150ms; } .ds-toggle-input:checked ~ .ds-toggle-track .ds-toggle-thumb { left: 22px; background: #fff; } .ds-toggle-input:focus-visible ~ .ds-toggle-track { outline: 3px solid var(--color-ink); outline-offset: 3px; } .ds-toggle-label { font-family: var(--font-body), Nunito, system-ui, sans-serif; font-weight: 600; font-size: 15px; color: var(--color-ink); }"
+    },
+    {
+      "name": "Progress Bar",
+      "kind": "custom",
+      "refersTo": "progress-fill-coin",
+      "description": "Goal progress. Lav-pale track, coin fill. Always paired with percent + count meta lines.",
+      "html": "<div class=\"ds-progress\" role=\"progressbar\" aria-valuenow=\"35\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-label=\"Goal progress\"><div class=\"ds-progress-fill\" style=\"width: 35%\"></div></div>",
+      "css": ".ds-progress { width: 100%; height: 16px; background: var(--color-lav-pale); border: 2.5px solid var(--color-ink); border-radius: 999px; overflow: hidden; } .ds-progress-fill { height: 100%; background: var(--color-coin); border-radius: 999px; transition: width 500ms cubic-bezier(0.16, 1, 0.3, 1); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Picture-Book Ledger",
+    "overview": "Warmth carries the joy. The interface presses down when you tap it, stays flat when you read it, and never glows or shouts to get attention. Earnie is a picture-book and a ledger at the same time: kids see a game with a chunky coin pip, a customizable mascot, and tasks that \"stamp\" themselves done; parents see a clear record of what was earned, what's owed, and what's been approved. Both views run on the same cream paper, the same ink linework, the same hand-feel borders. They are two rooms in one house, not two brands.\n\nThe system explicitly rejects the category defaults for both audiences. The kid app refuses generic-kid-cartoonish (gradient slime, Comic Sans, neon rainbows, drop-shadow text) and toy-store-loud (oversaturated reds, exclamation-mark copy, BUY-NOW energy). The parent app refuses cold-fintech (navy-and-gold, charts-first, adult-banking aesthetic) and sterile-SaaS (gray-on-gray, all-data-no-personality). Joy is carried by warmth — cream paper, rounded Fredoka, the coin yellow — not by volume.",
+    "keyCharacteristics": [
+      "Cream paper body, ink linework borders, one warm green for kid action and one warm purple for parent action",
+      "Chunky 2.5–3px ink borders on every interactive surface (buttons, cards, badges, inputs)",
+      "A two-layer elevation language: soft ambient drop-shadow for resting cards, hard bottom-only \"stamp\" shadow for primary CTAs",
+      "Fredoka + Nunito only; no decorative or \"fun\" display fonts",
+      "Coin yellow (#F4D34E) is reserved for true money signal — balance, progress, streak. Never decorative."
+    ],
+    "rules": [
+      { "name": "The Coin-Yellow Rarity Rule", "body": "#F4D34E is reserved for money signal (coin pip, balance bar, progress fill, streak badge, celebration). It never appears as a decoration, a background tint on a non-money card, or a highlight on a text run. Its rarity is what makes earning a coin feel like something.", "section": "colors" },
+      { "name": "The Cream-Paper-First Rule", "body": "Every screen background is #FBF8EF. Cards are #FCFAF3. We do not introduce a third surface color (no gradient bands, no full-bleed accent strips behind sections). Depth is carried by borders and shadows, not by surface color.", "section": "colors" },
+      { "name": "The Two-Hue Authority Rule", "body": "Green owns kid action. Purple owns parent action. Neither hue appears as decoration in the other shell. A green button in the parent dashboard is a bug, not a flourish.", "section": "colors" },
+      { "name": "The Fredoka-for-Voice Rule", "body": "Use Fredoka where the system speaks (CTAs, task names, balance numerals, mascot dialogue). Use Nunito where the system records (body copy, settings, descriptions, timestamps). The two registers of the brand — game and ledger — map directly onto the two type roles.", "section": "typography" },
+      { "name": "The 13px Floor Rule", "body": "The smallest interactive text in the system is 13px Nunito 800. We never ship UI text below this floor. Kids are reading; parents are skimming on phones; the floor protects both.", "section": "typography" },
+      { "name": "The Two-Layer Rule", "body": "Ambient shadows describe where a surface rests (slightly above the page). Stamp shadows describe how a control responds to a press (bottom-only, solid, in the control's own darker shade). We never mix them on one element. Cards do not stamp; buttons do not float.", "section": "elevation" },
+      { "name": "The Flat-Reading-Surface Rule", "body": "Body text, lists, and read-only data live on flat surfaces inside cards. We do not nest a stamp-shadowed element inside a stamp-shadowed element (never two press shadows in one tap target). Nested cards are forbidden by default.", "section": "elevation" },
+      { "name": "The Press-Confirms-Action Rule", "body": "Every primary CTA in the system must have a stamp shadow + active translateY pair. The visual confirmation that \"you pressed something\" is non-negotiable on a kid-facing app. Ghost buttons are the only exception (they invert with a background tint on active).", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep #F4D34E reserved for money signal — coin pip, balance, progress, streak, celebration. The Coin-Yellow Rarity Rule is non-negotiable.",
+      "Do put a 2.5–3px solid ink border on every interactive surface. The ink linework is the brand.",
+      "Do pair every primary CTA with a bottom-only stamp shadow in the control's own darker shade (green + green-dk, purple + purple-dk, coin + coin-dk).",
+      "Do use Fredoka for voice (CTAs, task names, balance, mascot) and Nunito for record (body, settings, descriptions, timestamps). The Fredoka-for-Voice Rule.",
+      "Do keep cards on cream-card and pages on cream. Two surface colors, not three.",
+      "Do verify text on cream hits ≥4.5:1 — ink and ink-soft are both safe; lighter grays are not.",
+      "Do honor prefers-reduced-motion: reduce on the celebration overlay, modal entrance, view transitions, and toast slides — crossfade or instant only.",
+      "Do add a check glyph + strikethrough to completed tasks, not just a tint change. The Color-Is-Not-The-Only-Signal rule (from PRODUCT.md).",
+      "Do keep tap targets ≥44px on the kid app. Most existing components are already 52px+."
+    ],
+    "donts": [
+      "Don't introduce a gradient anywhere. No gradient text, no gradient backgrounds, no gradient borders. This system is paper, ink, and flat color.",
+      "Don't use Comic Sans, hand-drawn-imitation display fonts, or any third type family. Fredoka and Nunito only.",
+      "Don't ship neon, oversaturated reds, or \"BUY NOW\" / exclamation-mark copy. Toy-store-loud is a banned aesthetic.",
+      "Don't stack stamp shadows. One press shadow per tap target. Nested cards are forbidden by default.",
+      "Don't use cream-card on a page background or cream on a card. The two-surface system is the rhythm.",
+      "Don't put the coin yellow behind non-money content. It is not a generic highlight color.",
+      "Don't introduce a third CTA hue. Green owns kid action; purple owns parent action; nothing else gets that authority.",
+      "Don't glassmorph anything. The modal's backdrop-blur-sm is functional focus, not decoration; do not extend the pattern.",
+      "Don't drop the ink border to ≤1px for \"elegance\". The chunky border is the brand; thinning it is exactly the cold-fintech move the brand rejects.",
+      "Don't use display fonts (Fredoka) for body copy or settings descriptions. That's the generic-kid-cartoonish trap; respect the kid by reading-friendly Nunito for record-keeping text.",
+      "Don't add a side-stripe border (border-left > 1px as a colored accent). Use a full ink border, a background tint, or a leading icon."
+    ]
+  }
+}
