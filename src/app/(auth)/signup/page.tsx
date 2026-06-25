@@ -110,12 +110,13 @@ export default function SignupPage() {
 
       // Insert families row if session is already active (email confirmation disabled)
       if (data.session) {
-        const { error: dbError } = await supabase.from("families").insert({
-          parent_user_id: data.user!.id,
-          name: resolvedName,
+        const res = await fetch("/api/families/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: resolvedName }),
         });
 
-        if (dbError) {
+        if (!res.ok) {
           setError("Account created but family setup failed. Please contact support.");
           return;
         }
