@@ -50,3 +50,8 @@ ds-bundle/
 .design-sync/learnings/
 .design-sync/.cache/
 .design-sync/node_modules
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
