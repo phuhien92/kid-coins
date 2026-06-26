@@ -3,8 +3,17 @@ import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getDbErrorMessage } from "@/lib/utils";
 
-/** Lightweight DB probe — surfaces the real Postgres error in production. */
-export async function GET() {
+/**
+ * Lightweight DB probe for production diagnostics.
+ * Gated by service-role key to avoid leaking operational info publicly.
+ */
+export async function GET(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey || authHeader !== `Bearer ${serviceKey}`) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   if (!process.env.DATABASE_URL) {
     return NextResponse.json(
       { ok: false, error: "DATABASE_URL is not set" },
@@ -13,14 +22,12 @@ export async function GET() {
   }
 
   try {
-    const host = new URL(process.env.DATABASE_URL).host;
     const [row] = await db.execute<{ reg: string | null }>(
       sql`SELECT to_regclass('public.families') AS reg`
     );
 
     return NextResponse.json({
       ok: true,
-      host,
       familiesTable: row?.reg ?? null,
     });
   } catch (err) {

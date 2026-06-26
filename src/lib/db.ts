@@ -18,6 +18,7 @@ function getInstance(): DB {
       postgres(process.env.DATABASE_URL, {
         prepare: false,
         max: 1,
+        ssl: process.env.NODE_ENV === "production" ? "require" : undefined,
       }),
       { schema }
     );

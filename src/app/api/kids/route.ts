@@ -50,6 +50,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("POST /api/kids: DATABASE_URL is not set");
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      );
+    }
+
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },
@@ -118,6 +126,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ kid }, { status: 201 });
   } catch (err) {
     console.error("POST /api/kids error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: getDbErrorMessage(err) }, { status: 500 });
   }
 }

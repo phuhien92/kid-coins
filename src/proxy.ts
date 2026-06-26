@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/" ||
     isAuthPage ||
     pathname.startsWith("/api") ||
-    pathname.startsWith("/profiles");
+    pathname.startsWith("/profile-picker");
 
   if (user && (pathname === "/" || isAuthPage)) {
     return NextResponse.redirect(new URL("/profile-picker", request.url));

@@ -79,7 +79,7 @@ When building UI components, act as a Senior Staff Frontend Engineer targeting W
 - Never write raw `<div onClick>` or hand-rolled tab buttons — use the design-system primitives.
 
 **Headless UI foundation — Base UI**
-- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui-components/react`). Import subpaths: `@base-ui-components/react/dialog`, `/tabs`, `/switch`, etc.
+- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui/react`). Import subpaths: `@base-ui/react/dialog`, `/tabs`, `/switch`, etc.
 - Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` components in `src/components/ui/` are already backed by Base UI — use and extend them, don't duplicate.
 - When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
 
