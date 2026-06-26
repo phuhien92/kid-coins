@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Dialog } from "@base-ui-components/react/dialog";
+import { Dialog } from "@base-ui/react/dialog";
 import { cn } from "@/lib/utils";
 
 export type ModalWidth = "sm" | "md";
@@ -17,8 +17,8 @@ export type ModalProps = {
 };
 
 const widthClasses: Record<ModalWidth, string> = {
-  sm: "w-[min(380px,calc(100vw-2rem))]",
-  md: "w-[min(440px,calc(100vw-2rem))]",
+  sm: "w-modal-sm",
+  md: "w-modal-md",
 };
 
 /**
@@ -42,7 +42,7 @@ function Modal({
         {/* Backdrop */}
         <Dialog.Backdrop
           className={cn(
-            "fixed inset-0 z-40 bg-[rgba(28,27,23,0.45)] backdrop-blur-sm",
+            "fixed inset-0 z-40 bg-ink/45 backdrop-blur-sm",
             "transition-opacity duration-200",
             "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0"
           )}
@@ -54,9 +54,9 @@ function Modal({
           aria-labelledby={ariaLabelledby}
           className={cn(
             "fixed z-50 inset-x-4 top-1/2 -translate-y-1/2 mx-auto",
-            "bg-cream-card border-[3px] border-ink",
-            "rounded-[26px]",
-            "shadow-[0_30px_60px_-20px_rgba(28,27,23,0.5)]",
+            "bg-cream-card border-heavy border-ink",
+            "rounded-dialog",
+            "shadow-dialog",
             "max-h-[94vh] overflow-y-auto",
             "transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.2,1.2,0.4,1)]",
             "data-[starting-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:translate-y-[-44%]",
@@ -86,7 +86,7 @@ function ModalClose({
     <Dialog.Close
       className={cn(
         "absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center",
-        "font-display font-bold text-[16px] text-ink-soft",
+        "font-display font-bold text-base text-ink-soft",
         "hover:bg-black/8 active:bg-black/12 transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1",
         className
@@ -111,7 +111,7 @@ function ModalTitle({
   return (
     <Dialog.Title
       className={cn(
-        "font-display font-bold text-[20px] text-ink leading-tight",
+        "font-display font-bold text-xl text-ink leading-tight",
         className
       )}
     >

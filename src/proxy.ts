@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function proxy(request: NextRequest) {
-  const response = NextResponse.next({ request });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,33 +13,41 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
+          // Forward refreshed tokens to downstream route handlers and the browser.
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
+            supabaseResponse.cookies.set(name, value, options);
           });
         },
       },
     }
   );
 
+  // Refresh session — must run before route handlers read cookies.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
   const isAuthPage = pathname === "/login" || pathname.startsWith("/signup");
-  const isPublicPath = pathname === "/" || isAuthPage || pathname.startsWith("/api") || pathname.startsWith("/profiles");
+  const isPublicPath =
+    pathname === "/" ||
+    isAuthPage ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/profile-picker");
 
-  // Authenticated users on landing or auth pages → profile picker ("Who's playing?")
   if (user && (pathname === "/" || isAuthPage)) {
     return NextResponse.redirect(new URL("/profile-picker", request.url));
   }
 
-  // Unauthenticated users visiting protected pages → redirect to login
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return response;
+  return supabaseResponse;
 }
 
 export const config = {

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Tabs as BaseTabs } from "@base-ui-components/react/tabs";
+import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import { cn } from "@/lib/utils";
 
 export type TabsVariant = "kid" | "parent";
@@ -84,8 +84,8 @@ function Tab({ value, children, className, variant = "kid" }: TabProps) {
     <BaseTabs.Tab
       value={value}
       className={cn(
-        "flex-1 font-display font-semibold text-[15px] py-[11px] rounded-[14px]",
-        "border-[2.5px] border-ink transition-colors duration-100",
+        "flex-1 font-display font-semibold text-sm py-3 rounded-tab",
+        "border-medium border-ink transition-colors duration-100",
         "bg-white text-ink hover:bg-black/5 active:bg-black/10",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
         variantActive[variant],

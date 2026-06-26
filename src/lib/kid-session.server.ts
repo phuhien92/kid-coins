@@ -1,13 +1,21 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
-const KID_SESSION_SECRET =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? "dev-fallback-secret-do-not-use-in-prod";
+function getKidSessionSecret(): string {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SUPABASE_SERVICE_ROLE_KEY must be set in production");
+    }
+    return "dev-fallback-secret-do-not-use-in-prod";
+  }
+  return secret;
+}
 
 const KID_SESSION_TOKEN_HEADER = "x-kid-session-token";
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 function sign(payload: string): string {
-  return createHmac("sha256", KID_SESSION_SECRET).update(payload).digest("hex");
+  return createHmac("sha256", getKidSessionSecret()).update(payload).digest("hex");
 }
 
 export function issueKidSessionToken(kidId: string): string {
@@ -27,7 +35,8 @@ export function verifyKidSession(request: Request, kidId: string): boolean {
     const payload = decoded.slice(0, lastColon);
     const [tokenKidId, expiresStr] = payload.split(":");
     if (tokenKidId !== kidId) return false;
-    if (Date.now() > parseInt(expiresStr, 10)) return false;
+    const expiresAt = parseInt(expiresStr, 10);
+    if (Number.isNaN(expiresAt) || Date.now() > expiresAt) return false;
     const expected = sign(payload);
     return timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
   } catch {

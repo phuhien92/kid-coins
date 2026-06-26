@@ -220,17 +220,22 @@ export default function ProfilePickerPage() {
   const [selectedKid, setSelectedKid] = useState<Kid | null>(null);
 
   useEffect(() => {
-    fetch("/api/kids")
-      .then((r) => {
+    fetch("/api/kids", { credentials: "include" })
+      .then(async (r) => {
+        if (r.status === 401) {
+          router.replace("/login");
+          return null;
+        }
         if (!r.ok) throw new Error(`${r.status}`);
         return r.json();
       })
       .then((data) => {
+        if (!data) return;
         setKids(data.kids ?? []);
         setLoadState("idle");
       })
       .catch(() => setLoadState("error"));
-  }, []);
+  }, [router]);
 
   const handleSuccess = useCallback(() => {
     router.push("/kid/home");
@@ -272,9 +277,17 @@ export default function ProfilePickerPage() {
           <button
             onClick={() => {
               setLoadState("loading");
-              fetch("/api/kids")
-                .then((r) => r.json())
+              fetch("/api/kids", { credentials: "include" })
+                .then(async (r) => {
+                  if (r.status === 401) {
+                    router.replace("/login");
+                    return null;
+                  }
+                  if (!r.ok) throw new Error(`${r.status}`);
+                  return r.json();
+                })
                 .then((d) => {
+                  if (!d) return;
                   setKids(d.kids ?? []);
                   setLoadState("idle");
                 })

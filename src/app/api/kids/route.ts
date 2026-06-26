@@ -5,10 +5,19 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
 import { isValidAvatarColor } from "@/lib/character";
 import { getOrCreateFamily } from "@/lib/family";
+import { getDbErrorMessage } from "@/lib/utils";
 import { activityLog, characters, families, kidProfiles } from "@/lib/schema";
 
 export async function GET() {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("GET /api/kids: DATABASE_URL is not set");
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      );
+    }
+
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },
@@ -35,12 +44,20 @@ export async function GET() {
     return NextResponse.json({ kids });
   } catch (err) {
     console.error("GET /api/kids error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: getDbErrorMessage(err) }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("POST /api/kids: DATABASE_URL is not set");
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      );
+    }
+
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },
@@ -109,6 +126,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ kid }, { status: 201 });
   } catch (err) {
     console.error("POST /api/kids error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: getDbErrorMessage(err) }, { status: 500 });
   }
 }

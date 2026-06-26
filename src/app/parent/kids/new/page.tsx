@@ -32,6 +32,7 @@ export default function AddKidPage() {
     try {
       const res = await fetch("/api/kids", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name.trim(),

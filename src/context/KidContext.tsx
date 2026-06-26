@@ -84,7 +84,7 @@ export function useKidHomeData() {
 function useMockKidSession(): KidSession {
   const [balance, setBalance] = React.useState(54);
   const [kidName, setKidName] = React.useState("Friend");
-  const [avatarColor, setAvatarColor] = React.useState("#F4D34E");
+  const [avatarColor, setAvatarColor] = React.useState("var(--color-coin)");
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;

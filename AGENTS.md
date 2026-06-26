@@ -79,7 +79,7 @@ When building UI components, act as a Senior Staff Frontend Engineer targeting W
 - Never write raw `<div onClick>` or hand-rolled tab buttons — use the design-system primitives.
 
 **Headless UI foundation — Base UI**
-- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui-components/react`). Import subpaths: `@base-ui-components/react/dialog`, `/tabs`, `/switch`, etc.
+- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui/react`). Import subpaths: `@base-ui/react/dialog`, `/tabs`, `/switch`, etc.
 - Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` components in `src/components/ui/` are already backed by Base UI — use and extend them, don't duplicate.
 - When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
 
@@ -128,6 +128,22 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 1. Edit the schema
 2. `pnpm db:generate` — creates a migration file in `drizzle/`
 3. `pnpm db:migrate` — applies it (requires `DATABASE_URL`)
+
+**Do not use `supabase db push`** — Earnie uses **Drizzle** migrations in `drizzle/`, not `supabase/migrations/`. Use `pnpm db:migrate` (local) or `pnpm db:migrate:prod` (production, with confirmation gate).
+
+### Production (Vercel)
+
+After deploying, verify these or `/api/kids` will fail with "Couldn't load profiles/kids":
+
+1. **Vercel env vars** — set `DATABASE_URL` (transaction pooler, port 6543), Supabase keys, and `ANTHROPIC_API_KEY` for Production (and Preview if needed).
+2. **Run migrations** against the production database (direct connection, user `postgres`, port `5432`):
+   ```bash
+   export DATABASE_URL='postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/postgres'
+   pnpm db:migrate:prod   # prompts before applying
+   ```
+3. **Supabase Auth** — add `https://your-app.vercel.app/**` to Redirect URLs in Supabase → Authentication → URL Configuration.
+
+Check Vercel function logs for `GET /api/kids error:` if profiles still fail to load.
 
 ## Auth model
 

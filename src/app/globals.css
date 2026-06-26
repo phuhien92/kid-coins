@@ -28,10 +28,21 @@
   /* ── Border radius ── */
   --radius-card: 16px;
   --radius-control: 10px;
+  --radius-tab: 14px;
+  --radius-dialog: 26px;
   --radius-pill: 999px;
 
   /* ── Shadow ── */
   --shadow-card: 0 10px 26px -14px rgba(28, 27, 23, 0.30);
+  --shadow-dialog: 0 30px 60px -20px rgba(28, 27, 23, 0.50);
+
+  /* ── Border widths ── */
+  --border-width-medium: 2.5px;
+  --border-width-heavy: 3px;
+
+  /* ── Modal widths ── */
+  --width-modal-sm: min(380px, calc(100vw - 2rem));
+  --width-modal-md: min(440px, calc(100vw - 2rem));
 
   /* ── Font families (loaded in layout.tsx via next/font) ── */
   --font-display: var(--font-fredoka);

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Switch } from "@base-ui-components/react/switch";
+import { Switch } from "@base-ui/react/switch";
 import { cn } from "@/lib/utils";
 
 export type ToggleProps = {
@@ -53,7 +53,7 @@ function Toggle({
         onCheckedChange={onChange}
         disabled={disabled}
         className={cn(
-          "relative inline-flex w-12 h-7 rounded-pill border-[2.5px] border-ink transition-colors duration-150",
+          "relative inline-flex w-12 h-7 rounded-pill border-medium border-ink transition-colors duration-150",
           "data-[checked]:bg-green bg-white",
           ring === "purple"
             ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1"
@@ -62,9 +62,9 @@ function Toggle({
       >
         <Switch.Thumb
           className={cn(
-            "absolute top-[2px] w-5 h-5 rounded-full transition-all duration-150",
-            "data-[checked]:left-[22px] data-[checked]:bg-white",
-            "left-[2px] bg-ink"
+            "absolute top-0.5 w-5 h-5 rounded-full transition-all duration-150",
+            "data-[checked]:left-5.5 data-[checked]:bg-white",
+            "left-0.5 bg-ink"
           )}
         />
       </Switch.Root>
