@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
 import { isValidAvatarColor } from "@/lib/character";
 import { getOrCreateFamily } from "@/lib/family";
+import { getDbErrorMessage } from "@/lib/utils";
 import { activityLog, characters, families, kidProfiles } from "@/lib/schema";
 
 export async function GET() {
@@ -43,8 +44,7 @@ export async function GET() {
     return NextResponse.json({ kids });
   } catch (err) {
     console.error("GET /api/kids error:", err);
-    const message = err instanceof Error ? err.message : "Server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: getDbErrorMessage(err) }, { status: 500 });
   }
 }
 

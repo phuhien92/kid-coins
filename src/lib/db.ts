@@ -11,11 +11,13 @@ function getInstance(): DB {
     if (!process.env.DATABASE_URL) {
       throw new Error("DATABASE_URL environment variable is not set");
     }
-    // Disable prefetch for Supabase transaction mode pooler
+    // Transaction pooler (port 6543) — required for Vercel/serverless (IPv4).
+    // Username must be postgres.<project-ref>, not plain postgres.
+    // prepare: false is mandatory for transaction mode (no prepared statements).
     _instance = drizzle(
       postgres(process.env.DATABASE_URL, {
         prepare: false,
-        ssl: process.env.NODE_ENV === "production" ? "require" : undefined,
+        max: 1,
       }),
       { schema }
     );
