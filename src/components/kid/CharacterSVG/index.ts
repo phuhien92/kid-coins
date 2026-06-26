@@ -1,0 +1,1 @@
+export { CharacterSVG } from "./CharacterSVG";

@@ -63,6 +63,7 @@ export function useKidHomeData() {
   const { kid, streak, todayEarned, goal, tasks } = useKid();
   return {
     kidName: kid.name,
+    avatarColor: kid.avatarColor,
     balance: kid.balance,
     streak,
     todayEarned,
@@ -82,12 +83,22 @@ export function useKidHomeData() {
 
 function useMockKidSession(): KidSession {
   const [balance, setBalance] = React.useState(54);
+  const [kidName, setKidName] = React.useState("Friend");
+  const [avatarColor, setAvatarColor] = React.useState("#F4D34E");
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storedName = localStorage.getItem("earnie_kid_name");
+    const storedColor = localStorage.getItem("earnie_kid_avatar_color");
+    if (storedName) setKidName(storedName);
+    if (storedColor) setAvatarColor(storedColor);
+  }, []);
 
   const kid: KidProfile = {
     id: "mock-kid-1",
-    name: "Mia",
+    name: kidName,
     balance,
-    avatarColor: "#F4D34E",
+    avatarColor,
     familyId: "mock-family-1",
   };
 
