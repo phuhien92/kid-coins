@@ -42,7 +42,16 @@ export default function LoginPage() {
       }
 
       posthog?.capture("parent_signed_in");
-      router.push("/parent/home");
+
+      // Ensure a families row exists (accounts created before provisioning, or
+      // signup that skipped the family insert, would otherwise 404 on /api/kids).
+      await fetch("/api/families/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "My Family" }),
+      });
+
+      router.push("/profile-picker");
     } finally {
       setLoading(false);
     }

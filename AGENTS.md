@@ -71,14 +71,33 @@ Do not add hex color values inline; always use the token classes.
 
 When building UI components, act as a Senior Staff Frontend Engineer targeting WCAG 2.2 AA and a reusable design-system API.
 
+**Component discovery — check `src/components/ui/` first**
+- Before writing any UI layout or HTML tags, scan `src/components/ui/` for an existing match.
+- Do not use raw HTML elements (`<div>`, `<button>`, `<a>`, `<input>`) when a design-system component already exists for that purpose.
+- If an existing component needs a minor adjustment, extend its props interface rather than wrapping it in a new heavily-styled container.
+- Never write `<div className="flex-1 flex flex-col">` or similar structural divs directly in pages — use `<Page>`, `<Page.Header>`, `<Page.Content>` from `src/components/ui/Page/`.
+- Never write raw `<div onClick>` or hand-rolled tab buttons — use the design-system primitives.
+
+**Headless UI foundation — Base UI**
+- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui-components/react`). Import subpaths: `@base-ui-components/react/dialog`, `/tabs`, `/switch`, etc.
+- Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` components in `src/components/ui/` are already backed by Base UI — use and extend them, don't duplicate.
+- When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
+
 **Tokens & styling**
 - Use Tailwind utility classes that match token names exactly (`bg-cream`, `text-ink`, `rounded-card`, `font-display`, etc.). Never hardcode hex values or pixel sizes.
+- **Never use arbitrary bracket syntax.** `bg-[#f3f4f6]`, `p-[13px]`, `w-[32vw]` are all forbidden. Every size, color, spacing, and radius value must map to a token defined in `globals.css` or a Tailwind scale step.
 - Dark variants for interactive states: `bg-green` → `hover:bg-green-dk`; focus rings use `focus-visible:ring-purple` (parent) or `focus-visible:ring-green` (kid).
+
+**Tailwind bloat prevention**
+- Do not generate deep trees of generic containers with long utility strings.
+- If a single element needs more than 5 Tailwind utility classes, first check `src/components/ui/` for a structural primitive (Card, Page, Stack, etc.); if none fits, extract the block into a named sub-component.
+- If a layout pattern appears more than once, extract it into a component in `src/components/ui/`.
+- Prefer semantic HTML (`<section>`, `<article>`, `<aside>`, `<nav>`) over a plain `<div>` whenever a generic container is unavoidable.
 
 **Component API**
 - Functional components with TypeScript-typed props only.
 - Always accept an optional `className` prop and merge it with `cn()` from `src/lib/utils.ts` so callers can override layout.
-- Prefer composable sub-components (e.g. `<Card>` + `<Card.Header>`) over monolithic props-only components for anything beyond a simple primitive.
+- Prefer composable sub-components (e.g. `<Card>` + `<Card.Header>`, `<Tabs.Root>` + `<Tabs.Tab>`) over monolithic props-only components for anything beyond a simple primitive.
 
 **Interactive states**
 - Explicitly implement `:hover`, `:focus-visible`, and `:active` for every interactive element.
@@ -88,6 +107,12 @@ When building UI components, act as a Senior Staff Frontend Engineer targeting W
 - Use semantic HTML (`<button>`, `<nav>`, `<main>`, etc.) — never `<div onClick>`.
 - Add ARIA attributes where semantics are ambiguous (e.g. `aria-label` on icon-only buttons, `role="status"` on coin balance updates).
 - Ensure full keyboard navigability; test tab order mentally before shipping.
+
+**Pre-completion UI checklist**
+Before finishing any task that touches UI, confirm:
+1. `src/components/ui/` was checked — no existing component was reinvented.
+2. Zero arbitrary bracket values introduced (no `[…]` in class strings).
+3. All colors and sizes trace back to a token in `globals.css`.
 
 ## Environment variables
 
@@ -112,13 +137,31 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 
 ## Testing
 
-Use **colocated Vitest files** (`*.test.ts` / `*.test.tsx`) next to the code they test.
+**When to add tests:** Every new **component, page, hook, util, or API route** created during active development must ship with a colocated test file. This is not optional — a PR that adds a new module without a test is incomplete.
 
-- Pure logic (utils, hooks, formatters): `*.test.ts`
-- React components: `*.test.tsx` with Testing Library
-- API routes and DB queries: mock Supabase/Drizzle at the boundary
+**When to skip tests:** Bug fixes that don't add new modules, config/tooling changes, copy or design-token updates, and changes that only consume existing tested APIs.
+
+**Test file placement — colocated Vitest files next to the code they test:**
+
+| New module type | Test file |
+|---|---|
+| React component (`*.tsx`) | `ComponentName.test.tsx` in the same directory |
+| Hook, util, lib (`*.ts`) | `filename.test.ts` in the same directory |
+| API route (`route.ts`) | `route.test.ts` in the same directory |
+
+**What to test per module type:**
+
+- **Components** — use Testing Library (`@testing-library/react`). Render the component and assert on user-visible output: text, roles, states (disabled, checked, aria attributes). Do not test implementation details like class names or internal state.
+- **Hooks & utils** — pure logic tests. Cover the happy path, edge cases, and error/fallback behavior.
+- **API routes** — mock Supabase and Drizzle at the boundary (never hit the real DB). Assert on response status codes and body shape for success and error paths.
+
+**Quality bar:** Tests must cover meaningful behavior, not trivial renders. A component test that only checks "it mounts without crashing" is not sufficient. Assert on what a user or caller would actually observe.
+
+Add **Playwright E2E** (`e2e/*.spec.ts`) only for new end-to-end user flows (e.g. signup → create kid → kid login), not for every page.
 
 Manual E2E passes should be narrow: identify the one user-visible behavior to verify, run the minimal path to confirm it, and stop. Do not use manual E2E as a substitute for automated tests.
+
+Tests should cover meaningful behavior — not trivial renders or props that merely mirror implementation.
 
 ```bash
 pnpm test          # watch mode
