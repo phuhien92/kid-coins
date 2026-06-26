@@ -1,4 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <circle cx="16" cy="16" r="14" fill="#F4D34E" stroke="#1C1B17" stroke-width="3"/>
-  <text x="16" y="22" text-anchor="middle" font-size="16" font-weight="bold" font-family="Arial, sans-serif" fill="#1C1B17">E</text>
+  <!-- Coin body -->
+  <circle cx="16" cy="16" r="15" fill="#F4D34E"/>
+  <!-- Inner coin ring -->
+  <circle cx="16" cy="16" r="12" fill="none" stroke="#E3BE34" stroke-width="1.5"/>
+  <!-- Coin shine highlight -->
+  <ellipse cx="12" cy="10" rx="3" ry="1.5" fill="#FBF8EF" opacity="0.5" transform="rotate(-30 12 10)"/>
+  <!-- Dollar/coin symbol: stylised "E" for Earnie -->
+  <text x="16" y="21.5" text-anchor="middle" font-size="14" font-weight="700" font-family="Arial Rounded MT Bold, Arial, sans-serif" fill="#1C1B17" letter-spacing="-0.5">E</text>
+  <!-- Tiny sparkle top-right -->
+  <g transform="translate(25,7)">
+    <line x1="0" y1="-2.5" x2="0" y2="2.5" stroke="#2F7A55" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="-2.5" y1="0" x2="2.5" y2="0" stroke="#2F7A55" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
 </svg>
