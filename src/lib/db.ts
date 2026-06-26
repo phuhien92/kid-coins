@@ -12,7 +12,13 @@ function getInstance(): DB {
       throw new Error("DATABASE_URL environment variable is not set");
     }
     // Disable prefetch for Supabase transaction mode pooler
-    _instance = drizzle(postgres(process.env.DATABASE_URL, { prepare: false }), { schema });
+    _instance = drizzle(
+      postgres(process.env.DATABASE_URL, {
+        prepare: false,
+        ssl: process.env.NODE_ENV === "production" ? "require" : undefined,
+      }),
+      { schema }
+    );
   }
   return _instance;
 }

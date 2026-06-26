@@ -55,12 +55,19 @@ function ParentKidsContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    fetch("/api/kids")
-      .then((r) => {
+    fetch("/api/kids", { credentials: "include" })
+      .then(async (r) => {
+        if (r.status === 401) {
+          window.location.href = "/login";
+          return null;
+        }
         if (!r.ok) throw new Error("Failed to load kids");
         return r.json();
       })
-      .then((data) => setKids(data.kids ?? []))
+      .then((data) => {
+        if (!data) return;
+        setKids(data.kids ?? []);
+      })
       .catch(() => setError("Couldn't load kids. Please try again."))
       .finally(() => setLoading(false));
   }, []);

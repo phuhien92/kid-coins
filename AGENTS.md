@@ -129,6 +129,16 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 2. `pnpm db:generate` — creates a migration file in `drizzle/`
 3. `pnpm db:migrate` — applies it (requires `DATABASE_URL`)
 
+### Production (Vercel)
+
+After deploying, verify these or `/api/kids` will fail with "Couldn't load profiles/kids":
+
+1. **Vercel env vars** — set `DATABASE_URL` (transaction pooler, port 6543), Supabase keys, and `ANTHROPIC_API_KEY` for Production (and Preview if needed).
+2. **Run migrations** against the production database: `DATABASE_URL='…' pnpm db:migrate`
+3. **Supabase Auth** — add `https://your-app.vercel.app/**` to Redirect URLs in Supabase → Authentication → URL Configuration.
+
+Check Vercel function logs for `GET /api/kids error:` if profiles still fail to load.
+
 ## Auth model
 
 - **Parents** log in with email + password via Supabase Auth. Their Supabase UID is stored in `families.parentUserId`.

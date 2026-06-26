@@ -9,6 +9,14 @@ import { activityLog, characters, families, kidProfiles } from "@/lib/schema";
 
 export async function GET() {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("GET /api/kids: DATABASE_URL is not set");
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      );
+    }
+
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },
@@ -35,7 +43,8 @@ export async function GET() {
     return NextResponse.json({ kids });
   } catch (err) {
     console.error("GET /api/kids error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
