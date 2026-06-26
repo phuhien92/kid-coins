@@ -137,15 +137,25 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 
 ## Testing
 
-**When to add tests:** Only when you create a **new component, page, hook, util, or API route** as part of active development. Do not backfill tests for existing code, refactors-only diffs, or style/layout tweaks unless the user explicitly asks.
+**When to add tests:** Every new **component, page, hook, util, or API route** created during active development must ship with a colocated test file. This is not optional — a PR that adds a new module without a test is incomplete.
 
 **When to skip tests:** Bug fixes that don't add new modules, config/tooling changes, copy or design-token updates, and changes that only consume existing tested APIs.
 
-Use **colocated Vitest files** (`*.test.ts` / `*.test.tsx`) next to the code they test.
+**Test file placement — colocated Vitest files next to the code they test:**
 
-- Pure logic (utils, hooks, formatters): `*.test.ts`
-- React components & pages: `*.test.tsx` with Testing Library
-- API routes and DB queries: mock Supabase/Drizzle at the boundary
+| New module type | Test file |
+|---|---|
+| React component (`*.tsx`) | `ComponentName.test.tsx` in the same directory |
+| Hook, util, lib (`*.ts`) | `filename.test.ts` in the same directory |
+| API route (`route.ts`) | `route.test.ts` in the same directory |
+
+**What to test per module type:**
+
+- **Components** — use Testing Library (`@testing-library/react`). Render the component and assert on user-visible output: text, roles, states (disabled, checked, aria attributes). Do not test implementation details like class names or internal state.
+- **Hooks & utils** — pure logic tests. Cover the happy path, edge cases, and error/fallback behavior.
+- **API routes** — mock Supabase and Drizzle at the boundary (never hit the real DB). Assert on response status codes and body shape for success and error paths.
+
+**Quality bar:** Tests must cover meaningful behavior, not trivial renders. A component test that only checks "it mounts without crashing" is not sufficient. Assert on what a user or caller would actually observe.
 
 Add **Playwright E2E** (`e2e/*.spec.ts`) only for new end-to-end user flows (e.g. signup → create kid → kid login), not for every page.
 
