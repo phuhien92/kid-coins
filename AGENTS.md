@@ -122,13 +122,21 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 
 ## Testing
 
+**When to add tests:** Only when you create a **new component, page, hook, util, or API route** as part of active development. Do not backfill tests for existing code, refactors-only diffs, or style/layout tweaks unless the user explicitly asks.
+
+**When to skip tests:** Bug fixes that don't add new modules, config/tooling changes, copy or design-token updates, and changes that only consume existing tested APIs.
+
 Use **colocated Vitest files** (`*.test.ts` / `*.test.tsx`) next to the code they test.
 
 - Pure logic (utils, hooks, formatters): `*.test.ts`
-- React components: `*.test.tsx` with Testing Library
+- React components & pages: `*.test.tsx` with Testing Library
 - API routes and DB queries: mock Supabase/Drizzle at the boundary
 
+Add **Playwright E2E** (`e2e/*.spec.ts`) only for new end-to-end user flows (e.g. signup → create kid → kid login), not for every page.
+
 Manual E2E passes should be narrow: identify the one user-visible behavior to verify, run the minimal path to confirm it, and stop. Do not use manual E2E as a substitute for automated tests.
+
+Tests should cover meaningful behavior — not trivial renders or props that merely mirror implementation.
 
 ```bash
 pnpm test          # watch mode
