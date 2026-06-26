@@ -7,6 +7,15 @@ import { Card, CoinIcon, InitialAvatar, Modal, Skeleton } from "@/components/ui"
 import { CoinFaceAvatar } from "@/components/shared/CoinFaceAvatar";
 import { cn } from "@/lib/utils";
 
+/** Shared "stamped" shell for the picker tiles — color tokens are layered on per tile. */
+const tileShellBase = cn(
+  "group flex flex-col items-center gap-3 p-5 w-full text-left",
+  "border-[3px] rounded-card",
+  "active:translate-y-[5px] active:shadow-none",
+  "transition-[transform,box-shadow] duration-75 ease-out",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+);
+
 // ── Kid tile ───────────────────────────────────────────────────────────────
 
 type ProfilePickerKid = {
@@ -27,12 +36,9 @@ export function ProfilePickerTile({ kid, onClick }: ProfilePickerTileProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex flex-col items-center gap-3 p-5 w-full text-left",
-        "bg-cream-card border-[3px] border-ink rounded-card",
-        "shadow-[0_5px_0_var(--color-ink)]",
-        "active:translate-y-[5px] active:shadow-none",
-        "transition-[transform,box-shadow] duration-75 ease-out",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
+        tileShellBase,
+        "bg-cream-card border-ink shadow-[0_5px_0_var(--color-ink)]",
+        "focus-visible:ring-green"
       )}
     >
       <InitialAvatar name={kid.name} avatarColor={kid.avatarColor} size="picker" />
@@ -104,6 +110,16 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
   const [pinState, setPinState] = useState<PinState>("idle");
   const [shaking, setShaking] = useState(false);
 
+  const flagWrong = useCallback(() => {
+    setPinState("wrong");
+    setShaking(true);
+    setTimeout(() => {
+      setShaking(false);
+      setPin("");
+      setPinState("idle");
+    }, 600);
+  }, []);
+
   const handleKey = useCallback(
     async (key: string) => {
       if (pinState === "verifying") return;
@@ -135,25 +151,13 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
         if (res.ok) {
           onSuccess();
         } else {
-          setPinState("wrong");
-          setShaking(true);
-          setTimeout(() => {
-            setShaking(false);
-            setPin("");
-            setPinState("idle");
-          }, 600);
+          flagWrong();
         }
       } catch {
-        setPinState("wrong");
-        setShaking(true);
-        setTimeout(() => {
-          setShaking(false);
-          setPin("");
-          setPinState("idle");
-        }, 600);
+        flagWrong();
       }
     },
-    [pin, pinState, onSuccess]
+    [pin, pinState, onSuccess, flagWrong]
   );
 
   useEffect(() => {
@@ -258,12 +262,9 @@ export function ParentPickerTile({ hasPin }: ParentPickerTileProps) {
         type="button"
         onClick={handleClick}
         className={cn(
-          "group flex flex-col items-center gap-3 p-5 w-full text-left",
-          "bg-purple-tint border-[3px] border-purple-dk rounded-card",
-          "shadow-[0_5px_0_var(--color-purple-dk)]",
-          "active:translate-y-[5px] active:shadow-none",
-          "transition-[transform,box-shadow] duration-75 ease-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-2"
+          tileShellBase,
+          "bg-purple-tint border-purple-dk shadow-[0_5px_0_var(--color-purple-dk)]",
+          "focus-visible:ring-purple"
         )}
       >
         <CoinFaceAvatar size="picker" />
