@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plan — Parent Tile in Profile Picker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap');
+
+  :root {
+    --cream:       #FBF8EF;
+    --cream-card:  #FCFAF3;
+    --ink:         #1C1B17;
+    --ink-soft:    #5C5A50;
+    --green:       #2F7A55;
+    --green-dk:    #245F42;
+    --green-tint:  #CFE7D8;
+    --purple:      #7B6BE6;
+    --purple-dk:   #5E4FCB;
+    --purple-tint: #E8E5FC;
+    --coin:        #F4D34E;
+    --coin-dk:     #E3BE34;
+    --radius-card: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 32px 20px 64px;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; }
+
+  .section-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .subtitle { color: var(--ink-soft); font-size: 14px; margin-bottom: 32px; }
+
+  .divider { height: 1.5px; background: #e5e3da; margin: 32px 0; }
+
+  /* ── Section headers ── */
+  .section-header {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-header::before {
+    content: '';
+    display: block;
+    width: 4px; height: 20px;
+    background: var(--purple);
+    border-radius: 2px;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+  .badge-gray  { background: #e5e5e0; color: var(--ink-soft); }
+  .badge-green { background: var(--green-tint); color: var(--green-dk); }
+
+  /* ── Compare grid ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 620px) { .compare { grid-template-columns: 1fr; } }
+
+  .compare-box {
+    background: white;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-card);
+    padding: 20px;
+    box-shadow: 0 4px 0 var(--ink);
+  }
+
+  .box-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .box-label.current { color: var(--ink-soft); }
+  .box-label.after   { color: var(--green-dk); }
+
+  /* ── Picker mock ── */
+  .picker-mock {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .picker-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .picker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* tile */
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    background: var(--cream-card);
+    border: 2.5px solid var(--ink);
+    border-radius: var(--radius-card);
+    box-shadow: 0 4px 0 var(--ink);
+    cursor: pointer;
+  }
+  .tile-avatar {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .tile-name {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: center;
+  }
+  .tile-sub { font-size: 10px; color: var(--ink-soft); font-weight: 700; text-align: center; }
+
+  /* kid character sprite tile */
+  .tile-char {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--green-tint);
+    border: 2px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  /* dashed add tile */
+  .tile-dashed {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px; padding: 12px 8px;
+    border: 2.5px dashed #ccc;
+    border-radius: var(--radius-card);
+    color: #aaa; font-size: 10px; font-weight: 700;
+    cursor: pointer; min-height: 80px;
+  }
+
+  /* parent tile */
+  .tile-parent {
+    background: var(--purple-tint);
+    border-color: var(--purple-dk);
+    box-shadow: 0 4px 0 var(--purple-dk);
+  }
+  .tile-parent .tile-name { color: var(--purple-dk); }
+  .tile-parent .tile-sub  { color: var(--purple); }
+
+  /* ── Animated coin face ── */
+  @keyframes coin-bob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-4px); }
+  }
+  @keyframes eye-blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95%           { transform: scaleY(0.1); }
+  }
+
+  .coin-face {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFE97A, var(--coin) 55%, var(--coin-dk));
+    border: 2.5px solid var(--ink);
+    box-shadow: 0 2px 0 var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: coin-bob 2s ease-in-out infinite;
+    position: relative;
+    overflow: visible;
+  }
+
+  .coin-face svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* old plain coin icon */
+  .parent-icon {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--coin);
+    border: 2.5px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 0 var(--ink);
+  }
+
+  .highlight-ring {
+    outline: 3px dashed var(--purple);
+    outline-offset: 3px;
+    border-radius: var(--radius-card);
+  }
+
+  .footer-link {
+    text-align: center; margin-top: 10px;
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-soft); text-decoration: underline;
+  }
+
+  /* ── PIN modal mini-preview ── */
+  .pin-preview {
+    margin-top: 10px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pin-card {
+    background: white;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+    width: 100%;
+  }
+  .pin-card-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+  .pin-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+  }
+  .pin-dot.filled { background: var(--ink); }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: white;
+    border: 1.5px solid #e5e3da;
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--purple);
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-body { min-width: 0; }
+  .step-body h3 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .step-body p { font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
+  .step-body code {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 11.5px;
+    background: #f0ede4;
+    color: var(--ink);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+  .file-tag {
+    display: inline-block;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 11px;
+    background: var(--purple-tint);
+    color: var(--purple-dk);
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-top: 5px;
+  }
+  .file-tag + .file-tag { margin-left: 4px; }
+
+  /* ── Notes ── */
+  .note {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .note-yellow { background: #fffbe6; border: 1.5px solid #f4d34e; color: #7a6000; }
+  .note-purple { background: var(--purple-tint); border: 1.5px solid var(--purple); color: var(--purple-dk); margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div style="margin-bottom:8px">
+    <div class="section-label">Implementation Plan</div>
+    <h1>Parent tile in Profile Picker</h1>
+    <p class="subtitle">Move "Parent dashboard" to the first tile in the picker grid. Parent tile requires a PIN; kid tiles tap straight in (no PIN). Animated coin character for the parent tile.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Before / After -->
+  <div class="section-header">Before &amp; After</div>
+
+  <div class="compare">
+
+    <!-- BEFORE -->
+    <div class="compare-box">
+      <div class="box-label current">
+        <span class="badge badge-gray">Current</span> Footer text link · Kids need PIN to enter
+      </div>
+      <div class="picker-mock">
+        <div class="picker-title">Who's playing?</div>
+        <div class="picker-grid">
+          <div class="tile">
+            <div class="tile-avatar" style="background:#2F7A55;">A</div>
+            <div class="tile-name">Alex</div>
+            <div class="tile-sub highlight-ring" style="padding:2px 4px;border-radius:4px;">🔢 PIN modal</div>
+          </div>
+          <div class="tile">
+            <div class="tile-avatar" style="background:#7B6BE6;">S</div>
+            <div class="tile-name">Sam</div>
+            <div class="tile-sub highlight-ring" style="padding:2px 4px;border-radius:4px;">🔢 PIN modal</div>
+          </div>
+          <div class="tile-dashed">＋<br>Add a kid</div>
+        </div>
+        <div class="footer-link highlight-ring" style="margin-top:12px; padding:4px 8px; display:inline-block; width:100%; text-align:center;">
+          Parent dashboard →
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:12px;color:var(--ink-soft);">⚠️ Kids need PIN · Parent link buried · No character sprites</p>
+    </div>
+
+    <!-- AFTER -->
+    <div class="compare-box">
+      <div class="box-label after">
+        <span class="badge badge-green">Proposed</span> Parent PIN-only · Kids tap straight in · Original avatars
+      </div>
+      <div class="picker-mock">
+        <div class="picker-title">Who's playing?</div>
+        <div class="picker-grid">
+
+          <!-- parent tile FIRST with animated coin face -->
+          <div class="tile tile-parent highlight-ring">
+            <!-- Animated coin with mustache -->
+            <div class="coin-face">
+              <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- left eye -->
+                <ellipse cx="12" cy="13" rx="2" ry="2.5" fill="#1C1B17" style="animation: eye-blink 3s ease-in-out infinite;"/>
+                <!-- right eye -->
+                <ellipse cx="22" cy="13" rx="2" ry="2.5" fill="#1C1B17" style="animation: eye-blink 3s ease-in-out infinite 0.1s;"/>
+                <!-- smile -->
+                <path d="M11 19.5 Q17 23.5 23 19.5" stroke="#1C1B17" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                <!-- mustache -->
+                <path d="M10.5 17.5 Q13.5 15.5 17 17 Q20.5 15.5 23.5 17.5" stroke="#1C1B17" stroke-width="2" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <div class="tile-name">Parent</div>
+            <div class="tile-sub">🔐 PIN required</div>
+          </div>
+
+          <!-- kid tiles — original InitialAvatar, tap straight in -->
+          <div class="tile">
+            <div class="tile-avatar" style="background:#2F7A55;">A</div>
+            <div class="tile-name">Alex</div>
+            <div class="tile-sub" style="color:var(--green-dk);">▶ Tap to play</div>
+          </div>
+
+          <div class="tile">
+            <div class="tile-avatar" style="background:#7B6BE6;">S</div>
+            <div class="tile-name">Sam</div>
+            <div class="tile-sub" style="color:var(--green-dk);">▶ Tap to play</div>
+          </div>
+
+          <div class="tile-dashed">＋<br>Add a kid</div>
+        </div>
+
+        <!-- PIN modal preview -->
+        <div class="pin-preview highlight-ring" style="margin-top:10px;">
+          <div class="pin-card">
+            <div class="pin-card-title">Parent PIN</div>
+            <div class="pin-dots">
+              <div class="pin-dot filled"></div>
+              <div class="pin-dot filled"></div>
+              <div class="pin-dot"></div>
+              <div class="pin-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:12px;color:var(--green-dk);">✅ Parent PIN-guarded first · Kids tap straight in · Original InitialAvatar</p>
+    </div>
+
+  </div>
+
+  <!-- Steps -->
+  <div class="section-header">Implementation steps</div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Add <code>parentPin</code> field to families schema &amp; migration</h3>
+        <p>Add <code>parentPin: varchar(60)</code> (bcrypt hash, nullable) to the <code>families</code> table in the schema. Generate and apply a migration. Add a <code>POST /api/parent/verify-pin</code> route (mirrors <code>/api/kids/[id]/verify-pin</code>) that bcrypt-compares against the stored hash and returns 200/401.</p>
+        <span class="file-tag">src/lib/schema.ts</span>
+        <span class="file-tag">src/app/api/parent/verify-pin/route.ts</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Create animated <code>CoinFaceAvatar</code> component</h3>
+        <p>A client component rendering a gold SVG coin with eyes, smile, and mustache, with a gentle <code>bob</code> CSS animation. Eyes blink every ~3 s. Accepts <code>size</code> prop (<code>"picker"</code> = 52 px). Keep it self-contained with <code>animation</code> styles inline so it works anywhere.</p>
+        <span class="file-tag">src/components/shared/CoinFaceAvatar.tsx</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Create <code>ParentPickerTile</code> component (button + PIN modal)</h3>
+        <p>A <code>&lt;button&gt;</code> styled like a kid tile (purple tint tokens: <code>bg-purple-tint border-purple-dk</code>). On click it opens the existing <code>Modal</code> with a 4-digit numpad — same UI as the kid PIN modal but calling <code>/api/parent/verify-pin</code>. On success, <code>router.push("/parent/home")</code>. Use <code>CoinFaceAvatar</code> in the avatar slot.</p>
+        <span class="file-tag">src/components/shared/ProfilePickerTile.tsx</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>Render parent tile first; kid tiles tap straight in; remove footer link</h3>
+        <p>In <code>ProfilePickerPage</code>: (a) put <code>&lt;ParentPickerTile /&gt;</code> first in the grid; (b) change kid tile <code>onClick</code> to navigate directly to <code>/kid/home</code> (remove the <code>selectedKid</code> state and <code>PinModal</code> entirely — kids no longer need a PIN to enter); (c) delete the <code>&lt;Link href="/parent/home"&gt;Parent dashboard →&lt;/Link&gt;</code> footer line. Keep <code>ParentSignOutButton</code>.</p>
+        <span class="file-tag">src/app/(auth)/profile-picker/page.tsx</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>Tests</h3>
+        <p>Unit-test <code>CoinFaceAvatar</code> (renders, has accessible label). Test <code>ParentPickerTile</code>: clicking opens the PIN modal; successful verify navigates to <code>/parent/home</code>; wrong PIN shows error. Test <code>/api/parent/verify-pin</code>: correct hash → 200, wrong → 401.</p>
+        <span class="file-tag">src/components/shared/CoinFaceAvatar.test.tsx</span>
+        <span class="file-tag">src/components/shared/ProfilePickerTile.test.tsx</span>
+        <span class="file-tag">src/app/api/parent/verify-pin/route.test.ts</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Notes -->
+  <div class="note note-yellow">
+    <strong>Parent PIN setup:</strong> The parent will need to set a PIN the first time (e.g. in Parent Settings). If no PIN is set yet, the tile click could skip the modal and go directly to <code>/parent/home</code> — or prompt them to set one. Decide before implementing step 3.
+  </div>
+
+
+</div>
+</body>
+</html>

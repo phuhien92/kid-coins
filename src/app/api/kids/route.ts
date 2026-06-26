@@ -32,7 +32,7 @@ export async function GET() {
       orderBy: (k, { asc }) => [asc(k.createdAt)],
     });
 
-    return NextResponse.json({ kids });
+    return NextResponse.json({ kids, hasParentPin: !!family.parentPinHash });
   } catch (err) {
     console.error("GET /api/kids error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
