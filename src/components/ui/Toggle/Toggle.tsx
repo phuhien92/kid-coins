@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Switch } from "@base-ui-components/react/switch";
 import { cn } from "@/lib/utils";
 
 export type ToggleProps = {
@@ -11,8 +12,13 @@ export type ToggleProps = {
   label?: string;
   id?: string;
   className?: string;
+  ring?: "green" | "purple";
 };
 
+/**
+ * Accessible toggle switch built on Base UI Switch.
+ * Handles all keyboard/ARIA automatically; styling maps to design tokens.
+ */
 function Toggle({
   checked,
   defaultChecked = false,
@@ -21,16 +27,9 @@ function Toggle({
   label,
   id,
   className,
+  ring = "green",
 }: ToggleProps) {
-  const [internalChecked, setInternalChecked] = React.useState(defaultChecked);
-  const isControlled = checked !== undefined;
-  const isOn = isControlled ? checked : internalChecked;
   const inputId = id ?? React.useId();
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!isControlled) setInternalChecked(e.target.checked);
-    onChange?.(e.target.checked);
-  }
 
   return (
     <label
@@ -41,36 +40,34 @@ function Toggle({
         className
       )}
     >
-      <input
-        id={inputId}
-        type="checkbox"
-        checked={isOn}
-        onChange={handleChange}
-        disabled={disabled}
-        className="sr-only"
-      />
-      {/* Track */}
-      <span
-        aria-hidden="true"
-        className={cn(
-          "relative inline-block w-12 h-7 rounded-pill border-[2.5px] border-ink transition-colors duration-150",
-          isOn ? "bg-green" : "bg-white"
-        )}
-      >
-        {/* Thumb */}
-        <span
-          className={cn(
-            "absolute top-[2px] w-5 h-5 rounded-full bg-ink transition-all duration-150",
-            isOn ? "left-[22px]" : "left-[2px]",
-            isOn && "bg-white"
-          )}
-        />
-      </span>
       {label && (
         <span className="font-body font-semibold text-[15px] text-ink">
           {label}
         </span>
       )}
+
+      <Switch.Root
+        id={inputId}
+        checked={checked}
+        defaultChecked={defaultChecked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+        className={cn(
+          "relative inline-flex w-12 h-7 rounded-pill border-[2.5px] border-ink transition-colors duration-150",
+          "data-[checked]:bg-green bg-white",
+          ring === "purple"
+            ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1"
+            : "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
+        )}
+      >
+        <Switch.Thumb
+          className={cn(
+            "absolute top-[2px] w-5 h-5 rounded-full transition-all duration-150",
+            "data-[checked]:left-[22px] data-[checked]:bg-white",
+            "left-[2px] bg-ink"
+          )}
+        />
+      </Switch.Root>
     </label>
   );
 }

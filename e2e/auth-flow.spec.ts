@@ -38,7 +38,7 @@ test.describe("Signup → Signin flow", () => {
     await page.fill("#su-family-name", FAMILY_NAME);
 
     // Listen for navigation before clicking
-    const navPromise = page.waitForURL("**/parent/home", { timeout: 20000 });
+    const navPromise = page.waitForURL("**/profile-picker", { timeout: 20000 });
     await page.click('button:has-text("Create account")');
 
     // Wait a moment to see if errors appear
@@ -54,7 +54,7 @@ test.describe("Signup → Signin flow", () => {
     console.log("Current URL:", page.url());
 
     await navPromise;
-    await expect(page).toHaveURL("/parent/home");
+    await expect(page).toHaveURL("/profile-picker");
 
     // ── Sign in ──
     await page.evaluate(() => {
@@ -71,7 +71,7 @@ test.describe("Signup → Signin flow", () => {
     await page.fill('input[type="password"]', PASSWORD);
     await page.click('button:has-text("Sign in")');
 
-    await page.waitForURL("/parent/home");
-    await expect(page).toHaveURL("/parent/home");
+    await page.waitForURL("**/profile-picker");
+    await expect(page).toHaveURL("/profile-picker");
   });
 });

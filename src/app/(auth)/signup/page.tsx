@@ -121,7 +121,7 @@ export default function SignupPage() {
           return;
         }
 
-        router.push("/parent/home");
+        router.push("/profile-picker");
       } else {
         router.push(
           `/signup/verify-email?email=${encodeURIComponent(email.trim())}`

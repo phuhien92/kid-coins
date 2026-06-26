@@ -29,9 +29,9 @@ export async function proxy(request: NextRequest) {
   const isAuthPage = pathname === "/login" || pathname.startsWith("/signup");
   const isPublicPath = pathname === "/" || isAuthPage || pathname.startsWith("/api") || pathname.startsWith("/profiles");
 
-  // Authenticated users visiting auth pages → redirect to parent home
-  if (user && isAuthPage) {
-    return NextResponse.redirect(new URL("/parent/home", request.url));
+  // Authenticated users on landing or auth pages → profile picker ("Who's playing?")
+  if (user && (pathname === "/" || isAuthPage)) {
+    return NextResponse.redirect(new URL("/profile-picker", request.url));
   }
 
   // Unauthenticated users visiting protected pages → redirect to login

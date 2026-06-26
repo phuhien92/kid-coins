@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Dialog } from "@base-ui-components/react/dialog";
 import { cn } from "@/lib/utils";
 
 export type ModalWidth = "sm" | "md";
@@ -17,61 +17,110 @@ export type ModalProps = {
 };
 
 const widthClasses: Record<ModalWidth, string> = {
-  sm: "w-[min(380px,100%)]",
-  md: "w-[min(440px,100%)]",
+  sm: "w-[min(380px,calc(100vw-2rem))]",
+  md: "w-[min(440px,calc(100vw-2rem))]",
 };
 
-function Modal({ open, onClose, children, width = "md", className, "aria-label": ariaLabel, "aria-labelledby": ariaLabelledby }: ModalProps) {
-  React.useEffect(() => {
-    if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
+/**
+ * App-wide modal dialog built on Base UI Dialog.
+ * Handles focus trap, scroll lock, Escape key, and backdrop dismiss automatically.
+ * Framer Motion entrance is replaced by CSS data-attribute transitions supplied
+ * by Base UI (data-starting-style / data-ending-style).
+ */
+function Modal({
+  open,
+  onClose,
+  children,
+  width = "md",
+  className,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
+}: ModalProps) {
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          {/* Scrim */}
-          <motion.div
-            aria-hidden="true"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-[rgba(28,27,23,0.45)] backdrop-blur-sm"
-          />
+    <Dialog.Root open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <Dialog.Portal>
+        {/* Backdrop */}
+        <Dialog.Backdrop
+          className={cn(
+            "fixed inset-0 z-40 bg-[rgba(28,27,23,0.45)] backdrop-blur-sm",
+            "transition-opacity duration-200",
+            "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0"
+          )}
+        />
 
-          {/* Panel */}
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label={ariaLabel ?? (ariaLabelledby ? undefined : "Dialog")}
-            aria-labelledby={ariaLabelledby}
-            initial={{ opacity: 0, scale: 0.96, y: 24 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 24 }}
-            transition={{ duration: 0.3, ease: [0.2, 1.2, 0.4, 1] }}
-            className={cn(
-              "fixed z-50 inset-x-4 top-1/2 -translate-y-1/2 mx-auto",
-              "bg-cream-card border-[3px] border-ink",
-              "rounded-[26px]",
-              "shadow-[0_30px_60px_-20px_rgba(28,27,23,0.5)]",
-              "max-h-[94vh] overflow-y-auto",
-              widthClasses[width],
-              className
-            )}
-          >
-            {children}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        {/* Panel */}
+        <Dialog.Popup
+          aria-label={ariaLabel ?? (ariaLabelledby ? undefined : "Dialog")}
+          aria-labelledby={ariaLabelledby}
+          className={cn(
+            "fixed z-50 inset-x-4 top-1/2 -translate-y-1/2 mx-auto",
+            "bg-cream-card border-[3px] border-ink",
+            "rounded-[26px]",
+            "shadow-[0_30px_60px_-20px_rgba(28,27,23,0.5)]",
+            "max-h-[94vh] overflow-y-auto",
+            "transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.2,1.2,0.4,1)]",
+            "data-[starting-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:translate-y-[-44%]",
+            "data-[ending-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:translate-y-[-44%]",
+            widthClasses[width],
+            className
+          )}
+        >
+          {children}
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
+
+/**
+ * Convenience close button — renders inside a Modal panel.
+ */
+function ModalClose({
+  children,
+  className,
+}: {
+  children?: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Dialog.Close
+      className={cn(
+        "absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center",
+        "font-display font-bold text-[16px] text-ink-soft",
+        "hover:bg-black/8 active:bg-black/12 transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1",
+        className
+      )}
+      aria-label="Close"
+    >
+      {children ?? "✕"}
+    </Dialog.Close>
+  );
+}
+
+/**
+ * Renders a styled <Dialog.Title> so consumers don't need to import Base UI directly.
+ */
+function ModalTitle({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Dialog.Title
+      className={cn(
+        "font-display font-bold text-[20px] text-ink leading-tight",
+        className
+      )}
+    >
+      {children}
+    </Dialog.Title>
+  );
+}
+
+Modal.Close = ModalClose;
+Modal.Title = ModalTitle;
 
 export { Modal };

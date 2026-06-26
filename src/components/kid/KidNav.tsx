@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { SwitchProfileButton } from "@/components/kid/SwitchProfileButton";
 
 type NavItem = {
   href: string;
@@ -62,6 +63,7 @@ function isActive(pathname: string | null, href: string): boolean {
 /** Desktop sidebar, 230px sticky. Visible md+. */
 export function KidSidebar() {
   const pathname = usePathname();
+
   return (
     <aside
       aria-label="Primary navigation"
@@ -95,7 +97,20 @@ export function KidSidebar() {
           );
         })}
       </nav>
+
+      <div className="mt-auto border-t border-line pt-4">
+        <SwitchProfileButton size="full" />
+      </div>
     </aside>
+  );
+}
+
+/** Mobile top bar with switch profile. Visible below md (hidden on home — inline there). */
+export function KidMobileHeader() {
+  return (
+    <div className="md:hidden flex items-center justify-end px-5 pt-4 pb-2">
+      <SwitchProfileButton />
+    </div>
   );
 }
 

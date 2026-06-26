@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import {
-  createServerSupabaseClient,
-  createServiceRoleClient,
-} from "@/lib/supabase-server";
+import { eq } from "drizzle-orm";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { db } from "@/lib/db";
+import { getOrCreateFamily } from "@/lib/family";
+import { families } from "@/lib/schema";
 
 export async function POST(request: Request) {
   try {
@@ -15,21 +16,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { name } = await request.json();
-    const resolvedName = typeof name === "string" && name.trim() ? name.trim() : "My Family";
+    const body = await request.json().catch(() => ({}));
+    const name =
+      typeof body.name === "string" && body.name.trim()
+        ? body.name.trim()
+        : (user.user_metadata?.family_name as string | undefined) ?? "My Family";
 
-    const admin = createServiceRoleClient();
-    const { error } = await admin.from("families").insert({
-      parent_user_id: user.id,
-      name: resolvedName,
+    const existing = await db.query.families.findFirst({
+      where: eq(families.parentUserId, user.id),
+      columns: { id: true },
     });
 
-    if (error) {
-      console.error("families insert error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (existing) {
+      return NextResponse.json({ success: true, created: false });
     }
 
-    return NextResponse.json({ success: true });
+    await getOrCreateFamily(user.id, name);
+
+    return NextResponse.json({ success: true, created: true });
   } catch (err) {
     console.error("API error:", err);
     return NextResponse.json(
