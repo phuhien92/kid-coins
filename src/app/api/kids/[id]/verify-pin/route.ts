@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
 import { families, kidProfiles } from "@/lib/schema";
+import { issueKidSessionToken } from "@/lib/kid-session.server";
 
 export async function POST(
   request: Request,
@@ -52,7 +53,8 @@ export async function POST(
       return NextResponse.json({ error: "Wrong PIN" }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true });
+    const sessionToken = issueKidSessionToken(kid.id);
+    return NextResponse.json({ success: true, sessionToken });
   } catch (err) {
     console.error("POST /api/kids/[id]/verify-pin error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

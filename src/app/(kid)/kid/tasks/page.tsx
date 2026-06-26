@@ -136,8 +136,9 @@ function TaskCard({
 }) {
   return (
     <button
+      type="button"
       onClick={onTap}
-      aria-disabled={done}
+      disabled={done}
       aria-label={`${task.title}, ${task.coinReward} coins${done ? ", completed" : ""}`}
       className={cn(
         "w-full flex items-center gap-[14px] border-[3px] border-ink rounded-[20px] p-[15px] text-left",

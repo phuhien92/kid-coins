@@ -63,7 +63,7 @@ export function CharacterStudio({
         animate={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 420, damping: 18 }}
         className="flex items-center justify-center rounded-card border-[2.5px] border-ink py-6"
-        style={{ backgroundColor: BG_COLORS[char.bg] ?? "#CDE7F2" }}
+        style={{ backgroundColor: BG_COLORS[char.bg] ?? "var(--color-sky)" }}
       >
         <CharacterSVG char={char} size={110} />
       </motion.div>
@@ -76,6 +76,7 @@ export function CharacterStudio({
             onClick={() => setActiveCategory(cat)}
             className={cn(
               "flex-shrink-0 px-3.5 py-1.5 rounded-control border-[2.5px] border-ink font-display font-semibold text-[13px] transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
               activeCategory === cat ? "bg-ink text-cream" : "bg-cream-card text-ink"
             )}
           >
@@ -99,6 +100,7 @@ export function CharacterStudio({
               aria-pressed={selected}
               className={cn(
                 "aspect-square rounded-card border-[2.5px] border-ink flex items-center justify-center text-[11px] font-body font-bold relative overflow-hidden transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
                 selected ? "bg-green-tint" : "bg-cream-card"
               )}
               style={
@@ -126,7 +128,7 @@ export function CharacterStudio({
         type="button"
         onClick={onSave}
         disabled={saving}
-        className="w-full py-3.5 bg-green hover:bg-green-dk disabled:opacity-40 text-cream font-display font-semibold text-[16px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-green-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75"
+        className="w-full py-3.5 bg-green hover:bg-green-dk disabled:opacity-40 text-cream font-display font-semibold text-[16px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-green-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
       >
         {saving ? "Saving…" : "Save character"}
       </button>

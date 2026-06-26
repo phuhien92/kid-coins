@@ -1,5 +1,7 @@
 const KID_ID_HEADER = "x-kid-id";
+const KID_SESSION_TOKEN_HEADER = "x-kid-session-token";
 export const KID_AVATAR_COLOR_KEY = "earnie_kid_avatar_color";
+export const KID_SESSION_TOKEN_KEY = "earnie_kid_token";
 
 export function clearKidSession() {
   if (typeof window === "undefined") return;
@@ -7,16 +9,11 @@ export function clearKidSession() {
   localStorage.removeItem("earnie_kid_id");
   localStorage.removeItem("earnie_kid_name");
   localStorage.removeItem(KID_AVATAR_COLOR_KEY);
-}
-
-export function getKidIdFromRequest(request: Request): string | null {
-  return request.headers.get(KID_ID_HEADER);
-}
-
-export function verifyKidSession(request: Request, kidId: string): boolean {
-  return getKidIdFromRequest(request) === kidId;
+  localStorage.removeItem(KID_SESSION_TOKEN_KEY);
 }
 
 export function kidSessionHeaders(kidId: string): HeadersInit {
-  return { [KID_ID_HEADER]: kidId };
+  const token =
+    typeof window !== "undefined" ? (localStorage.getItem(KID_SESSION_TOKEN_KEY) ?? "") : "";
+  return { [KID_ID_HEADER]: kidId, [KID_SESSION_TOKEN_HEADER]: token };
 }

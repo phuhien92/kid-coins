@@ -53,7 +53,7 @@ export const families = pgTable("families", {
 });
 
 /**
- * One row per family. Created automatically when a family is registered.
+ * One row per family. Must be provisioned explicitly alongside family creation.
  * Stores all parent-configurable toggles so they survive across sessions
  * without hitting the families table for every settings read.
  */

@@ -1,32 +1,32 @@
 import type { CharacterState } from "@/types";
 
 export const AVATAR_COLORS = [
-  { value: "#C7E9D4", label: "Mint" },
-  { value: "#F8D3B2", label: "Peach" },
-  { value: "#F7E68C", label: "Lemon" },
-  { value: "#F0A6A0", label: "Coral" },
-  { value: "#CDE7F2", label: "Sky" },
-  { value: "#F4D34E", label: "Coin" },
+  { value: "var(--color-mint)", label: "Mint" },
+  { value: "var(--color-peach)", label: "Peach" },
+  { value: "var(--color-lemon)", label: "Lemon" },
+  { value: "var(--color-coral)", label: "Coral" },
+  { value: "var(--color-sky)", label: "Sky" },
+  { value: "var(--color-coin)", label: "Coin" },
 ] as const;
 
 export const AVATAR_COLOR_VALUES = AVATAR_COLORS.map((c) => c.value);
 
 export const BG_COLORS: Record<string, string> = {
-  sky: "#CDE7F2",
-  mint: "#C7E9D4",
-  lemon: "#F7E68C",
-  peach: "#F8D3B2",
-  coral: "#F0A6A0",
-  lav: "#DEE0FA",
+  sky: "var(--color-sky)",
+  mint: "var(--color-mint)",
+  lemon: "var(--color-lemon)",
+  peach: "var(--color-peach)",
+  coral: "var(--color-coral)",
+  lav: "var(--color-lav-pale)",
 };
 
 export const CHAR_COLORS: Record<string, string> = {
-  yellow: "#F4D34E",
-  mint: "#C7E9D4",
-  sky: "#CDE7F2",
-  peach: "#F8D3B2",
-  coral: "#F0A6A0",
-  lav: "#DEE0FA",
+  yellow: "var(--color-coin)",
+  mint: "var(--color-mint)",
+  sky: "var(--color-sky)",
+  peach: "var(--color-peach)",
+  coral: "var(--color-coral)",
+  lav: "var(--color-lav-pale)",
 };
 
 export const DEFAULT_CHARACTER: CharacterState = {
@@ -86,6 +86,7 @@ export function loadCharFromStorage(): CharacterState | null {
 }
 
 export function saveCharToStorage(char: CharacterState) {
+  if (typeof window === "undefined") return;
   localStorage.setItem(CHAR_STORAGE_KEY, JSON.stringify(char));
 }
 

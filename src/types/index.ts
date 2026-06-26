@@ -120,7 +120,7 @@ export interface ActivityEvent {
   kidId?: string;
   kidName?: string;
   type: ActivityType;
-  payload: Record<string, unknown>;
+  payload?: Record<string, unknown>;
   createdAt: string;
 }
 

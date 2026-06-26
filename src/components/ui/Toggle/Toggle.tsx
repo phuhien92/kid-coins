@@ -12,6 +12,7 @@ export type ToggleProps = {
   label?: string;
   id?: string;
   className?: string;
+  ring?: "green" | "purple";
 };
 
 /**
@@ -26,6 +27,7 @@ function Toggle({
   label,
   id,
   className,
+  ring = "green",
 }: ToggleProps) {
   const inputId = id ?? React.useId();
 
@@ -53,7 +55,9 @@ function Toggle({
         className={cn(
           "relative inline-flex w-12 h-7 rounded-pill border-[2.5px] border-ink transition-colors duration-150",
           "data-[checked]:bg-green bg-white",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
+          ring === "purple"
+            ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1"
+            : "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
         )}
       >
         <Switch.Thumb

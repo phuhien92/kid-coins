@@ -10,6 +10,7 @@ import {
   ProfilePickerTile,
   ProfilePickerTileSkeleton,
 } from "@/components/shared/ProfilePickerTile";
+import { KID_SESSION_TOKEN_KEY } from "@/lib/kid-session";
 import { cn } from "@/lib/utils";
 
 type Kid = {
@@ -99,9 +100,13 @@ function PinModal({
         });
 
         if (res.ok) {
+          const data = await res.json() as { sessionToken?: string };
           localStorage.setItem("earnie_kid_id", kid.id);
           localStorage.setItem("earnie_kid_name", kid.name);
           localStorage.setItem("earnie_kid_avatar_color", kid.avatarColor);
+          if (data.sessionToken) {
+            localStorage.setItem(KID_SESSION_TOKEN_KEY, data.sessionToken);
+          }
           onSuccess();
         } else {
           setPinState("wrong");
@@ -312,7 +317,6 @@ export default function ProfilePickerPage() {
         open={!!selectedKid}
         onClose={() => setSelectedKid(null)}
         width="sm"
-        aria-labelledby="pin-modal-title"
       >
         {selectedKid && (
           <PinModal

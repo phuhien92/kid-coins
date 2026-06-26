@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Toggle } from "@/components/ui";
 import { createClient } from "@/lib/supabase";
+import { clearKidSession } from "@/lib/kid-session";
 import { cn } from "@/lib/utils";
 
 type SettingsState = {
@@ -35,8 +36,9 @@ export default function ParentSettingsPage() {
     } finally {
       if (typeof window !== "undefined") {
         Object.keys(localStorage)
-          .filter((k) => k.startsWith("sb-") || k === "earnie_char")
+          .filter((k) => k.startsWith("sb-"))
           .forEach((k) => localStorage.removeItem(k));
+        clearKidSession();
       }
       router.push("/login");
     }
@@ -54,15 +56,15 @@ export default function ParentSettingsPage() {
           className="bg-cream-card rounded-card shadow-card border border-line overflow-hidden"
         >
           <SettingRow label="Approve every redemption" description="Review before coins are deducted">
-            <Toggle checked={settings.approveRedemptions} onChange={() => toggle("approveRedemptions")} />
+            <Toggle checked={settings.approveRedemptions} onChange={() => toggle("approveRedemptions")} ring="purple" />
           </SettingRow>
 
           <SettingRow label="Weekly AI summary" description="Email recap of your family's progress">
-            <Toggle checked={settings.weeklyAiSummary} onChange={() => toggle("weeklyAiSummary")} />
+            <Toggle checked={settings.weeklyAiSummary} onChange={() => toggle("weeklyAiSummary")} ring="purple" />
           </SettingRow>
 
           <SettingRow label="Quiet hours" description="Pause notifications at night">
-            <Toggle checked={settings.quietHours} onChange={() => toggle("quietHours")} />
+            <Toggle checked={settings.quietHours} onChange={() => toggle("quietHours")} ring="purple" />
           </SettingRow>
 
           <SettingRow label="Invite co-parent" description="Share family management access">
