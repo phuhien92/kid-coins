@@ -115,11 +115,11 @@ function useMockKidSession(): KidSession {
   };
 
   const tasks: Task[] = [
-    { id: "t1", kidId: "mock-kid-1", title: "Brush teeth (morning)", emoji: "🦷", type: "daily", coinReward: 1, isActive: true, completedToday: true },
-    { id: "t2", kidId: "mock-kid-1", title: "Make your bed", emoji: "🛏️", type: "daily", coinReward: 2, isActive: true, completedToday: false },
-    { id: "t3", kidId: "mock-kid-1", title: "Read for 20 minutes", emoji: "📚", type: "daily", coinReward: 5, isActive: true, completedToday: false },
-    { id: "t4", kidId: "mock-kid-1", title: "Help set the table", emoji: "🍽️", type: "daily", coinReward: 3, isActive: true, completedToday: false },
-    { id: "t5", kidId: "mock-kid-1", title: "Clean your room", emoji: "🧹", type: "once", coinReward: 10, isActive: true, completedToday: false },
+    { id: "t1", kidId: "mock-kid-1", title: "Brush teeth (morning)", emoji: "🦷", type: "daily", coinReward: 1, scheduledStartAt: null, durationDays: null, expiresAt: null, isActive: true, completedToday: true },
+    { id: "t2", kidId: "mock-kid-1", title: "Make your bed", emoji: "🛏️", type: "daily", coinReward: 2, scheduledStartAt: null, durationDays: null, expiresAt: null, isActive: true, completedToday: false },
+    { id: "t3", kidId: "mock-kid-1", title: "Read for 20 minutes", emoji: "📚", type: "daily", coinReward: 5, scheduledStartAt: null, durationDays: null, expiresAt: null, isActive: true, completedToday: false },
+    { id: "t4", kidId: "mock-kid-1", title: "Help set the table", emoji: "🍽️", type: "daily", coinReward: 3, scheduledStartAt: null, durationDays: null, expiresAt: null, isActive: true, completedToday: false },
+    { id: "t5", kidId: "mock-kid-1", title: "Clean your room", emoji: "🧹", type: "once", coinReward: 10, scheduledStartAt: null, durationDays: null, expiresAt: null, isActive: true, completedToday: false },
   ];
 
   const todayEarned = tasks
