@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, CoinIcon, InitialAvatar, Modal, Skeleton } from "@/components/ui";
@@ -110,10 +110,18 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
   const [pinState, setPinState] = useState<PinState>("idle");
   const [shaking, setShaking] = useState(false);
 
+  const wrongTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (wrongTimerRef.current !== null) clearTimeout(wrongTimerRef.current);
+    };
+  }, []);
+
   const flagWrong = useCallback(() => {
     setPinState("wrong");
     setShaking(true);
-    setTimeout(() => {
+    wrongTimerRef.current = setTimeout(() => {
       setShaking(false);
       setPin("");
       setPinState("idle");
@@ -175,7 +183,7 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
       <Modal.Close />
 
       <div className="flex flex-col items-center gap-2.5 mt-1">
-        <CoinFaceAvatar size="picker" />
+        <CoinFaceAvatar />
         <div className="text-center">
           <Modal.Title className="text-[22px]">Parent access</Modal.Title>
           <p className="font-body text-[14px] text-ink-soft mt-0.5">Enter your 4-digit PIN</p>
@@ -267,7 +275,7 @@ export function ParentPickerTile({ hasPin }: ParentPickerTileProps) {
           "focus-visible:ring-purple"
         )}
       >
-        <CoinFaceAvatar size="picker" />
+        <CoinFaceAvatar />
         <div className="text-center">
           <p className="font-display font-semibold text-[17px] text-purple-dk leading-snug">
             Parent

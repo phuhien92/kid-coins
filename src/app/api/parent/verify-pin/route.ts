@@ -5,6 +5,9 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
 import { families } from "@/lib/schema";
 
+// NOTE: This endpoint has no rate limiting. Before production, add brute-force
+// protection (e.g. account lockout after N failures, or an edge-middleware
+// rate limiter on this path) to prevent PIN enumeration.
 export async function POST(request: Request) {
   try {
     const supabase = await createServerSupabaseClient();

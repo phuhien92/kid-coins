@@ -5,10 +5,16 @@ import { db } from "@/lib/db";
 import { families, kidProfiles } from "@/lib/schema";
 import { issueKidSessionToken } from "@/lib/kid-session.server";
 
-/** Issues a kid session token without requiring a PIN.
- *  Only callable by an authenticated parent (Supabase session required).
- *  The profile picker page is only reachable when the parent is logged in,
- *  so this is safe — the parent is consciously selecting a kid profile. */
+/**
+ * Issues a kid session token on behalf of an authenticated parent.
+ * No kid PIN is required here — the parent has already authenticated via Supabase
+ * and is consciously choosing which child profile to open. The route validates that
+ * the requested kid belongs to the parent's own family before issuing the token.
+ *
+ * NOTE: A child using an authenticated device could reach this endpoint directly.
+ * If stricter access control is needed in future, require the parent PIN before
+ * issuing the token (see /api/parent/verify-pin).
+ */
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

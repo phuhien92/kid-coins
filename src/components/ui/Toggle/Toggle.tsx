@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Switch } from "@base-ui-components/react/switch";
+import { Switch } from "@base-ui/react/switch";
 import { cn } from "@/lib/utils";
 
 export type ToggleProps = {

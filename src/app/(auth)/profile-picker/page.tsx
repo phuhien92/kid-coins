@@ -47,19 +47,18 @@ export default function ProfilePickerPage() {
   const handleKidSelect = async (kid: Kid) => {
     try {
       const res = await fetch(`/api/kids/${kid.id}/session`, { method: "POST" });
-      if (res.ok) {
-        const data = await res.json() as { sessionToken?: string };
-        localStorage.setItem("earnie_kid_id", kid.id);
-        localStorage.setItem("earnie_kid_name", kid.name);
-        localStorage.setItem("earnie_kid_avatar_color", kid.avatarColor);
-        if (data.sessionToken) {
-          localStorage.setItem(KID_SESSION_TOKEN_KEY, data.sessionToken);
-        }
+      if (!res.ok) return;
+      const data = await res.json() as { sessionToken?: string };
+      localStorage.setItem("earnie_kid_id", kid.id);
+      localStorage.setItem("earnie_kid_name", kid.name);
+      localStorage.setItem("earnie_kid_avatar_color", kid.avatarColor);
+      if (data.sessionToken) {
+        localStorage.setItem(KID_SESSION_TOKEN_KEY, data.sessionToken);
       }
+      router.push("/kid/home");
     } catch {
-      // Non-fatal — navigate anyway; session token simply won't be set
+      // Network failure — stay on page so the user can retry
     }
-    router.push("/kid/home");
   };
 
   return (
@@ -83,9 +82,7 @@ export default function ProfilePickerPage() {
       {/* Loading */}
       {loadState === "loading" && (
         <div className="grid grid-cols-2 gap-4">
-          {/* Parent tile appears immediately — no data needed */}
-          <ParentPickerTile hasPin={false} />
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2, 3].map((i) => (
             <ProfilePickerTileSkeleton key={i} />
           ))}
         </div>

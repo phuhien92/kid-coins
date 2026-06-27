@@ -1,23 +1,22 @@
 "use client";
 
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 type CoinFaceAvatarProps = {
   className?: string;
-  /** "picker" = 52 px (matches InitialAvatar picker size) */
-  size?: "picker";
 };
 
 /** Animated gold coin character with eyes, smile, and mustache.
  *  Used as the parent profile tile avatar on the profile picker. */
-export function CoinFaceAvatar({ className, size = "picker" }: CoinFaceAvatarProps) {
-  const dim = size === "picker" ? 52 : 52;
+export function CoinFaceAvatar({ className }: CoinFaceAvatarProps) {
+  const gradId = useId();
 
   return (
     <span
       aria-label="Parent coin"
       role="img"
-      style={{ width: dim, height: dim }}
+      style={{ width: 52, height: 52 }}
       className={cn(
         "rounded-full border-[2.5px] border-ink flex-shrink-0 block",
         "shadow-[0_2px_0_var(--color-ink)]",
@@ -29,34 +28,20 @@ export function CoinFaceAvatar({ className, size = "picker" }: CoinFaceAvatarPro
         viewBox="0 0 52 52"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        width={dim}
-        height={dim}
+        width={52}
+        height={52}
         style={{ display: "block" }}
       >
         {/* Gold coin background */}
         <defs>
-          <radialGradient id="coinGrad" cx="38%" cy="35%" r="65%">
+          <radialGradient id={gradId} cx="38%" cy="35%" r="65%">
             <stop offset="0%" stopColor="#FFE97A" />
             <stop offset="55%" stopColor="#F4D34E" />
             <stop offset="100%" stopColor="#E3BE34" />
           </radialGradient>
-          {/* Blink animation */}
-          <style>{`
-            @keyframes coin-bob {
-              0%, 100% { transform: translateY(0); }
-              50%       { transform: translateY(-5px); }
-            }
-            @keyframes eye-blink {
-              0%, 88%, 100% { transform: scaleY(1); }
-              93%           { transform: scaleY(0.08); }
-            }
-            .coin-face-bob { animation: coin-bob 2.4s ease-in-out infinite; }
-            .coin-eye { transform-origin: center; animation: eye-blink 3.5s ease-in-out infinite; }
-            .coin-eye-r { animation-delay: 0.08s; }
-          `}</style>
         </defs>
 
-        <circle cx="26" cy="26" r="26" fill="url(#coinGrad)" />
+        <circle cx="26" cy="26" r="26" fill={`url(#${gradId})`} />
 
         {/* Left eye */}
         <ellipse

@@ -49,3 +49,18 @@
 body {
   min-height: 100vh;
 }
+
+/* ── CoinFaceAvatar animations ── */
+@keyframes coin-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+@keyframes eye-blink {
+  0%, 88%, 100% { transform: scaleY(1); }
+  93%           { transform: scaleY(0.08); }
+}
+
+.coin-face-bob { animation: coin-bob 2.4s ease-in-out infinite; }
+.coin-eye { transform-origin: center; animation: eye-blink 3.5s ease-in-out infinite; }
+.coin-eye-r { animation-delay: 0.08s; }
