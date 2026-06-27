@@ -290,3 +290,234 @@ pnpm build                            # no TypeScript errors
 5. Parent creates reward with qty=2 → kid redeems → parent approves → stock drops to 1
 6. Second redemption approved → stock=0 → reward auto-deactivates
 7. Kid reward page shows correct available balance (excludes any pending reservation)
+
+---
+
+## Addendum A — Bounty Quest System + XP Track
+
+### Overview
+
+Bounty Quests are time-limited surprise challenges separate from regular tasks. They keep engagement high by offering a bonus XP multiplier when completed within a specific window (e.g. "Weekend Room Cleanup Blitz — ×2 XP if done by noon Sunday").
+
+XP is a **separate currency from coins**:
+- **Coins** — earned from tasks, spent on rewards
+- **XP** — earned from task/bounty completions, spent exclusively on cosmetic unlocks in Character Studio
+
+This keeps the two economies clean: coins fund real rewards, XP funds self-expression.
+
+**Decisions:**
+| Topic | Decision |
+|---|---|
+| Bounty scope | Parent chooses: broadcast to all kids, or target a specific kid |
+| XP system | Separate track (coins + XP). XP used only for cosmetics. |
+| Quest creator | Both: parent creates custom bounties AND AI Coach suggests weekly ones |
+
+---
+
+### A1 — Schema Additions
+
+**Add `xp` to `kid_profiles`:**
+```ts
+xp: integer("xp").notNull().default(0),
+```
+
+**New table: `xpTransactions`** (append-only ledger, mirrors `coinTransactions`)
+```ts
+xpTransactions = pgTable("xp_transactions", {
+  id: uuid().defaultRandom().primaryKey(),
+  kidId: uuid().notNull().references(() => kidProfiles.id, { onDelete: "cascade" }),
+  amount: integer().notNull(),           // always positive (XP never deducted)
+  multiplier: numeric().notNull().default("1"), // 2 for bounty bonus
+  source: xpSourceEnum(),                // "task" | "bounty" | "streak" | "manual"
+  refId: uuid(),                         // taskCompletionId or bountyCompletionId
+  description: text().notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+})
+```
+
+**New table: `bountyQuests`**
+```ts
+bountyQuests = pgTable("bounty_quests", {
+  id: uuid().defaultRandom().primaryKey(),
+  familyId: uuid().notNull().references(() => families.id, { onDelete: "cascade" }),
+  kidId: uuid().references(() => kidProfiles.id, { onDelete: "cascade" }), // null = family-wide
+  title: text().notNull(),
+  emoji: text().notNull().default("⚡"),
+  description: text(),
+  coinReward: integer().notNull().default(20),
+  xpMultiplier: numeric().notNull().default("2"), // multiplier applied to base XP within window
+  windowStart: timestamp().notNull(),
+  windowEnd: timestamp().notNull(),
+  isActive: boolean().notNull().default(true),
+  isAiSuggested: boolean().notNull().default(false),
+  createdAt: timestamp().defaultNow().notNull(),
+})
+```
+
+**New table: `bountyCompletions`**
+```ts
+bountyCompletions = pgTable("bounty_completions", {
+  id: uuid().defaultRandom().primaryKey(),
+  bountyId: uuid().notNull().references(() => bountyQuests.id, { onDelete: "cascade" }),
+  kidId: uuid().notNull().references(() => kidProfiles.id, { onDelete: "cascade" }),
+  status: taskCompletionStatusEnum().notNull().default("pending"),  // reuse existing enum
+  completedAt: timestamp().defaultNow().notNull(),
+  withinWindow: boolean().notNull(),      // true if submitted before windowEnd
+  coinsEarned: integer().notNull(),
+  xpEarned: integer().notNull(),
+  resolvedAt: timestamp(),
+})
+```
+
+**New table: `cosmetics`** (catalog — seeded, not parent-created)
+```ts
+cosmetics = pgTable("cosmetics", {
+  slug: text().primaryKey(),             // matches CHARACTER_OPTIONS value, e.g. "crown", "sunglasses"
+  label: text().notNull(),
+  category: cosmeticCategoryEnum(),      // "hat" | "eye" | "extra" | "color"
+  unlockType: cosmeticUnlockEnum(),      // "default" | "xp" | "coins"
+  xpRequired: integer(),                 // set when unlockType = "xp"
+  coinCost: integer(),                   // set when unlockType = "coins"
+})
+```
+
+**New table: `kidCosmetics`** (what each kid has unlocked)
+```ts
+kidCosmetics = pgTable("kid_cosmetics", {
+  id: uuid().defaultRandom().primaryKey(),
+  kidId: uuid().notNull().references(() => kidProfiles.id, { onDelete: "cascade" }),
+  cosmeticSlug: text().notNull(),
+  unlockedAt: timestamp().defaultNow().notNull(),
+})
+```
+
+**`activityTypeEnum` — add two values:**
+```ts
+"bounty_completed"   // kid submitted a bounty completion
+"bounty_approved"    // parent approved the bounty
+```
+
+---
+
+### A2 — XP Earn Logic
+
+**From regular task approval:**
+- Base XP = `task.coinReward` (1 coin → 1 XP)
+- Multiplier = 1 (no bonus)
+- Written to `xpTransactions` (source=`task`, refId=completionId)
+- `kidProfiles.xp += xp`
+
+**From bounty approval:**
+- If `withinWindow = true`: XP = `bountyQuest.coinReward × xpMultiplier`
+- If `withinWindow = false`: XP = `bountyQuest.coinReward × 1` (base only, no bonus)
+- Written to `xpTransactions` (source=`bounty`)
+- `kidProfiles.xp += xp`
+
+**From streak milestones** (future): bonus XP at 7-day, 30-day etc. streaks.
+
+---
+
+### A3 — Cosmetic Catalog (Seed Data)
+
+Suggested default unlock tiers — final values to be confirmed by product:
+
+| Slug | Category | Unlock type | Threshold |
+|---|---|---|---|
+| `none` (hat/extra) | — | default | free |
+| `default` (eye) | eye | default | free |
+| `yellow` (color) | color | default | free |
+| `mint`, `sky`, `peach`, `coral`, `lav` | color | xp | 100–500 XP |
+| `cap` (straw hat) | hat | xp | 200 XP |
+| `party` | hat | xp | 500 XP |
+| `crown` | hat | xp | 1,000 XP |
+| `freckles` | extra | default | free |
+| `bow` | extra | xp | 150 XP |
+| `sunglasses` | extra | coins | 300 coins |
+| `mustache` | extra | xp | 400 XP |
+| `star` (eye) | eye | xp | 300 XP |
+| `sun` (eye) | eye | xp | 600 XP |
+
+---
+
+### A4 — API Routes
+
+| Route | Method | Notes |
+|---|---|---|
+| `GET /api/bounties` | GET | Active bounties visible to the authenticated kid |
+| `POST /api/bounties` | POST | Parent creates a bounty (body: title, emoji, coinReward, xpMultiplier, windowStart, windowEnd, kidId?) |
+| `PATCH /api/bounties/[id]` | PATCH | Parent edits or deactivates |
+| `POST /api/bounties/[id]/complete` | POST | Kid submits completion; sets `withinWindow` based on current time |
+| `POST /api/parent/approvals/bounty/[id]/approve` | POST | Approve; credits coins + XP, writes transactions |
+| `POST /api/parent/approvals/bounty/[id]/decline` | POST | Decline |
+| `GET /api/ai/bounty-suggestions` | GET | Returns AI-generated weekly bounty suggestions for the family |
+| `GET /api/kids/[id]/cosmetics` | GET | Kid's unlocked cosmetics |
+| `POST /api/kids/[id]/cosmetics/unlock` | POST | Unlock a cosmetic (body: slug); validates XP or deducts coins |
+
+---
+
+### A5 — Parent UI: Bounty Management
+
+**`src/app/parent/bounties/page.tsx`** — Server component listing active/upcoming/past bounties.
+
+**`src/components/parent/BountyForm.tsx`** (client):
+- Emoji + title
+- Scope toggle: "All kids" / "Specific kid" (kid selector dropdown appears when specific)
+- Coin reward + XP multiplier selector (×1 / ×1.5 / ×2 / ×3)
+- Window: date-time picker for start + end (or duration presets: 1h / 2h / 4h / All day)
+- Submits to `POST /api/bounties`
+
+**`src/components/parent/BountyCard.tsx`**:
+- Shows emoji, title, scope chip, countdown, coin reward, XP multiplier badge
+- Active/upcoming/expired status
+- Edit and deactivate actions
+
+**AI Suggestions panel** (`src/components/parent/AiBountySuggestions.tsx`):
+- Calls `GET /api/ai/bounty-suggestions` on mount
+- Shows 2–3 ready-to-activate suggestion cards
+- Each has: emoji, title, suggested window, coin/XP values, "Activate" button → pre-fills BountyForm
+
+---
+
+### A6 — Kid UI: Bounty Quest Display
+
+**`src/components/kid/BountyQuestCard.tsx`**:
+- Special visual treatment: golden border, `⚡` or bounty emoji, animated countdown timer
+- Shows: title, window end countdown, coin reward, XP multiplier badge (e.g. "×2 XP")
+- States:
+  - **Active** (within window): "Complete Quest" button
+  - **Pending** (submitted, awaiting approval): yellow pending chip
+  - **Expired** (past window, not completed): greyed out
+  - **Completed** (approved): celebration state
+
+Rendered in a "Bounty" section above the regular task list on `/kid/tasks`.
+
+---
+
+### A7 — Character Studio: Locked Cosmetics
+
+**Update `src/components/kid/CharacterStudio/CharacterStudio.tsx`:**
+- Each option tile checks if the cosmetic slug is in `kidCosmetics`
+- If locked:
+  - Greyed overlay + padlock icon
+  - Shows unlock cost: "🔒 300 XP" or "🔒 200 🪙"
+  - Tapping opens `CosmeticUnlockModal`
+- XP progress bar shown under categories with locked items
+
+**`src/components/kid/CosmeticUnlockModal.tsx`** (client):
+- Shows cosmetic preview (mini CharacterSVG with the item)
+- "Unlock for X XP" or "Unlock for X coins"
+- Confirm → `POST /api/kids/[id]/cosmetics/unlock`
+- On success: item appears unlocked, toast "New look unlocked!"
+
+---
+
+### A8 — Tests
+
+| Module | Key assertions |
+|---|---|
+| `POST /api/bounties/[id]/complete` | Sets `withinWindow=true` when before windowEnd, `false` after |
+| Bounty approve route | Credits correct coin+XP when withinWindow; base-only XP when not |
+| `POST /api/kids/[id]/cosmetics/unlock` | Blocks if kid lacks XP/coins; inserts kidCosmetics row |
+| `BountyQuestCard` | Renders all four states (active/pending/expired/completed) |
+| `CharacterStudio` | Locked items show padlock; unlocked items are selectable |
+| `CosmeticUnlockModal` | Confirm dispatches unlock; error when insufficient XP |
