@@ -521,3 +521,157 @@ Rendered in a "Bounty" section above the regular task list on `/kid/tasks`.
 | `BountyQuestCard` | Renders all four states (active/pending/expired/completed) |
 | `CharacterStudio` | Locked items show padlock; unlocked items are selectable |
 | `CosmeticUnlockModal` | Confirm dispatches unlock; error when insufficient XP |
+
+---
+
+## Addendum B — Kid Personality Interview
+
+### Decisions
+
+| Topic | Decision |
+|---|---|
+| Interview format | Conversational AI chat — Earnie AI asks questions with chip quick-replies; parent types free-form answers or taps chips |
+| Trigger | Shown once immediately after a new kid profile is created; re-editable anytime from parent kid-settings |
+| Output | Structured `kidContext` row + AI-generated `aiSummary` paragraph injected into all subsequent task/bounty suggestion prompts |
+
+---
+
+### B1 — Schema
+
+**New table `kidContext`** in `src/lib/schema.ts`:
+
+```ts
+export const kidContext = pgTable("kid_context", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  kidId: uuid("kid_id")
+    .notNull()
+    .unique()
+    .references(() => kidProfiles.id, { onDelete: "cascade" }),
+  // Structured data captured during interview
+  traits:          json("traits").$type<string[]>(),          // e.g. ["energetic","creative"]
+  interests:       json("interests").$type<string[]>(),       // e.g. ["dinosaurs","Lego"]
+  challenges:      json("challenges").$type<string[]>(),      // e.g. ["forgets to tidy","screen time"]
+  goalDescription: text("goal_description"),                  // parent's own words
+  financialGoal:   text("financial_goal"),                    // e.g. "save for a bike"
+  behavioralGoal:  text("behavioral_goal"),                   // e.g. "build morning routine"
+  // AI-generated paragraph used verbatim in task/bounty prompts
+  aiSummary:       text("ai_summary"),
+  updatedAt:       timestamp("updated_at").defaultNow().notNull(),
+});
+```
+
+Add relation on `kidProfilesRelations`:
+```ts
+context: one(kidContext, { fields: [kidProfiles.id], references: [kidContext.kidId] }),
+```
+
+Add `kidContext?: KidContext` to `src/types/index.ts`:
+```ts
+export interface KidContext {
+  id: string;
+  kidId: string;
+  traits: string[];
+  interests: string[];
+  challenges: string[];
+  goalDescription?: string;
+  financialGoal?: string;
+  behavioralGoal?: string;
+  aiSummary?: string;
+  updatedAt: string;
+}
+```
+
+Run `pnpm db:generate && pnpm db:migrate` after editing the schema.
+
+---
+
+### B2 — Interview Questions & Flow
+
+The interview is a linear conversation of 6 steps. The AI host (Earnie) asks one question at a time. Chip quick-replies accelerate entry; parent can always type freely.
+
+| Step | Earnie asks | Captures | Quick-reply chips |
+|---|---|---|---|
+| 1 | "What's [name] like? Pick a few words that describe them." | `traits[]` | Energetic · Creative · Shy · Competitive · Caring · Curious · Stubborn · Funny |
+| 2 | "What does [name] love doing?" | `interests[]` | Reading · Sports · Gaming · Art · Music · Animals · Lego · Outdoors |
+| 3 | "What's the one thing that's hardest for [name] right now?" | `challenges[]` | Tidying up · Screen time · Morning routine · Homework · Eating veggies · Being kind to siblings |
+| 4 | "In your own words, what do you most want [name] to build as a habit?" | `goalDescription` | Free-form text (no chips) |
+| 5 | "Is [name] saving up for something specific, or is this more about learning money habits?" | `financialGoal` | Saving for a toy · Learning to save · Earning pocket money · All of the above |
+| 6 | "Anything else Earnie should know about [name]?" | appended to `behavioralGoal` | Skip (chip) |
+
+After step 6, the parent taps **"Save & Finish"**. The client POSTs all collected answers to `/api/kids/[id]/context`. The server generates `aiSummary` via Claude and persists the full row.
+
+---
+
+### B3 — API Routes
+
+| Route | Method | Body / Notes |
+|---|---|---|
+| `POST /api/kids/[id]/context` | POST | `{ traits, interests, challenges, goalDescription, financialGoal, behavioralGoal }` — upserts `kidContext`, calls Claude to generate `aiSummary`, returns full row |
+| `GET /api/kids/[id]/context` | GET | Returns `kidContext` row for the kid (parent-only) |
+
+**`aiSummary` generation prompt** (sent to `claude-haiku-4-5-20251001`):
+
+```
+You are Earnie, a friendly AI coach helping parents motivate their kids with chores and saving goals.
+Write a short (3–5 sentence) personality summary for a parent's kid based on the interview answers below.
+Use warm, encouraging language. This summary will be injected into task and challenge suggestions.
+
+Kid name: {name}
+Traits: {traits.join(", ")}
+Interests: {interests.join(", ")}
+Challenges: {challenges.join(", ")}
+Parent's goal in their own words: {goalDescription}
+Financial goal: {financialGoal}
+Behavioral goal: {behavioralGoal}
+```
+
+---
+
+### B4 — AI Prompt Injection
+
+All existing and future AI endpoints that generate task or bounty suggestions must include `kidContext.aiSummary` when it exists.
+
+**In `src/app/api/ai/` route handlers** — inject after the system message:
+
+```ts
+const summary = await db.query.kidContext.findFirst({ where: eq(kidContext.kidId, kidId) });
+const contextBlock = summary?.aiSummary
+  ? `\n\nAbout this kid:\n${summary.aiSummary}`
+  : "";
+// Prepend contextBlock to the user message or append to the system prompt
+```
+
+This applies to:
+- `/api/ai/coach` (existing AI coach)
+- `/api/ai/bounty-suggestions` (from Addendum A)
+- Any future `/api/ai/task-suggestions` route
+
+---
+
+### B5 — Parent UI: Interview Flow
+
+**Trigger at kid creation** — after the parent completes the "Add Kid" wizard (name → avatar → PIN), redirect to `/parent/kids/[id]/interview` before landing on the kid detail page. Show a skip option ("I'll do this later").
+
+**`src/app/parent/kids/[id]/interview/page.tsx`** (client component):
+- Chat-style layout matching the existing `CoachChat` design (`src/components/kid/CoachChat/`)
+- Earnie avatar (coin face) on the left; parent messages on the right
+- Progress bar at the top: "Step 2 of 6"
+- Quick-reply chip row below the input
+- Back/next navigation; can go back to revise an answer
+- Final "Save & Finish" button posts to `/api/kids/[id]/context`
+- On success: redirect to `/parent/kids/[id]` with a toast "Earnie knows [name] now! Suggestions will be personalised."
+
+**Re-edit entry point** — `src/app/parent/kids/[id]/settings/page.tsx` (to be created):
+- "Personalise suggestions" section with a button "Re-run personality interview"
+- Links to the same `/parent/kids/[id]/interview` page; POST upserts the row
+
+---
+
+### B6 — Tests
+
+| Module | Key assertions |
+|---|---|
+| `POST /api/kids/[id]/context` | Upserts row; calls Claude; returns `aiSummary`; 401 without parent session |
+| `GET /api/kids/[id]/context` | Returns existing row; 404 if not found; 401 without session |
+| AI routes | When `kidContext.aiSummary` exists, it appears in the prompt sent to Claude |
+| Interview page | Steps advance on chip tap; free-form input captured; skip on step 6 works; Save posts correct payload |
