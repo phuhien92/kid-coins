@@ -3,8 +3,13 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
-import { isValidAvatarColor } from "@/lib/character";
+import {
+  charColorToAvatarColor,
+  isValidAvatarColor,
+  parseSignupCharacter,
+} from "@/lib/character";
 import { getOrCreateFamily } from "@/lib/family";
+import { getDbErrorMessage } from "@/lib/utils";
 import { activityLog, characters, families, kidProfiles } from "@/lib/schema";
 
 export async function GET() {
@@ -35,7 +40,7 @@ export async function GET() {
     return NextResponse.json({ kids, hasParentPin: !!family.parentPinHash });
   } catch (err) {
     console.error("GET /api/kids error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: getDbErrorMessage(err) }, { status: 500 });
   }
 }
 
@@ -53,8 +58,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const name = typeof body.name === "string" ? body.name.trim() : "";
     const pin = typeof body.pin === "string" ? body.pin : "";
-    const avatarColor =
+    const avatarColorInput =
       typeof body.avatarColor === "string" ? body.avatarColor : "";
+    const character = parseSignupCharacter(body.character);
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -65,6 +71,18 @@ export async function POST(request: Request) {
         { error: "PIN must be exactly 4 digits" },
         { status: 400 }
       );
+    }
+
+    if (body.character && !character) {
+      return NextResponse.json(
+        { error: "Invalid character selection" },
+        { status: 400 }
+      );
+    }
+
+    let avatarColor = avatarColorInput;
+    if (character) {
+      avatarColor = charColorToAvatarColor(character.color);
     }
 
     if (!isValidAvatarColor(avatarColor)) {
@@ -94,7 +112,19 @@ export async function POST(request: Request) {
           balance: kidProfiles.balance,
         });
 
-      await tx.insert(characters).values({ kidId: inserted.id });
+      await tx.insert(characters).values(
+        character
+          ? {
+              kidId: inserted.id,
+              color: character.color,
+              hat: character.hat,
+              eye: character.eye,
+              extra: character.extra,
+              bg: character.bg,
+              outfit: character.outfit,
+            }
+          : { kidId: inserted.id }
+      );
 
       await tx.insert(activityLog).values({
         familyId: family.id,

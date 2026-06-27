@@ -148,3 +148,50 @@ export function randomCharacter(): CharacterState {
 export function isValidAvatarColor(color: string): boolean {
   return AVATAR_COLOR_VALUES.includes(color as (typeof AVATAR_COLOR_VALUES)[number]);
 }
+
+export function isValidCharColor(color: string): boolean {
+  return color in CHAR_COLORS;
+}
+
+export function isValidOutfit(outfit: string): boolean {
+  return outfit in OUTFIT_UNLOCK_COSTS;
+}
+
+export function isFreeOutfit(outfit: string): boolean {
+  return FREE_OUTFITS.includes(outfit);
+}
+
+export function charColorToAvatarColor(color: string): string {
+  return CHAR_COLORS[color] ?? CHAR_COLORS.yellow;
+}
+
+export function parseSignupCharacter(body: unknown): CharacterState | null {
+  if (!body || typeof body !== "object") return null;
+
+  const input = body as Record<string, unknown>;
+  const outfit =
+    typeof input.outfit === "string" && isValidOutfit(input.outfit)
+      ? input.outfit
+      : "wizard";
+
+  if (!isFreeOutfit(outfit)) return null;
+
+  const color =
+    typeof input.color === "string" && isValidCharColor(input.color)
+      ? input.color
+      : DEFAULT_CHARACTER.color;
+
+  const bg =
+    typeof input.bg === "string" && input.bg in BG_COLORS
+      ? input.bg
+      : DEFAULT_CHARACTER.bg;
+
+  return {
+    color,
+    hat: DEFAULT_CHARACTER.hat,
+    eye: DEFAULT_CHARACTER.eye,
+    extra: DEFAULT_CHARACTER.extra,
+    bg,
+    outfit,
+  };
+}

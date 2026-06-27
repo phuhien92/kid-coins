@@ -60,12 +60,10 @@ test.describe("Kid profile creation and character customization", () => {
     await page.getByRole("link", { name: "Add a kid" }).click();
     await expect(page).toHaveURL("/parent/kids/new");
 
+    await page.getByRole("button", { name: "Continue — customize" }).click();
+    await page.getByRole("button", { name: "Continue — name & PIN" }).click();
+
     await page.getByPlaceholder("e.g. Emma").fill(KID_NAME);
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-
-    await page.getByRole("button", { name: "Mint" }).click();
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-
     await page.locator("#kid-pin").fill(KID_PIN);
     await page.locator("#kid-pin-confirm").fill(KID_PIN);
     await page.getByRole("button", { name: "Create profile" }).click();
@@ -85,18 +83,16 @@ test.describe("Kid profile creation and character customization", () => {
 
     // ── Kid customizes character ──
     await page.goto("/kid/profile");
-    await page.getByRole("button", { name: /Edit my character/i }).click();
-    await expect(page.getByText("Make it you!")).toBeVisible();
+    await page.getByRole("link", { name: /Edit my character/i }).click();
+    await expect(page).toHaveURL("/kid/profile/character");
+    await expect(page.getByRole("heading", { name: "Guild studio" })).toBeVisible();
 
-    await page.getByRole("button", { name: "Hat" }).click();
-    await page.getByRole("button", { name: "Cap", exact: true }).click();
-
-    await page.getByRole("button", { name: "Scene" }).click();
-    await page.getByRole("button", { name: "mint", exact: true }).click();
+    await page.getByRole("button", { name: "Skin" }).click();
+    await page.getByRole("button", { name: "Mint" }).click();
 
     await page.getByRole("button", { name: "Save character" }).click();
+    await expect(page).toHaveURL("/kid/profile");
     await expect(page.getByText("Character saved!")).toBeVisible();
-    await expect(page.getByText("Make it you!")).not.toBeVisible();
 
     // ── Character persists across reload ──
     await page.reload();
@@ -105,8 +101,8 @@ test.describe("Kid profile creation and character customization", () => {
     const charStorage = await page.evaluate(() =>
       localStorage.getItem("earnie_char")
     );
-    expect(charStorage).toContain('"hat":"cap"');
-    expect(charStorage).toContain('"bg":"mint"');
+    expect(charStorage).toContain('"color":"mint"');
+    expect(charStorage).toContain('"outfit":"wizard"');
   });
 });
 
@@ -170,10 +166,9 @@ test.describe("Family provisioning on kid create", () => {
     await page.waitForURL("**/profile-picker");
 
     await page.goto("/parent/kids/new");
+    await page.getByRole("button", { name: "Continue — customize" }).click();
+    await page.getByRole("button", { name: "Continue — name & PIN" }).click();
     await page.getByPlaceholder("e.g. Emma").fill(KID_NAME);
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-    await page.getByRole("button", { name: "Sky" }).click();
-    await page.getByRole("button", { name: "Next", exact: true }).click();
     await page.locator("#kid-pin").fill(KID_PIN);
     await page.locator("#kid-pin-confirm").fill(KID_PIN);
     await page.getByRole("button", { name: "Create profile" }).click();

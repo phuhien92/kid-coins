@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Modal, Page, Toast } from "@/components/ui";
-import { CharacterStudio } from "@/components/kid/CharacterStudio";
-import { CharacterSVG } from "@/components/kid/CharacterSVG";
+import { Page, Toast } from "@/components/ui";
+import { FantasyGuildCharacter } from "@/components/kid/FantasyGuildCharacter";
 import { SwitchProfileButton } from "@/components/kid/SwitchProfileButton";
 import {
   BG_COLORS,
+  CHAR_COLORS,
   DEFAULT_CHARACTER,
   loadCharFromStorage,
   saveCharToStorage,
@@ -34,11 +35,8 @@ const MILESTONES = [
 
 export default function KidProfilePage() {
   const router = useRouter();
-  const [kidId, setKidId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
   const [char, setChar] = useState<CharacterState>(DEFAULT_CHARACTER);
-  const [studioOpen, setStudioOpen] = useState(false);
-  const [draftChar, setDraftChar] = useState<CharacterState>(DEFAULT_CHARACTER);
-  const [saving, setSaving] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -48,7 +46,6 @@ export default function KidProfilePage() {
       router.replace("/profile-picker");
       return;
     }
-    setKidId(id);
 
     const cached = loadCharFromStorage();
     if (cached) {
@@ -70,36 +67,12 @@ export default function KidProfilePage() {
       .finally(() => setHydrated(true));
   }, [router]);
 
-  const openStudio = useCallback(() => {
-    setDraftChar(char);
-    setStudioOpen(true);
-  }, [char]);
-
-  async function handleSaveCharacter() {
-    if (!kidId) return;
-
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/kids/${kidId}/character`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...kidSessionHeaders(kidId),
-        },
-        body: JSON.stringify(draftChar),
-      });
-
-      if (!res.ok) throw new Error("Save failed");
-
-      const data = await res.json();
-      setChar(data.character);
-      saveCharToStorage(data.character);
-      setStudioOpen(false);
+  useEffect(() => {
+    if (searchParams.get("saved") === "1") {
       setToastVisible(true);
-    } finally {
-      setSaving(false);
+      router.replace("/kid/profile");
     }
-  }
+  }, [searchParams, router]);
 
   if (!hydrated) {
     return (
@@ -111,15 +84,19 @@ export default function KidProfilePage() {
     );
   }
 
+  const previewOutfit =
+    char.outfit && char.outfit !== "none" ? char.outfit : "wizard";
+  const previewSkin = CHAR_COLORS[char.color] ?? CHAR_COLORS.yellow;
+  const previewBg = BG_COLORS[char.bg] ?? BG_COLORS.sky;
+
   return (
     <Page>
       <Page.Content className="gap-6 pb-8">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-          {/* Character preview */}
           <section className="bg-cream-card border-[3px] border-ink rounded-card shadow-card overflow-hidden">
             <div
-              className="relative flex items-center justify-center py-10 px-6 min-h-[240px]"
-              style={{ backgroundColor: BG_COLORS[char.bg] ?? "#DEE0FA" }}
+              className="relative flex items-center justify-center py-10 px-6 min-h-60"
+              style={{ backgroundColor: previewBg }}
             >
               <div
                 className="absolute inset-0 opacity-30"
@@ -131,26 +108,29 @@ export default function KidProfilePage() {
                 aria-hidden
               />
               <motion.div
-                key={`${char.color}-${char.hat}-${char.eye}-${char.extra}`}
+                key={`${previewOutfit}-${char.color}`}
                 initial={{ scale: 0.94, opacity: 0.8 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 320, damping: 22 }}
               >
-                <CharacterSVG char={char} size={150} />
+                <FantasyGuildCharacter
+                  outfit={previewOutfit}
+                  mode="coin"
+                  skinColor={previewSkin}
+                  size={150}
+                />
               </motion.div>
             </div>
             <div className="p-5 border-t-[2.5px] border-ink">
-              <button
-                type="button"
-                onClick={openStudio}
-                className="w-full py-3.5 bg-green hover:bg-green-dk text-cream font-display font-semibold text-[16px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-green-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75"
+              <Link
+                href="/kid/profile/character"
+                className="block w-full py-3.5 bg-green hover:bg-green-dk text-cream font-display font-semibold text-base text-center rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-green-dk)] active:translate-y-1 active:shadow-none transition-[transform,box-shadow] duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
               >
                 Edit my character ✏️
-              </button>
+              </Link>
             </div>
           </section>
 
-          {/* Badges + milestones */}
           <div className="flex flex-col gap-5">
             <section className="bg-cream-card border-[3px] border-ink rounded-card p-5 shadow-card">
               <h2 className="font-display font-semibold text-[17px] text-ink mb-4">
@@ -214,24 +194,6 @@ export default function KidProfilePage() {
           <SwitchProfileButton size="full" className="max-w-[280px]" />
         </div>
       </Page.Content>
-
-      <Modal
-        open={studioOpen}
-        onClose={() => setStudioOpen(false)}
-        width="md"
-        aria-label="Character Studio"
-      >
-        <div className="p-6 pt-8">
-          <Modal.Close />
-          <Modal.Title className="mb-4">Make it you!</Modal.Title>
-          <CharacterStudio
-            char={draftChar}
-            onChange={setDraftChar}
-            onSave={handleSaveCharacter}
-            saving={saving}
-          />
-        </div>
-      </Modal>
 
       <Toast
         message="Character saved!"
