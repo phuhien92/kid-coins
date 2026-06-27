@@ -131,8 +131,8 @@ Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
 
 ## Auth model
 
-- **Parents** log in with email + password via Supabase Auth. Their Supabase UID is stored in `families.parentUserId`.
-- **Kids** authenticate with a 4-digit PIN. PINs are hashed (bcrypt) and stored in `kidProfiles.pinHash`. Kids do not have Supabase Auth accounts.
+- **Parents** log in with email + password via Supabase Auth. Their Supabase UID is stored in `families.parentUserId`. A parent may optionally set a 4-digit PIN — hashed (bcrypt) in `families.parentPinHash` — that guards entry to the parent area from the profile picker (verified via `POST /api/parent/verify-pin`). When no PIN is set, the parent tile opens `/parent/home` directly.
+- **Kids** authenticate with a 4-digit PIN. PINs are hashed (bcrypt) and stored in `kidProfiles.pinHash`. Kids do not have Supabase Auth accounts. From the (parent-authenticated) profile picker, selecting a kid issues a session token without a PIN via `POST /api/kids/[id]/session`.
 - Auth proxy (`src/proxy.ts`) redirects unauthenticated users to `/login`.
 
 ## Testing
