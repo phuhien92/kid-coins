@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { creditBalance } from "@/lib/kid-balance";
 import { verifyKidSession } from "@/lib/kid-session.server";
 import { isTaskVisible } from "@/lib/tasks";
 import {
@@ -81,10 +82,7 @@ export async function POST(
         return inserted;
       }
 
-      await tx
-        .update(kidProfiles)
-        .set({ balance: sql`${kidProfiles.balance} + ${task.coinReward}` })
-        .where(eq(kidProfiles.id, kidId));
+      await creditBalance(tx, kidId, task.coinReward);
 
       await tx.insert(coinTransactions).values({
         kidId,

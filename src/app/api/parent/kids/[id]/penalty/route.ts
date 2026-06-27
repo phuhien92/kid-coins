@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { debitBalance } from "@/lib/kid-balance";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import {
   activityLog,
@@ -45,12 +46,8 @@ export async function POST(
       return NextResponse.json({ error: "Kid not found" }, { status: 404 });
     }
 
-    const updated = await db.transaction(async (tx) => {
-      const [profile] = await tx
-        .update(kidProfiles)
-        .set({ balance: sql`GREATEST(0, ${kidProfiles.balance} - ${amount})` })
-        .where(eq(kidProfiles.id, kidId))
-        .returning({ balance: kidProfiles.balance });
+    await db.transaction(async (tx) => {
+      await debitBalance(tx, kidId, amount);
 
       await tx.insert(coinTransactions).values({
         kidId,
@@ -65,14 +62,12 @@ export async function POST(
         type: "coins_adjusted",
         payload: { delta: -amount, reason },
       });
-
-      return profile;
     });
 
     return NextResponse.json({
       kid: {
         id: kidId,
-        balance: updated.balance,
+        balance: Math.max(0, kid.balance - amount),
       },
     });
   } catch (err) {

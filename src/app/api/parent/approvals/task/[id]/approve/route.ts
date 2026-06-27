@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { creditBalance } from "@/lib/kid-balance";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import {
   calculateCoinsEarned,
@@ -98,10 +99,7 @@ export async function POST(
       if (!completion) return null;
 
       if (coinsEarned > 0) {
-        await tx
-          .update(kidProfiles)
-          .set({ balance: sql`${kidProfiles.balance} + ${coinsEarned}` })
-          .where(eq(kidProfiles.id, record.kid.id));
+        await creditBalance(tx, record.kid.id, coinsEarned);
 
         await tx.insert(coinTransactions).values({
           kidId: record.kid.id,

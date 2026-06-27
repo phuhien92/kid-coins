@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { debitBalance } from "@/lib/kid-balance";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import { hasRewardStock, shouldDeactivateReward } from "@/lib/rewards";
 import {
@@ -78,10 +79,7 @@ export async function POST(
 
       if (!redemption) return null;
 
-      await tx
-        .update(kidProfiles)
-        .set({ balance: sql`${kidProfiles.balance} - ${record.redemption.coinsSpent}` })
-        .where(eq(kidProfiles.id, record.kid.id));
+      await debitBalance(tx, record.kid.id, record.redemption.coinsSpent);
 
       const nextQuantityUsed = record.reward.quantityUsed + 1;
       const rewardUpdates: Partial<typeof rewards.$inferInsert> = {

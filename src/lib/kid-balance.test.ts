@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mockKidFindFirst = vi.fn();
 const mockSelect = vi.fn();
+const mockUpdate = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -9,10 +10,11 @@ vi.mock("@/lib/db", () => ({
       kidProfiles: { findFirst: (...args: unknown[]) => mockKidFindFirst(...args) },
     },
     select: (...args: unknown[]) => mockSelect(...args),
+    transaction: vi.fn(),
   },
 }));
 
-import { getKidEffectiveBalance } from "./kid-balance";
+import { getKidEffectiveBalance, creditBalance, debitBalance } from "./kid-balance";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -33,5 +35,43 @@ describe("getKidEffectiveBalance", () => {
     });
 
     await expect(getKidEffectiveBalance("kid-1")).resolves.toBe(35);
+  });
+});
+
+describe("creditBalance", () => {
+  it("issues an atomic increment update", async () => {
+    const setFn = vi.fn().mockReturnThis();
+    const whereFn = vi.fn().mockResolvedValue(undefined);
+    mockUpdate.mockReturnValue({ set: setFn });
+    setFn.mockReturnValue({ where: whereFn });
+
+    await creditBalance(
+      { update: mockUpdate } as unknown as Parameters<Parameters<typeof import("@/lib/db").db.transaction>[0]>[0],
+      "kid-1",
+      25
+    );
+
+    expect(mockUpdate).toHaveBeenCalledOnce();
+    expect(setFn).toHaveBeenCalledOnce();
+    expect(whereFn).toHaveBeenCalledOnce();
+  });
+});
+
+describe("debitBalance", () => {
+  it("issues an atomic decrement-with-floor update", async () => {
+    const setFn = vi.fn().mockReturnThis();
+    const whereFn = vi.fn().mockResolvedValue(undefined);
+    mockUpdate.mockReturnValue({ set: setFn });
+    setFn.mockReturnValue({ where: whereFn });
+
+    await debitBalance(
+      { update: mockUpdate } as unknown as Parameters<Parameters<typeof import("@/lib/db").db.transaction>[0]>[0],
+      "kid-1",
+      10
+    );
+
+    expect(mockUpdate).toHaveBeenCalledOnce();
+    expect(setFn).toHaveBeenCalledOnce();
+    expect(whereFn).toHaveBeenCalledOnce();
   });
 });
