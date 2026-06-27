@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
-import { shouldDeactivateReward } from "@/lib/rewards";
+import { hasRewardStock, shouldDeactivateReward } from "@/lib/rewards";
 import {
   activityLog,
   coinTransactions,
@@ -60,16 +60,27 @@ export async function POST(
       return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
 
+    if (!hasRewardStock(record.reward.quantity, record.reward.quantityUsed)) {
+      return NextResponse.json({ error: "Reward is sold out" }, { status: 400 });
+    }
+
     const updated = await db.transaction(async (tx) => {
       const [redemption] = await tx
         .update(redemptionRequests)
         .set({ status: "approved", resolvedAt: new Date() })
-        .where(eq(redemptionRequests.id, id))
+        .where(
+          and(
+            eq(redemptionRequests.id, id),
+            eq(redemptionRequests.status, "pending")
+          )
+        )
         .returning();
+
+      if (!redemption) return null;
 
       await tx
         .update(kidProfiles)
-        .set({ balance: record.kid.balance - record.redemption.coinsSpent })
+        .set({ balance: sql`${kidProfiles.balance} - ${record.redemption.coinsSpent}` })
         .where(eq(kidProfiles.id, record.kid.id));
 
       const nextQuantityUsed = record.reward.quantityUsed + 1;
@@ -106,6 +117,10 @@ export async function POST(
 
       return redemption;
     });
+
+    if (!updated) {
+      return NextResponse.json({ error: "Redemption already resolved" }, { status: 409 });
+    }
 
     return NextResponse.json({
       redemption: {

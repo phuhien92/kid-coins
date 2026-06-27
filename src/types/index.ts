@@ -17,9 +17,9 @@ export interface Task {
   emoji: string;
   type: "daily" | "once";
   coinReward: number;
-  scheduledStartAt?: string;
-  durationDays?: number;
-  expiresAt?: string;
+  scheduledStartAt: string | null;
+  durationDays: number | null;
+  expiresAt: string | null;
   isActive: boolean;
   completedToday?: boolean;       // derived: pending or approved completion exists for today
   pendingCompletionId?: string;   // set when there's a pending taskCompletion awaiting approval
@@ -32,8 +32,9 @@ export interface Reward {
   description?: string;
   coinCost: number;
   emoji: string;
-  quantity?: number;
+  quantity: number | null;
   quantityUsed: number;
+  remainingStock: number | null;
   isActive: boolean;
   pendingRedemptionId?: string;   // set when kid has a pending redemption for this reward
 }

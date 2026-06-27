@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import {
@@ -87,13 +87,20 @@ export async function POST(
           coinsEarned,
           resolvedAt: new Date(),
         })
-        .where(eq(taskCompletions.id, id))
+        .where(
+          and(
+            eq(taskCompletions.id, id),
+            eq(taskCompletions.status, "pending")
+          )
+        )
         .returning();
+
+      if (!completion) return null;
 
       if (coinsEarned > 0) {
         await tx
           .update(kidProfiles)
-          .set({ balance: record.kid.balance + coinsEarned })
+          .set({ balance: sql`${kidProfiles.balance} + ${coinsEarned}` })
           .where(eq(kidProfiles.id, record.kid.id));
 
         await tx.insert(coinTransactions).values({
@@ -119,6 +126,10 @@ export async function POST(
 
       return completion;
     });
+
+    if (!updated) {
+      return NextResponse.json({ error: "Completion already resolved" }, { status: 409 });
+    }
 
     return NextResponse.json({
       completion: {

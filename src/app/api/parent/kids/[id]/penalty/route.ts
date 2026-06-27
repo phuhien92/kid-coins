@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import {
@@ -46,11 +46,9 @@ export async function POST(
     }
 
     const updated = await db.transaction(async (tx) => {
-      const nextBalance = Math.max(0, kid.balance - amount);
-
       const [profile] = await tx
         .update(kidProfiles)
-        .set({ balance: nextBalance })
+        .set({ balance: sql`GREATEST(0, ${kidProfiles.balance} - ${amount})` })
         .where(eq(kidProfiles.id, kidId))
         .returning({ balance: kidProfiles.balance });
 
