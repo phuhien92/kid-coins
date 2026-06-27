@@ -49,6 +49,7 @@ export const families = pgTable("families", {
   id: uuid("id").defaultRandom().primaryKey(),
   parentUserId: text("parent_user_id").notNull().unique(), // Supabase auth UID
   name: text("name").notNull(),
+  parentPinHash: text("parent_pin_hash"), // bcrypt hash; null when no parent PIN is set
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
