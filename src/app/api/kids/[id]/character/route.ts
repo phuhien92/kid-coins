@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { verifyKidSession } from "@/lib/kid-session.server";
 import { characters } from "@/lib/schema";
 
-const CHARACTER_FIELDS = ["color", "hat", "eye", "extra", "bg"] as const;
+const CHARACTER_FIELDS = ["color", "hat", "eye", "extra", "bg", "outfit"] as const;
 
 type CharacterField = (typeof CHARACTER_FIELDS)[number];
 
@@ -32,7 +32,7 @@ export async function GET(
 
     const character = await db.query.characters.findFirst({
       where: eq(characters.kidId, id),
-      columns: { color: true, hat: true, eye: true, extra: true, bg: true },
+      columns: { color: true, hat: true, eye: true, extra: true, bg: true, outfit: true },
     });
 
     if (!character) {
@@ -81,6 +81,7 @@ export async function PUT(
           eye: characters.eye,
           extra: characters.extra,
           bg: characters.bg,
+          outfit: characters.outfit,
         });
     } else {
       [character] = await db
@@ -92,6 +93,7 @@ export async function PUT(
           eye: characters.eye,
           extra: characters.extra,
           bg: characters.bg,
+          outfit: characters.outfit,
         });
     }
 

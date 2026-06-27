@@ -1,0 +1,1 @@
+ALTER TABLE "characters" ADD COLUMN "outfit" text DEFAULT 'none' NOT NULL;

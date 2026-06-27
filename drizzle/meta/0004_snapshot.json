@@ -1,6 +1,6 @@
 {
-  "id": "82292963-1f9c-4242-94d8-5f9f0ab18181",
-  "prevId": "520e9ec2-f556-4506-88e4-55b16b9c535f",
+  "id": "fd7126b5-5cb2-4f0c-bcfb-79698f33129e",
+  "prevId": "82292963-1f9c-4242-94d8-5f9f0ab18181",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -715,6 +715,19 @@
           "notNull": true,
           "default": "'🎁'"
         },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantity_used": {
+          "name": "quantity_used",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
         "is_active": {
           "name": "is_active",
           "type": "boolean",
@@ -849,6 +862,20 @@
           "primaryKey": false,
           "notNull": true
         },
+        "payment_percent": {
+          "name": "payment_percent",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 100
+        },
+        "bonus_coins": {
+          "name": "bonus_coins",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
         "status": {
           "name": "status",
           "type": "task_completion_status",
@@ -935,6 +962,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "emoji": {
+          "name": "emoji",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'✅'"
+        },
         "type": {
           "name": "type",
           "type": "task_type",
@@ -949,6 +983,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": 10
+        },
+        "scheduled_start_at": {
+          "name": "scheduled_start_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration_days": {
+          "name": "duration_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "is_active": {
           "name": "is_active",

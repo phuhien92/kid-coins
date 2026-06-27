@@ -1,0 +1,1 @@
+export { FantasyGuildCharacter } from "./FantasyGuildCharacter";
