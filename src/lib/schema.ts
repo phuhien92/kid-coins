@@ -105,8 +105,11 @@ export const tasks = pgTable("tasks", {
     .notNull()
     .references(() => kidProfiles.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
+  emoji: text("emoji").notNull().default("✅"),
   type: taskTypeEnum("type").notNull().default("daily"),
   coinReward: integer("coin_reward").notNull().default(10),
+  scheduledStartAt: timestamp("scheduled_start_at"),
+  durationDays: integer("duration_days"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -130,6 +133,8 @@ export const taskCompletions = pgTable("task_completions", {
     .notNull()
     .references(() => kidProfiles.id, { onDelete: "cascade" }),
   coinsEarned: integer("coins_earned").notNull(),
+  paymentPercent: integer("payment_percent").notNull().default(100),
+  bonusCoins: integer("bonus_coins").notNull().default(0),
   status: taskCompletionStatusEnum("status").notNull().default("pending"),
   rejectionReason: text("rejection_reason"),
   completedAt: timestamp("completed_at").defaultNow().notNull(),
@@ -156,6 +161,8 @@ export const rewards = pgTable("rewards", {
   description: text("description"),
   coinCost: integer("coin_cost").notNull(),
   emoji: text("emoji").notNull().default("🎁"),
+  quantity: integer("quantity"),
+  quantityUsed: integer("quantity_used").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
