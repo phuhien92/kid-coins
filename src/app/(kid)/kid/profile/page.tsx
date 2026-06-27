@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -34,6 +34,24 @@ const MILESTONES = [
 ];
 
 export default function KidProfilePage() {
+  return (
+    <Suspense fallback={<LoadingProfile />}>
+      <KidProfileContent />
+    </Suspense>
+  );
+}
+
+function LoadingProfile() {
+  return (
+    <Page>
+      <Page.Content className="items-center justify-center">
+        <p className="font-body text-ink-soft">Loading profile…</p>
+      </Page.Content>
+    </Page>
+  );
+}
+
+function KidProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [char, setChar] = useState<CharacterState>(DEFAULT_CHARACTER);
