@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
+import { AuthBrand } from "../_components/AuthBrand";
+import { AuthField } from "../_components/AuthField";
 
 type State = "idle" | "sent";
 
@@ -41,12 +43,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="flex flex-col items-center mb-8">
-        <span className="text-5xl mb-3">🪙</span>
-        <h1 className="font-display font-bold text-3xl text-ink tracking-tight">
-          Earnie
-        </h1>
-      </div>
+      <AuthBrand />
 
       <div className="bg-cream-card rounded-card shadow-card border border-line p-7">
         {state === "idle" ? (
@@ -59,23 +56,15 @@ export default function ForgotPasswordPage() {
             </p>
 
             <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="reset-email"
-                  className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide"
-                >
-                  Email
-                </label>
-                <input
-                  id="reset-email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                  className="border-2 border-ink rounded-control px-4 py-3 font-body text-[14px] text-ink placeholder:text-ink-soft bg-white outline-none focus:border-purple transition-colors"
-                />
-              </div>
+              <AuthField
+                id="reset-email"
+                label="Email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(v) => { setEmail(v); setError(""); }}
+              />
 
               {error && (
                 <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
