@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AVATAR_COLORS } from "@/lib/character";
@@ -108,14 +108,9 @@ export default function AddKidPage() {
               placeholder="e.g. Emma"
               className="w-full px-4 py-3.5 bg-cream-card border-[2.5px] border-ink rounded-control font-display font-semibold text-[18px] text-ink placeholder:text-ink/30 focus:outline-none focus:ring-2 focus:ring-purple focus:ring-offset-2"
             />
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              disabled={!form.name.trim()}
-              className="w-full py-4 bg-purple hover:bg-purple-dk disabled:opacity-40 text-cream font-display font-bold text-[17px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-purple-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75"
-            >
+            <StepButton onClick={() => setStep(1)} disabled={!form.name.trim()}>
               Next
-            </button>
+            </StepButton>
           </>
         )}
 
@@ -160,13 +155,7 @@ export default function AddKidPage() {
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setStep(2)}
-              className="w-full py-4 bg-purple hover:bg-purple-dk text-cream font-display font-bold text-[17px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-purple-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75"
-            >
-              Next
-            </button>
+            <StepButton onClick={() => setStep(2)}>Next</StepButton>
           </>
         )}
 
@@ -179,78 +168,98 @@ export default function AddKidPage() {
               </p>
             </div>
             <div className="flex flex-col gap-3">
-              <div>
-                <label
-                  htmlFor="kid-pin"
-                  className="font-body font-bold text-[13px] text-ink-soft uppercase tracking-wide mb-1.5 block"
-                >
-                  4-digit PIN
-                </label>
-                <input
-                  id="kid-pin"
-                  type="password"
-                  maxLength={4}
-                  inputMode="numeric"
-                  value={form.pin}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      pin: e.target.value.replace(/\D/g, ""),
-                    }))
-                  }
-                  placeholder="••••"
-                  className="w-full px-4 py-3.5 bg-cream-card border-[2.5px] border-ink rounded-control font-display font-bold text-[24px] text-center tracking-[0.5em] text-ink placeholder:tracking-normal placeholder:text-[16px] focus:outline-none focus:ring-2 focus:ring-purple focus:ring-offset-2"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="kid-pin-confirm"
-                  className="font-body font-bold text-[13px] text-ink-soft uppercase tracking-wide mb-1.5 block"
-                >
-                  Confirm PIN
-                </label>
-                <input
-                  id="kid-pin-confirm"
-                  type="password"
-                  maxLength={4}
-                  inputMode="numeric"
-                  value={form.confirm}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      confirm: e.target.value.replace(/\D/g, ""),
-                    }))
-                  }
-                  placeholder="••••"
-                  className={cn(
-                    "w-full px-4 py-3.5 bg-cream-card border-[2.5px] rounded-control font-display font-bold text-[24px] text-center tracking-[0.5em] text-ink placeholder:tracking-normal placeholder:text-[16px] focus:outline-none focus:ring-2 focus:ring-purple focus:ring-offset-2",
-                    form.confirm && form.confirm !== form.pin
-                      ? "border-red-500"
-                      : "border-ink"
-                  )}
-                />
-                {form.confirm && form.confirm !== form.pin && (
-                  <p className="font-body text-[12px] text-red-500 mt-1">
-                    PINs don&apos;t match
-                  </p>
-                )}
-              </div>
+              <PinField
+                id="kid-pin"
+                label="4-digit PIN"
+                value={form.pin}
+                onChange={(pin) => setForm((f) => ({ ...f, pin }))}
+              />
+              <PinField
+                id="kid-pin-confirm"
+                label="Confirm PIN"
+                value={form.confirm}
+                onChange={(confirm) => setForm((f) => ({ ...f, confirm }))}
+                invalid={Boolean(form.confirm) && form.confirm !== form.pin}
+                error="PINs don't match"
+              />
             </div>
-            <button
-              type="button"
+            <StepButton
               onClick={handleSubmit}
               disabled={
-                loading ||
-                form.pin.length < 4 ||
-                form.pin !== form.confirm
+                loading || form.pin.length < 4 || form.pin !== form.confirm
               }
-              className="w-full py-4 bg-purple hover:bg-purple-dk disabled:opacity-40 text-cream font-display font-bold text-[17px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-purple-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75"
             >
               {loading ? "Creating…" : "Create profile"}
-            </button>
+            </StepButton>
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ─── Sub-components ──────────────────────────────────────────────── */
+
+function StepButton({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full py-4 bg-purple hover:bg-purple-dk disabled:opacity-40 text-cream font-display font-bold text-[17px] rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-purple-dk)] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75"
+    >
+      {children}
+    </button>
+  );
+}
+
+function PinField({
+  id,
+  label,
+  value,
+  onChange,
+  invalid = false,
+  error,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  invalid?: boolean;
+  error?: string;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="font-body font-bold text-[13px] text-ink-soft uppercase tracking-wide mb-1.5 block"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type="password"
+        maxLength={4}
+        inputMode="numeric"
+        value={value}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+        placeholder="••••"
+        className={cn(
+          "w-full px-4 py-3.5 bg-cream-card border-[2.5px] rounded-control font-display font-bold text-[24px] text-center tracking-[0.5em] text-ink placeholder:tracking-normal placeholder:text-[16px] focus:outline-none focus:ring-2 focus:ring-purple focus:ring-offset-2",
+          invalid ? "border-red-500" : "border-ink"
+        )}
+      />
+      {invalid && error && (
+        <p className="font-body text-[12px] text-red-500 mt-1">{error}</p>
+      )}
     </div>
   );
 }

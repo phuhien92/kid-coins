@@ -15,6 +15,13 @@
       "when": 1782426792167,
       "tag": "0001_skinny_moira_mactaggert",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782515418619,
+      "tag": "0002_nappy_wiccan",
+      "breakpoints": true
     }
   ]
 }

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { AuthBrand } from "../../_components/AuthBrand";
 
 const RESEND_COOLDOWN = 60;
 
@@ -42,12 +43,7 @@ function VerifyEmailContent() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="flex flex-col items-center mb-8">
-        <span className="text-5xl mb-3">🪙</span>
-        <h1 className="font-display font-bold text-3xl text-ink tracking-tight">
-          Earnie
-        </h1>
-      </div>
+      <AuthBrand />
 
       <div className="bg-cream-card rounded-card shadow-card border border-line p-7 flex flex-col items-center text-center gap-4">
         <div className="text-5xl">✉️</div>
