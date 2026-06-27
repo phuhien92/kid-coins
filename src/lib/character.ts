@@ -60,6 +60,8 @@ export const CHARACTER_OPTIONS: Record<
     { value: "none", label: "None" },
     { value: "bow", label: "Bow" },
     { value: "freckles", label: "Freckles" },
+    { value: "sunglasses", label: "Shades" },
+    { value: "mustache", label: "Stache" },
   ],
   Scene: Object.keys(BG_COLORS).map((k) => ({ value: k, label: k })),
 };
