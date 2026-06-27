@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reference — Design Tokens</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .swatch {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1.5px solid rgba(28,27,23,0.3);
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Reference Sheet</div>
+  <h1 class="lesson-title">Design Tokens Cheat Sheet</h1>
+  <p style="color:var(--ink-soft); margin-bottom:2rem;">Keep this open while writing Tailwind classes. Source of truth: <code>src/app/globals.css</code> under <code>@theme</code>. <strong>No bracket syntax ever.</strong></p>
+
+  <!-- Colors -->
+  <div class="card">
+    <h2>Colors</h2>
+    <table>
+      <thead><tr><th>Token class</th><th>Hex</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>bg-cream</code> / <code>text-cream</code></td><td><span class="swatch" style="background:#FBF8EF"></span><code>#FBF8EF</code></td><td>Page background only</td></tr>
+        <tr><td><code>bg-cream-card</code></td><td><span class="swatch" style="background:#FCFAF3"></span><code>#FCFAF3</code></td><td>Cards and modals only</td></tr>
+        <tr><td><code>text-ink</code> / <code>border-ink</code></td><td><span class="swatch" style="background:#1C1B17"></span><code>#1C1B17</code></td><td>Primary text, all borders, dividers</td></tr>
+        <tr><td><code>text-ink-soft</code></td><td><span class="swatch" style="background:#5C5A50"></span><code>#5C5A50</code></td><td>Secondary text, captions, timestamps</td></tr>
+        <tr><td><code>bg-green</code> / <code>text-green</code></td><td><span class="swatch" style="background:#2F7A55"></span><code>#2F7A55</code></td><td>Kid CTAs and primary actions in kid shell</td></tr>
+        <tr><td><code>bg-green-dk</code></td><td><span class="swatch" style="background:#245F42"></span><code>#245F42</code></td><td>Green button stamp shadow, hover state</td></tr>
+        <tr><td><code>bg-green-tint</code></td><td><span class="swatch" style="background:#CFE7D8"></span><code>#CFE7D8</code></td><td>Goal chip bg, completed task bg, active nav pill</td></tr>
+        <tr><td><code>bg-purple</code> / <code>text-purple</code></td><td><span class="swatch" style="background:#7B6BE6"></span><code>#7B6BE6</code></td><td>Parent CTAs and primary actions in parent shell</td></tr>
+        <tr><td><code>bg-purple-dk</code></td><td><span class="swatch" style="background:#5E4FCB"></span><code>#5E4FCB</code></td><td>Purple button stamp shadow</td></tr>
+        <tr><td><code>bg-lav-pale</code></td><td><span class="swatch" style="background:#DEE0FA"></span><code>#DEE0FA</code></td><td>Lav badge bg, parent metadata chips</td></tr>
+        <tr><td><code>bg-lav</code></td><td><span class="swatch" style="background:#C7CAF4"></span><code>#C7CAF4</code></td><td>Progress bar track (parent), secondary purple tint</td></tr>
+        <tr><td><code>bg-coin</code> / <code>text-coin</code></td><td><span class="swatch" style="background:#F4D34E"></span><code>#F4D34E</code></td><td>⚠️ MONEY SIGNAL ONLY — coin pip, balance, progress, streak, confetti</td></tr>
+        <tr><td><code>bg-coin-dk</code></td><td><span class="swatch" style="background:#E3BE34"></span><code>#E3BE34</code></td><td>Coin badge stamp shadow</td></tr>
+        <tr><td><code>bg-mint</code></td><td><span class="swatch" style="background:#C7E9D4"></span><code>#C7E9D4</code></td><td>Task icon background (category tint)</td></tr>
+        <tr><td><code>bg-peach</code></td><td><span class="swatch" style="background:#F8D3B2"></span><code>#F8D3B2</code></td><td>Task icon background (category tint)</td></tr>
+        <tr><td><code>bg-lemon</code></td><td><span class="swatch" style="background:#F7E68C"></span><code>#F7E68C</code></td><td>Task icon background (category tint)</td></tr>
+        <tr><td><code>bg-coral</code></td><td><span class="swatch" style="background:#F0A6A0"></span><code>#F0A6A0</code></td><td>Task icon background (category tint)</td></tr>
+        <tr><td><code>bg-sky</code></td><td><span class="swatch" style="background:#CDE7F2"></span><code>#CDE7F2</code></td><td>Task icon background, character bg</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger">
+      <p><strong>Three rules that are non-negotiable:</strong><br>
+      1. <strong>Coin yellow = money signal only.</strong> Never decorative.<br>
+      2. <strong>Green = kid. Purple = parent.</strong> Never cross-shell.<br>
+      3. <strong>Cream on pages, cream-card on cards.</strong> Never swap.</p>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="card">
+    <h2>Typography</h2>
+    <table>
+      <thead><tr><th>Token</th><th>Tailwind class</th><th>Spec</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>Display</td><td><code>font-display text-4xl font-semibold</code></td><td>Fredoka 600, 2rem, lh 1.1</td><td>Coin balance numerals, page identity titles</td></tr>
+        <tr><td>Headline</td><td><code>font-display text-xl font-semibold</code></td><td>Fredoka 600, 1.25rem, lh 1.2</td><td>Modal titles, AI coach questions, promo banners</td></tr>
+        <tr><td>Title</td><td><code>font-display text-[1.0625rem] font-semibold</code></td><td>Fredoka 600, 17px, lh 1.3</td><td>Task names, reward names, primary button labels</td></tr>
+        <tr><td>Body</td><td><code>font-body text-[0.9375rem] font-bold</code></td><td>Nunito 700, 15px, lh 1.5</td><td>Card content, settings, AI coach replies</td></tr>
+        <tr><td>Label</td><td><code>font-body text-[0.8125rem] font-extrabold</code></td><td>Nunito 800, 13px, lh 1.4</td><td>Chips, count badges, meta lines — floor, never go smaller</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green">
+      <p><strong>The Fredoka-for-Voice rule:</strong> Fredoka = where the system <em>speaks</em> (CTAs, task names, balances). Nunito = where the system <em>records</em> (body copy, settings, descriptions).</p>
+    </div>
+  </div>
+
+  <!-- Border radius -->
+  <div class="card">
+    <h2>Border Radius</h2>
+    <table>
+      <thead><tr><th>Token class</th><th>Value</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>rounded-control</code></td><td>10px</td><td>Mini buttons, inputs on tight rows</td></tr>
+        <tr><td><code>rounded-button</code></td><td>14px</td><td>Standard buttons (green, purple, ghost)</td></tr>
+        <tr><td><code>rounded-card</code></td><td>16px</td><td>Cards and container surfaces</td></tr>
+        <tr><td><code>rounded-task</code></td><td>20px</td><td>Task item rows</td></tr>
+        <tr><td><code>rounded-modal</code></td><td>26px</td><td>Modals and the kid balance card</td></tr>
+        <tr><td><code>rounded-pill</code></td><td>999px</td><td>Chips, badges, toggles, progress bars</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Spacing -->
+  <div class="card">
+    <h2>Spacing Scale</h2>
+    <table>
+      <thead><tr><th>Token</th><th>Value</th><th>Common use</th></tr></thead>
+      <tbody>
+        <tr><td><code>xs</code></td><td>4px</td><td>Icon gaps, tight row spacing</td></tr>
+        <tr><td><code>sm</code></td><td>8px</td><td>Inner element gaps</td></tr>
+        <tr><td><code>md</code></td><td>12px</td><td>Compact padding</td></tr>
+        <tr><td><code>lg</code></td><td>16px</td><td>Standard card padding (compact variant)</td></tr>
+        <tr><td><code>xl</code></td><td>24px</td><td>Standard card padding (default)</td></tr>
+        <tr><td><code>2xl</code></td><td>32px</td><td>Section spacing, modal padding</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Shadows -->
+  <div class="card">
+    <h2>Elevation / Shadows</h2>
+    <table>
+      <thead><tr><th>Use</th><th>CSS value</th><th>Tailwind token</th></tr></thead>
+      <tbody>
+        <tr><td>Card ambient lift</td><td><code>0 10px 26px -14px rgba(28,27,23,0.30)</code></td><td><code>shadow-card</code></td></tr>
+        <tr><td>Modal ambient</td><td><code>0 30px 60px -20px rgba(28,27,23,0.50)</code></td><td><code>shadow-modal</code></td></tr>
+        <tr><td>Green CTA stamp</td><td><code>0 5px 0 var(--color-green-dk)</code></td><td><code>shadow-stamp-green</code></td></tr>
+        <tr><td>Purple CTA stamp</td><td><code>0 4px 0 var(--color-purple-dk)</code></td><td><code>shadow-stamp-purple</code></td></tr>
+        <tr><td>Coin badge stamp</td><td><code>0 3px 0 var(--color-coin-dk)</code></td><td><code>shadow-stamp-coin</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <p><strong>Two-layer rule:</strong> Cards use ambient shadow (float). Buttons use stamp shadow (press). Never mix them on one element. Cards don't stamp; buttons don't float.</p>
+    </div>
+  </div>
+
+  <!-- Border weights -->
+  <div class="card">
+    <h2>Border Weights</h2>
+    <table>
+      <thead><tr><th>Where</th><th>Weight</th></tr></thead>
+      <tbody>
+        <tr><td>Primary buttons (green/purple), cards</td><td>3px solid ink</td></tr>
+        <tr><td>Chips, badges, secondary buttons, compact card</td><td>2.5px solid ink</td></tr>
+        <tr><td>Ghost buttons, inputs</td><td>2px solid ink</td></tr>
+        <tr><td>Decorative dividers</td><td><code>var(--color-line)</code> (rgba ink 0.12) — never carries text</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger">
+      <p>Never drop the ink border below 2px for "elegance." The chunky border IS the brand. Thinning it is exactly the cold-fintech move the brand rejects.</p>
+    </div>
+  </div>
+
+  <!-- Interactive states -->
+  <div class="card">
+    <h2>Interactive State Pattern</h2>
+    <pre><code>/* Green primary button — full pattern */
+className="
+  bg-green text-cream-card
+  border-[3px] border-ink rounded-button
+  shadow-stamp-green
+  hover:bg-green-dk
+  focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-ink focus-visible:outline-offset-[3px]
+  active:translate-y-1 active:shadow-[0_1px_0_var(--color-green-dk)]
+  disabled:opacity-50 disabled:pointer-events-none
+  transition-colors
+"</code></pre>
+    <div class="callout green">
+      <p>Every interactive element needs all three: <code>:hover</code>, <code>:focus-visible</code>, <code>:active</code>. Focus ring uses outline, not box-shadow (so it doesn't fight the stamp shadow). Disabled = <code>opacity-50 pointer-events-none</code>.</p>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <a href="../lessons/01-the-earnie-loop.html" class="nav-btn">Start Lessons →</a>
+    <a href="db-schema.html" class="nav-btn ghost">← DB Schema</a>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 04 — The Coin Flow</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Lesson 04 of 05</div>
+  <h1 class="lesson-title">The Coin Flow</h1>
+  <div class="win-chip">🏆 Win: Trace a coin from the kid's tap all the way to the ledger</div>
+
+  <!-- ── Why this matters ── -->
+  <div class="card">
+    <h2>Why This Is the Core Feature</h2>
+    <p>Everything in Earnie revolves around coins. The task system creates coins. The goal system tracks them. The reward system spends them. If you understand the coin flow end-to-end, you understand ~80% of the app's complexity.</p>
+    <p>There are two flows that are mirrors of each other:</p>
+    <ul>
+      <li><strong>Earning:</strong> Task → <code>task_completions</code> → parent approval → <code>coin_transactions(earned)</code></li>
+      <li><strong>Spending:</strong> Reward request → <code>redemption_requests</code> → parent approval → <code>coin_transactions(redeemed)</code></li>
+    </ul>
+  </div>
+
+  <!-- ── Earning path ── -->
+  <div class="card">
+    <h2>Earning Path (Task → Coins)</h2>
+
+    <h3>Step 1 — Kid taps "Mark Done"</h3>
+    <pre><code>// KidContext.addCoins() is called IMMEDIATELY (optimistic)
+setBalance(prev => prev + task.coinReward);
+
+// Then the API call happens
+POST /api/tasks/completions
+Body: { taskId, kidId, coinsEarned }</code></pre>
+
+    <h3>Step 2 — API inserts a pending completion</h3>
+    <pre><code>INSERT INTO task_completions
+  (task_id, kid_id, coins_earned, status='pending', completed_at=now())</code></pre>
+    <p>An <code>activity_log</code> row of type <code>task_completed</code> is also appended here.</p>
+
+    <h3>Step 3a — Parent approval required (<code>require_task_approval = true</code>)</h3>
+    <pre><code>// Parent sees pending item on /parent/home
+// Taps "Approve"
+PATCH /api/tasks/completions/[id]
+Body: { action: "approve" }
+
+// Server runs (one DB transaction):
+UPDATE task_completions SET status='approved', resolved_at=now()
+UPDATE kid_profiles    SET balance = balance + coins_earned
+INSERT INTO coin_transactions (type='earned', amount, description)
+INSERT INTO activity_log      (type='task_approved', payload={…})</code></pre>
+
+    <h3>Step 3b — Auto-approve (<code>require_task_approval = false</code>)</h3>
+    <p>The API skips the pending state entirely — all four writes happen on insert. The kid's balance updates before the parent even sees it.</p>
+
+    <div class="callout danger">
+      <p><strong>On denial:</strong> <code>status = 'denied'</code>, and the optimistic coin update in <code>KidContext</code> must be rolled back. The server sends back <code>{ status: 'denied' }</code> and the kid's UI calls <code>addCoins(-task.coinReward)</code>.</p>
+    </div>
+  </div>
+
+  <!-- ── Optimistic UI ── -->
+  <div class="card">
+    <h2>Optimistic UI in KidContext</h2>
+    <p>The kid's coin balance updates <strong>instantly</strong> when they tap "Mark Done" — before any API response. This makes the app feel snappy and rewarding for kids who need immediate feedback.</p>
+    <pre><code>// src/context/KidContext.tsx
+const addCoins = useCallback(
+  (delta: number) =&gt; setBalance(b =&gt; b + delta),
+  []
+);
+
+// Usage in task page:
+function handleMarkDone(task: Task) {
+  addCoins(task.coinReward);           // immediate UI update
+  fetch('/api/tasks/completions', …)   // background API call
+    .then(res =&gt; {
+      if (res.status === 'denied') addCoins(-task.coinReward); // rollback
+    });
+}</code></pre>
+    <div class="callout">
+      <p><strong>Current state:</strong> <code>KidContext</code> uses a mock session (<code>useMockKidSession</code>). The real Supabase-backed implementation is the #1 pending integration task. The <code>addCoins</code> interface will stay the same — only the data source changes.</p>
+    </div>
+  </div>
+
+  <!-- ── Redemption mirror ── -->
+  <div class="card">
+    <h2>Spending Path (Reward Redemption)</h2>
+    <p>The redemption flow is a structural mirror of the earning flow:</p>
+    <div class="flow">
+      <div class="flow-step">Kid taps Redeem</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">redemption_requests (pending)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step green">Parent approves</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step coin">coin_transactions (redeemed) − coins</div>
+    </div>
+    <p style="margin-top:1rem">Key difference: coins are <strong>deducted</strong> on approval. The optimistic UI on the kid side should show the reward as "pending" (greyed out / badge) rather than immediately deducting balance — because kids find balance going down confusing before approval.</p>
+    <pre><code>// On redemption approval (server-side):
+UPDATE redemption_requests SET status='approved', resolved_at=now()
+UPDATE kid_profiles        SET balance = balance - coins_spent
+INSERT INTO coin_transactions (type='redeemed', amount=-coins_spent, …)
+INSERT INTO activity_log      (type='reward_approved', payload={…})</code></pre>
+  </div>
+
+  <!-- ── Realtime sync ── -->
+  <div class="card">
+    <h2>Cross-Device Sync via Supabase Realtime</h2>
+    <p>A parent approves a task on their phone. The kid's tablet needs to update its coin balance without a page refresh. This is handled by <strong>Supabase Realtime</strong>.</p>
+    <pre><code>// Kid's client subscribes to their kid_profiles row
+supabase
+  .channel('kid-balance')
+  .on('postgres_changes', {
+    event: 'UPDATE',
+    schema: 'public',
+    table: 'kid_profiles',
+    filter: `id=eq.${kidId}`,
+  }, (payload) =&gt; {
+    // Update KidContext balance from payload.new.balance
+    setBalance(payload.new.balance);
+  })
+  .subscribe();</code></pre>
+    <div class="callout green">
+      <p>The Realtime subscription acts as a reconciliation layer — even if the optimistic update was slightly wrong (e.g., auto-approve happened differently), the real balance syncs down.</p>
+    </div>
+  </div>
+
+  <!-- ── Manual adjustment ── -->
+  <div class="card">
+    <h2>Manual Coin Adjustment</h2>
+    <p>Parents can adjust a kid's balance directly (positive or negative). This creates a <code>coin_transactions</code> row with <code>type = 'adjusted'</code> and the delta as <code>amount</code> (can be negative).</p>
+    <p>Always write the reason to <code>description</code> — it shows up in the activity feed and coin history. The <code>activityLog</code> entry type is <code>coins_adjusted</code>.</p>
+  </div>
+
+  <!-- ── Quiz ── -->
+  <div class="quiz">
+    <h2>🧠 Retrieval Check</h2>
+
+    <div class="quiz-q">
+      <p class="question">1. A kid marks a task done. List exactly what happens in the next 5 seconds, in order, including what the kid sees vs what the DB state is.</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          t=0: Kid taps "Mark Done". KidContext immediately adds coins (optimistic) — kid sees balance increase.<br>
+          t=0ms: API call fires in background: <code>POST /api/tasks/completions</code>.<br>
+          t=~100ms: DB inserts <code>task_completions</code> with <code>status='pending'</code> + <code>activity_log(task_completed)</code>.<br>
+          t=~100ms: API responds — kid UI shows task as "pending approval" (if require_task_approval=true).<br>
+          Later: Parent approves → DB updates 4 rows in one transaction. Supabase Realtime pushes balance update to kid's device.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">2. A parent denies a task. What must the client do that it wouldn't do on approval?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Roll back the optimistic coin update. Call <code>addCoins(-task.coinReward)</code> to subtract the coins that were added immediately when the kid tapped done. No DB write is needed on the client — the server already set <code>status='denied'</code> and did not credit coins.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">3. How would you correct a kid's balance if an incorrect coin_transactions row was inserted?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Never update or delete the incorrect row — it's an immutable ledger. Insert a new <code>coin_transactions</code> row of <code>type='adjusted'</code> with the corrective delta (e.g., if 20 coins were incorrectly credited, insert <code>amount=-20</code>). Also update <code>kid_profiles.balance</code> by the same delta. Write a clear <code>description</code> explaining the correction.
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <a href="05-frontend-architecture.html" class="nav-btn">Next: Frontend Architecture →</a>
+    <a href="03-auth-and-sessions.html" class="nav-btn ghost">← Auth & Sessions</a>
+  </div>
+
+</div>
+</body>
+</html>

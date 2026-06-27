@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reference — DB Schema Cheat Sheet</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Reference Sheet</div>
+  <h1 class="lesson-title">DB Schema Cheat Sheet</h1>
+  <p style="color:var(--ink-soft); margin-bottom:2rem;">Keep this open while working on API routes or migrations. Source of truth: <code>src/lib/schema.ts</code></p>
+
+  <!-- ── Hierarchy ── -->
+  <div class="card">
+    <h2>Ownership Hierarchy</h2>
+    <pre><code>families
+├── family_settings (1:1)
+├── rewards (1:N)              ← shared by all kids!
+├── activity_log (1:N)
+└── kid_profiles (1:N)
+    ├── characters (1:1)
+    ├── streaks (1:1)
+    ├── tasks (1:N)            ← per kid, not per family
+    ├── goals (1:N)
+    ├── badges (1:N)
+    ├── task_completions (1:N)
+    ├── coin_transactions (1:N)
+    └── redemption_requests (1:N)</code></pre>
+  </div>
+
+  <!-- families -->
+  <div class="card">
+    <h2><code>families</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>uuid PK</td><td>Auto-generated</td></tr>
+        <tr><td><code>parent_user_id</code></td><td>text UNIQUE</td><td>Supabase Auth UID</td></tr>
+        <tr><td><code>name</code></td><td>text</td><td>Family display name</td></tr>
+        <tr><td><code>parent_pin_hash</code></td><td>text nullable</td><td>bcrypt hash; null = no PIN set</td></tr>
+        <tr><td><code>created_at</code></td><td>timestamp</td><td>defaultNow()</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- family_settings -->
+  <div class="card">
+    <h2><code>family_settings</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>family_id</code></td><td>uuid FK → families</td><td>UNIQUE, CASCADE</td></tr>
+        <tr><td><code>require_task_approval</code></td><td>boolean</td><td><code>true</code></td></tr>
+        <tr><td><code>require_redemption_approval</code></td><td>boolean</td><td><code>true</code></td></tr>
+        <tr><td><code>weekly_ai_summary</code></td><td>boolean</td><td><code>true</code></td></tr>
+        <tr><td><code>quiet_hours</code></td><td>boolean</td><td><code>false</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- kid_profiles -->
+  <div class="card">
+    <h2><code>kid_profiles</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>uuid PK</td><td></td></tr>
+        <tr><td><code>family_id</code></td><td>uuid FK → families</td><td>CASCADE</td></tr>
+        <tr><td><code>name</code></td><td>text</td><td>Kid's display name</td></tr>
+        <tr><td><code>avatar_color</code></td><td>text</td><td>Hex color for profile chip, default <code>#F4D34E</code></td></tr>
+        <tr><td><code>pin_hash</code></td><td>text</td><td>bcrypt hash of 4-digit PIN, always required</td></tr>
+        <tr><td><code>balance</code></td><td>integer</td><td>Cached coin total; source of truth is coin_transactions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- characters -->
+  <div class="card">
+    <h2><code>characters</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>kid_id</code></td><td>uuid FK → kid_profiles UNIQUE</td><td>CASCADE — 1:1</td></tr>
+        <tr><td><code>color</code></td><td>text</td><td><code>"yellow"</code></td></tr>
+        <tr><td><code>hat</code></td><td>text</td><td><code>"none"</code></td></tr>
+        <tr><td><code>eye</code></td><td>text</td><td><code>"default"</code></td></tr>
+        <tr><td><code>extra</code></td><td>text</td><td><code>"none"</code></td></tr>
+        <tr><td><code>bg</code></td><td>text</td><td><code>"sky"</code></td></tr>
+        <tr><td><code>outfit</code></td><td>text</td><td><code>"none"</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- tasks -->
+  <div class="card">
+    <h2><code>tasks</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>kid_id</code></td><td>uuid FK → kid_profiles</td><td>Tasks belong to a kid, not a family</td></tr>
+        <tr><td><code>title</code></td><td>text</td><td>e.g., "Make your bed"</td></tr>
+        <tr><td><code>type</code></td><td>enum</td><td><code>daily</code> | <code>once</code></td></tr>
+        <tr><td><code>coin_reward</code></td><td>integer</td><td>Default 10</td></tr>
+        <tr><td><code>is_active</code></td><td>boolean</td><td>Default true; soft-delete with false</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- task_completions -->
+  <div class="card">
+    <h2><code>task_completions</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>task_id</code></td><td>uuid FK → tasks</td><td>CASCADE</td></tr>
+        <tr><td><code>kid_id</code></td><td>uuid FK → kid_profiles</td><td>Denormalized for query speed</td></tr>
+        <tr><td><code>coins_earned</code></td><td>integer</td><td>Snapshot at time of completion</td></tr>
+        <tr><td><code>status</code></td><td>enum</td><td><code>pending</code> → <code>approved</code> | <code>denied</code></td></tr>
+        <tr><td><code>rejection_reason</code></td><td>text nullable</td><td>Set on deny</td></tr>
+        <tr><td><code>completed_at</code></td><td>timestamp</td><td>When kid tapped done</td></tr>
+        <tr><td><code>resolved_at</code></td><td>timestamp nullable</td><td>When parent approved/denied</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- coin_transactions -->
+  <div class="card">
+    <h2><code>coin_transactions</code> — Immutable Ledger</h2>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>kid_id</code></td><td>uuid FK → kid_profiles</td><td></td></tr>
+        <tr><td><code>type</code></td><td>enum</td><td><code>earned</code> | <code>redeemed</code> | <code>adjusted</code></td></tr>
+        <tr><td><code>amount</code></td><td>integer</td><td>Positive for earned, negative for redeemed/adjusted-negative</td></tr>
+        <tr><td><code>description</code></td><td>text</td><td>Human-readable reason, always fill in</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger">
+      <p>Never UPDATE or DELETE rows. Only INSERT. Corrections use a new <code>adjusted</code> row.</p>
+    </div>
+  </div>
+
+  <!-- rewards + redemptions -->
+  <div class="card">
+    <h2><code>rewards</code> + <code>redemption_requests</code></h2>
+    <table>
+      <thead><tr><th>Column</th><th>Table</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>family_id</code></td><td>rewards</td><td>Rewards are family-wide (shared catalog)</td></tr>
+        <tr><td><code>coin_cost</code></td><td>rewards</td><td>Snapshot cost at creation time</td></tr>
+        <tr><td><code>emoji</code></td><td>rewards</td><td>Default 🎁</td></tr>
+        <tr><td><code>is_active</code></td><td>rewards</td><td>Soft-delete</td></tr>
+        <tr><td><code>kid_id</code></td><td>redemption_requests</td><td>Who requested it</td></tr>
+        <tr><td><code>reward_id</code></td><td>redemption_requests</td><td>What was requested</td></tr>
+        <tr><td><code>coins_spent</code></td><td>redemption_requests</td><td>Snapshot at request time</td></tr>
+        <tr><td><code>status</code></td><td>redemption_requests</td><td><code>pending</code> → <code>approved</code> | <code>denied</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- streaks + badges + goals -->
+  <div class="card">
+    <h2>Gamification Tables</h2>
+    <table>
+      <thead><tr><th>Table</th><th>Key columns</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>streaks</code></td><td><code>current_streak</code>, <code>longest_streak</code>, <code>last_completed_date</code></td><td>1:1 with kid_profiles (UNIQUE FK)</td></tr>
+        <tr><td><code>badges</code></td><td><code>slug</code>, <code>earned_at</code></td><td>Multiple per kid; slug identifies achievement type</td></tr>
+        <tr><td><code>goals</code></td><td><code>title</code>, <code>target_amount</code>, <code>emoji</code>, <code>is_active</code></td><td>Current amount is derived from kid_profiles.balance</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nav-row">
+    <a href="design-tokens.html" class="nav-btn">Next: Design Tokens →</a>
+    <a href="../lessons/05-frontend-architecture.html" class="nav-btn ghost">← Lesson 05</a>
+  </div>
+
+</div>
+</body>
+</html>

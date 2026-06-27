@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 02 — Database Deep Dive</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Lesson 02 of 05</div>
+  <h1 class="lesson-title">Database Deep Dive</h1>
+  <div class="win-chip">🏆 Win: Navigate schema.ts confidently and know what table holds what</div>
+
+  <!-- ── Overview ── -->
+  <div class="card">
+    <h2>The 13 Tables at a Glance</h2>
+    <p>The schema lives in <code>src/lib/schema.ts</code>. It uses <strong>Drizzle ORM</strong> — never write raw SQL; always go through Drizzle and run migrations.</p>
+    <table>
+      <thead>
+        <tr><th>Table</th><th>Role</th><th>Key relationship</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>families</code></td><td>One per parent account</td><td>Root of everything</td></tr>
+        <tr><td><code>family_settings</code></td><td>Approval modes, notification prefs</td><td>1:1 with <code>families</code></td></tr>
+        <tr><td><code>kid_profiles</code></td><td>One per child in the family</td><td>Many → <code>families</code></td></tr>
+        <tr><td><code>characters</code></td><td>Mascot customization (hat, eye, bg…)</td><td>1:1 with <code>kid_profiles</code></td></tr>
+        <tr><td><code>tasks</code></td><td>Chores assigned to a kid</td><td>Many → <code>kid_profiles</code></td></tr>
+        <tr><td><code>task_completions</code></td><td>Each "done" tap + approval status</td><td>Many → <code>tasks</code> + <code>kid_profiles</code></td></tr>
+        <tr><td><code>coin_transactions</code></td><td>Immutable coin ledger</td><td>Many → <code>kid_profiles</code></td></tr>
+        <tr><td><code>rewards</code></td><td>Redeemable items the family offers</td><td>Many → <code>families</code> (shared across kids)</td></tr>
+        <tr><td><code>redemption_requests</code></td><td>Kid requests to redeem a reward</td><td>Many → <code>kid_profiles</code> + <code>rewards</code></td></tr>
+        <tr><td><code>goals</code></td><td>A savings target for a kid</td><td>Many → <code>kid_profiles</code></td></tr>
+        <tr><td><code>streaks</code></td><td>Daily completion chain tracker</td><td>1:1 with <code>kid_profiles</code></td></tr>
+        <tr><td><code>badges</code></td><td>Achievement slugs earned by kids</td><td>Many → <code>kid_profiles</code></td></tr>
+        <tr><td><code>activity_log</code></td><td>Append-only event stream</td><td>Many → <code>families</code> + optional <code>kid_profiles</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Core hierarchy ── -->
+  <div class="card">
+    <h2>The Core Hierarchy</h2>
+    <p>Think of the schema in three layers:</p>
+
+    <h3>Layer 1 — Family (account root)</h3>
+    <pre><code>families (id, parent_user_id, name, parent_pin_hash)
+  └── family_settings (require_task_approval, require_redemption_approval, …)
+  └── rewards (family-wide catalog — shared by all kids)
+  └── activity_log (event stream for parent dashboard)</code></pre>
+
+    <h3>Layer 2 — Kid (one per child)</h3>
+    <pre><code>kid_profiles (id, family_id, name, pin_hash, balance)
+  └── characters (hat, eye, color, bg, outfit)   ← 1:1
+  └── streaks (current_streak, longest_streak)    ← 1:1
+  └── tasks (assigned chores — per kid, not per family!)
+  └── goals (savings targets)
+  └── badges (achievement slugs)</code></pre>
+
+    <h3>Layer 3 — Events (immutable records)</h3>
+    <pre><code>task_completions  (task_id → kid_id, status: pending|approved|denied)
+coin_transactions (kid_id, type: earned|redeemed|adjusted, amount)
+redemption_requests (kid_id → reward_id, status: pending|approved|denied)</code></pre>
+
+    <div class="callout coin">
+      <p><strong>Critical:</strong> Tasks belong to a kid (<code>kid_id FK</code>), but rewards belong to the family (<code>family_id FK</code>). A reward catalog is shared; a task list is personal.</p>
+    </div>
+  </div>
+
+  <!-- ── The Coin Ledger ── -->
+  <div class="card">
+    <h2>The Coin Ledger Pattern</h2>
+    <p><code>kidProfiles.balance</code> is a <strong>cached aggregate</strong> — fast to read, but the source of truth lives in <code>coin_transactions</code>.</p>
+
+    <h3>Three transaction types</h3>
+    <table>
+      <thead><tr><th>Type</th><th>Trigger</th><th>Amount sign</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">earned</span></td><td>Task completion approved</td><td>Positive (+coins)</td></tr>
+        <tr><td><span class="badge badge-peach">redeemed</span></td><td>Redemption request approved</td><td>Negative (−coins)</td></tr>
+        <tr><td><span class="badge badge-purple">adjusted</span></td><td>Parent manual adjustment</td><td>Either (delta can be negative)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout danger">
+      <p><strong>Never update or delete coin_transactions rows.</strong> They are an immutable audit trail. If you need to correct a balance, issue an <code>adjusted</code> transaction with the delta.</p>
+    </div>
+
+    <h3>Balance consistency rule</h3>
+    <p>Whenever <code>coin_transactions</code> gets a new row, <code>kid_profiles.balance</code> must be updated in the same DB transaction. The API layer handles this — if you write a new route that credits coins, follow the same pattern.</p>
+  </div>
+
+  <!-- ── Approval state machines ── -->
+  <div class="card">
+    <h2>Two Approval State Machines</h2>
+    <p>Both tasks and redemptions use the same three-state flow:</p>
+
+    <h3>task_completions</h3>
+    <div class="flow">
+      <div class="flow-step">pending</div>
+      <div class="flow-arrow">→ approve →</div>
+      <div class="flow-step green">approved ✓ (coins credited)</div>
+    </div>
+    <div class="flow" style="margin-top:0.5rem">
+      <div class="flow-step">pending</div>
+      <div class="flow-arrow">→ deny →</div>
+      <div class="flow-step peach">denied ✗ (optimistic rolled back)</div>
+    </div>
+
+    <h3>redemption_requests</h3>
+    <p>Exact same shape: <code>pending → approved</code> (coins deducted) or <code>pending → denied</code> (no change).</p>
+
+    <div class="callout green">
+      <p><strong>Auto-approve shortcut:</strong> If <code>family_settings.require_task_approval = false</code>, the API auto-approves on insert — skipping the pending state entirely. Same for <code>require_redemption_approval</code>.</p>
+    </div>
+  </div>
+
+  <!-- ── activity_log ── -->
+  <div class="card">
+    <h2>The Activity Log</h2>
+    <p>An append-only event stream. The <code>payload</code> field is freeform JSON whose shape depends on <code>type</code>:</p>
+    <pre><code>// task_approved
+{ taskTitle: "Make your bed", coinsEarned: 2, completionId: "uuid" }
+
+// reward_redeemed
+{ rewardTitle: "Extra screen time", coinsSpent: 30, requestId: "uuid" }
+
+// coins_adjusted
+{ delta: -10, reason: "Late chores penalty" }</code></pre>
+    <p>This is how the parent dashboard activity feed is populated. Never delete rows — this is a historical record.</p>
+  </div>
+
+  <!-- ── Enums ── -->
+  <div class="card">
+    <h2>Enums Quick Reference</h2>
+    <table>
+      <thead><tr><th>Enum</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code>task_type</code></td><td><code>daily</code>, <code>once</code></td></tr>
+        <tr><td><code>task_completion_status</code></td><td><code>pending</code>, <code>approved</code>, <code>denied</code></td></tr>
+        <tr><td><code>redemption_status</code></td><td><code>pending</code>, <code>approved</code>, <code>denied</code></td></tr>
+        <tr><td><code>transaction_type</code></td><td><code>earned</code>, <code>redeemed</code>, <code>adjusted</code></td></tr>
+        <tr><td><code>activity_type</code></td><td><code>task_completed</code>, <code>task_approved</code>, <code>task_denied</code>, <code>reward_redeemed</code>, <code>reward_approved</code>, <code>reward_denied</code>, <code>coins_adjusted</code>, <code>kid_added</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Workflow ── -->
+  <div class="card">
+    <h2>Schema Change Workflow</h2>
+    <ol>
+      <li>Edit <code>src/lib/schema.ts</code></li>
+      <li>Run <code>pnpm db:generate</code> — creates a migration file in <code>drizzle/</code></li>
+      <li>Run <code>pnpm db:migrate</code> — applies it (requires <code>DATABASE_URL</code>)</li>
+      <li>Commit both the schema change and the generated migration file</li>
+    </ol>
+    <div class="callout danger">
+      <p><strong>Never</strong> edit migration files manually. If a migration goes wrong, write a new one that corrects it.</p>
+    </div>
+  </div>
+
+  <!-- ── Quiz ── -->
+  <div class="quiz">
+    <h2>🧠 Retrieval Check</h2>
+
+    <div class="quiz-q">
+      <p class="question">1. You need to display a kid's task list and also the family's reward catalog. Which tables do you query, and what FK do each use?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Tasks: <code>tasks WHERE kid_id = ?</code> — tasks belong to a kid.<br>
+          Rewards: <code>rewards WHERE family_id = ?</code> — rewards belong to the family (shared by all kids in that family).
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">2. A parent approved a task. List every DB write that must happen (in one transaction).</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          1. <code>UPDATE task_completions SET status='approved', resolved_at=now() WHERE id=?</code><br>
+          2. <code>UPDATE kid_profiles SET balance = balance + coins_earned WHERE id=?</code><br>
+          3. <code>INSERT INTO coin_transactions (kid_id, type='earned', amount, description)</code><br>
+          4. <code>INSERT INTO activity_log (family_id, kid_id, type='task_approved', payload={…})</code>
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">3. What is the difference between <code>characters</code> and <code>kid_profiles.avatar_color</code>? When do you use each?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          <code>kid_profiles.avatar_color</code> is a simple hex color used for the kid's initial avatar/profile chip in the profile picker — it's decorative metadata on the profile itself.<br><br>
+          <code>characters</code> is a full customization record (hat, eye, color, outfit, bg, extra) for the in-app mascot displayed in Character Studio. It's 1:1 with <code>kid_profiles</code> and is synced independently. Changing a character outfit doesn't change the avatar color shown in the profile picker.
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <a href="03-auth-and-sessions.html" class="nav-btn">Next: Auth & Sessions →</a>
+    <a href="01-the-earnie-loop.html" class="nav-btn ghost">← The Earnie Loop</a>
+  </div>
+
+</div>
+</body>
+</html>

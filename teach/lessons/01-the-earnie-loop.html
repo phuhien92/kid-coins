@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 01 — The Earnie Loop</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Lesson 01 of 05</div>
+  <h1 class="lesson-title">The Earnie Loop</h1>
+  <div class="win-chip">🏆 Win: Explain Earnie to anyone in 30 seconds</div>
+
+  <!-- ── What is Earnie? ── -->
+  <div class="card">
+    <h2>What is Earnie?</h2>
+    <p>Earnie is a <strong>gamified financial-literacy app for families</strong>. Kids complete chores and self-care tasks to earn virtual coins. They save toward goals or redeem coins for parent-approved rewards. An AI coach helps parents shape those goals.</p>
+    <p>That's the whole thing. Everything in the codebase is in service of that loop.</p>
+    <div class="callout green">
+      <p><strong>The 30-second pitch:</strong> "Earnie turns everyday chores into a game. Kids earn coins for making their bed or reading — then spend them on real rewards like screen time or a toy. Parents approve everything, so it teaches both responsibility and money skills."</p>
+    </div>
+  </div>
+
+  <!-- ── Two audiences ── -->
+  <div class="card">
+    <h2>Two Audiences, One Product</h2>
+    <p>Earnie has two distinct users who share a single app but live in completely separate shells:</p>
+    <div class="two-col">
+      <div>
+        <h3>🧒 Kids (ages 5–12)</h3>
+        <ul>
+          <li>Primary audience — the <em>players</em></li>
+          <li>Short sessions: morning, after school, bedtime</li>
+          <li>They tap tasks done, watch coins grow, save toward goals</li>
+          <li>Can't read long sentences — needs big buttons, clear numbers</li>
+          <li>Live at <code>/kid/*</code> routes</li>
+          <li>CTA color: <span class="badge badge-green">Green</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>👨‍👩‍👧 Parents (secondary)</h3>
+        <ul>
+          <li>The <em>gatekeepers</em> — they approve everything</li>
+          <li>Use it between other things, coffee in hand</li>
+          <li>Set tasks, approve redemptions, shape goals with AI</li>
+          <li>Need speed and clarity, not playfulness</li>
+          <li>Live at <code>/parent/*</code> routes</li>
+          <li>CTA color: <span class="badge badge-purple">Purple</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <p><strong>Key rule:</strong> Green owns kid actions. Purple owns parent actions. A green button in the parent dashboard is a bug, not a design choice.</p>
+    </div>
+  </div>
+
+  <!-- ── The core loop ── -->
+  <div class="card">
+    <h2>The Core Gamification Loop</h2>
+    <p>Every feature in this app either drives or supports this loop:</p>
+    <div class="flow">
+      <div class="flow-step green">Kid taps "Mark Done"</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Parent approves</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step coin">Coins credited</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step peach">Goal / Reward</div>
+    </div>
+    <h3>Supporting systems</h3>
+    <ul>
+      <li><strong>Streaks</strong> — daily completion chains, shown as a 🔥 badge</li>
+      <li><strong>Goals</strong> — a target coin amount with a progress bar ("Save 200 coins for a Switch game")</li>
+      <li><strong>Characters</strong> — a customizable mascot (Penny/Lumi) kept in Character Studio</li>
+      <li><strong>AI Coach</strong> — parent-facing, helps set realistic goals via <code>/api/ai/coach</code></li>
+      <li><strong>Activity log</strong> — append-only event stream powering the parent dashboard feed</li>
+    </ul>
+  </div>
+
+  <!-- ── Brand ── -->
+  <div class="card">
+    <h2>Brand: Playful · Warm · Trustworthy</h2>
+    <p>Understanding brand saves you from design regressions that are easy to introduce when you're focused on logic.</p>
+    <h3>What Earnie IS</h3>
+    <ul>
+      <li>Cream paper background, ink linework borders — feels like a picture book</li>
+      <li>Fredoka (display) + Nunito (body) — rounded but not cartoonish</li>
+      <li>Coin yellow <span class="badge badge-coin">#F4D34E</span> reserved for money signal only</li>
+      <li>Stamp-press shadow on every primary button — taps feel physical</li>
+    </ul>
+    <h3>What Earnie is NOT (anti-references)</h3>
+    <ul>
+      <li>❌ No gradient slime, neon rainbows, or Comic Sans</li>
+      <li>❌ No navy-and-gold fintech aesthetic</li>
+      <li>❌ No "BUY NOW" energy, exclamation marks on every sentence</li>
+      <li>❌ No gray-on-gray sterile SaaS</li>
+    </ul>
+    <div class="callout coin">
+      <p><strong>The Coin-Yellow Rarity Rule:</strong> <code>#F4D34E</code> must only appear on coin balance, progress bars, streak badges, and confetti. Never as decoration. Its rarity is what makes earning feel special.</p>
+    </div>
+  </div>
+
+  <!-- ── Route map summary ── -->
+  <div class="card">
+    <h2>Route Groups at a Glance</h2>
+    <table>
+      <thead>
+        <tr><th>Group</th><th>Path</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>(auth)</code></td><td><code>/login</code>, <code>/signup</code>, <code>/profile-picker</code></td><td>Shared entry — Supabase email auth for parents, profile picker to select kid</td></tr>
+        <tr><td><code>(kid)</code></td><td><code>/kid/home</code>, <code>/kid/tasks</code>, <code>/kid/rewards</code>, <code>/kid/profile</code></td><td>Kid-facing app shell, green CTAs, KidContext state</td></tr>
+        <tr><td><code>(parent)</code></td><td><code>/parent/home</code>, <code>/parent/kids</code>, <code>/parent/settings</code></td><td>Parent app shell, purple CTAs, approval flows</td></tr>
+        <tr><td>API</td><td><code>/api/*</code></td><td>Route handlers — Next.js server functions hitting Supabase/Drizzle</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger">
+      <p><strong>Heads up:</strong> Parent pages currently live at <code>src/app/parent/</code> (no route group), while kid pages live inside <code>src/app/(kid)/kid/</code>. This inconsistency is a known quirk — don't reorganize it without understanding the proxy in <code>src/proxy.ts</code>.</p>
+    </div>
+  </div>
+
+  <!-- ── Quiz ── -->
+  <div class="quiz">
+    <h2>🧠 Retrieval Check</h2>
+
+    <div class="quiz-q">
+      <p class="question">1. A product manager asks you to add a green "Quick Add Task" button to the parent home screen. What do you say?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Push back. Green owns the kid shell; purple owns the parent shell. The correct CTA would use <code>bg-purple</code> + <code>box-shadow: 0 4px 0 var(--purple-dk)</code>. A green button in the parent dashboard is a design bug per the Two-Hue Authority Rule.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">2. What's the purpose of the Activity Log table? Who reads it and when?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          It's an append-only event stream that powers the parent dashboard activity feed. Every meaningful action (task completed/approved/denied, reward redeemed/approved, coins adjusted, kid added) writes a row. Parents see it in real time on <code>/parent/home</code>. It's never updated — only appended to.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">3. Coin yellow (#F4D34E) appears on a marketing banner card background. Is this OK?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          No. The Coin-Yellow Rarity Rule reserves <code>#F4D34E</code> strictly for money signal: coin pip, balance display, progress bar fill, streak badge, celebration confetti. Using it as decoration dilutes the meaning of earning — the moment a kid sees yellow, they should think "money", not "pretty".
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <a href="02-database-deep-dive.html" class="nav-btn">Next: Database Deep Dive →</a>
+    <a href="../MISSION.md" class="nav-btn ghost">← Back to Mission</a>
+  </div>
+
+</div>
+</body>
+</html>

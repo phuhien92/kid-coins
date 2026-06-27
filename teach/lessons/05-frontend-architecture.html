@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 05 — Frontend Architecture</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Lesson 05 of 05</div>
+  <h1 class="lesson-title">Frontend Architecture</h1>
+  <div class="win-chip">🏆 Win: Add a new page or component without breaking the design system</div>
+
+  <!-- ── Next.js App Router ── -->
+  <div class="card">
+    <h2>Next.js 16 App Router</h2>
+    <p>This project uses the <strong>App Router</strong> (not Pages Router). Everything in <code>src/app/</code> is a Server Component by default. Add <code>"use client"</code> at the top when you need browser APIs, state, or Framer Motion.</p>
+    <div class="callout">
+      <p><strong>Important:</strong> This is Next.js 16, which has breaking changes from prior versions. Before writing any framework-specific code, check <code>node_modules/next/dist/docs/</code> for the current API. Don't rely on training data or StackOverflow answers for Next.js — check the local docs first.</p>
+    </div>
+    <h3>Server vs Client — the decision rule</h3>
+    <table>
+      <thead><tr><th>Use Server Component when…</th><th>Use Client Component when…</th></tr></thead>
+      <tbody>
+        <tr><td>Fetching data from DB/API on load</td><td>Using <code>useState</code> or <code>useEffect</code></td></tr>
+        <tr><td>Page that reads from Supabase on the server</td><td>Using Framer Motion animations</td></tr>
+        <tr><td>Static or low-interactivity content</td><td>Handling user events (onClick, onChange)</td></tr>
+        <tr><td>Parent dashboard (data-first)</td><td>Kid task list (tap interactions, optimistic updates)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Route structure ── -->
+  <div class="card">
+    <h2>Route Group Structure</h2>
+    <pre><code>src/app/
+├── (auth)/                   ← route group, no URL segment
+│   ├── login/page.tsx
+│   ├── signup/page.tsx
+│   ├── signup/verify-email/page.tsx
+│   ├── forgot-password/page.tsx
+│   ├── profile-picker/page.tsx
+│   ├── layout.tsx            ← auth shell layout
+│   └── _components/          ← auth-only components
+│
+├── (kid)/kid/                ← route group + URL segment
+│   ├── home/page.tsx
+│   ├── tasks/page.tsx
+│   ├── rewards/page.tsx
+│   ├── profile/page.tsx
+│   ├── profile/character/page.tsx
+│   └── layout.tsx            ← wraps with KidProvider
+│
+├── parent/                   ← no route group (inconsistency!)
+│   ├── home/page.tsx
+│   ├── kids/page.tsx
+│   ├── kids/new/page.tsx
+│   └── settings/page.tsx
+│
+└── api/                      ← Route Handlers (POST/GET/PATCH)
+    ├── families/create/route.ts
+    ├── kids/route.ts
+    ├── kids/[id]/session/route.ts
+    ├── kids/[id]/verify-pin/route.ts
+    ├── kids/[id]/character/route.ts
+    └── parent/verify-pin/route.ts</code></pre>
+  </div>
+
+  <!-- ── Component system ── -->
+  <div class="card">
+    <h2>Component Library</h2>
+    <p>Before writing any UI, check <code>src/components/ui/</code> first. If a primitive exists, use it — don't reinvent it.</p>
+    <h3>Design system primitives (<code>src/components/ui/</code>)</h3>
+    <table>
+      <thead><tr><th>Component</th><th>Use for</th></tr></thead>
+      <tbody>
+        <tr><td><code>Button</code></td><td>All clickable CTAs — green/purple/ghost/chip variants</td></tr>
+        <tr><td><code>Card</code></td><td>Content containers — standard, compact</td></tr>
+        <tr><td><code>Page</code> + <code>Page.Header</code> + <code>Page.Content</code></td><td>Page layout structure — <em>never</em> raw <code>&lt;div className="flex flex-col"&gt;</code></td></tr>
+        <tr><td><code>Modal</code></td><td>Dialogs — backed by Base UI, handles focus trapping</td></tr>
+        <tr><td><code>Tabs</code></td><td>Tab navigation — backed by Base UI</td></tr>
+        <tr><td><code>Toggle</code></td><td>On/off toggles — backed by Base UI</td></tr>
+        <tr><td><code>Badge</code></td><td>Streak, count, goal-chip, lav variants</td></tr>
+        <tr><td><code>Input</code></td><td>Text fields — pill-radius chat-bar style</td></tr>
+        <tr><td><code>ProgressBar</code></td><td>Goal progress, coin progress</td></tr>
+        <tr><td><code>Toast</code></td><td>Transient feedback messages</td></tr>
+        <tr><td><code>Skeleton</code></td><td>Loading states</td></tr>
+        <tr><td><code>Avatar</code> / <code>InitialAvatar</code></td><td>Profile images and initial-based avatars</td></tr>
+      </tbody>
+    </table>
+    <h3>Domain components</h3>
+    <ul>
+      <li><code>src/components/kid/</code> — kid-shell UI (KidNav, CharacterStudio, KidLayoutShell, home cards)</li>
+      <li><code>src/components/parent/</code> — parent-shell UI (ParentKidCard, ProfilePickerLink, NewKidProfileFlow)</li>
+      <li><code>src/components/shared/</code> — used in both shells (CoinFaceAvatar, ProfilePickerTile, ParentSignOutButton)</li>
+    </ul>
+  </div>
+
+  <!-- ── Design system rules ── -->
+  <div class="card">
+    <h2>Design System Rules You MUST Know</h2>
+
+    <h3>Rule 1 — No arbitrary bracket values. Ever.</h3>
+    <pre><code>// ❌ FORBIDDEN
+&lt;div className="bg-[#f3f4f6] p-[13px] w-[32vw]"&gt;
+
+// ✅ CORRECT — use token classes
+&lt;div className="bg-cream-card p-lg w-full"&gt;</code></pre>
+
+    <h3>Rule 2 — Token classes only</h3>
+    <p>Every color, spacing, radius, and shadow must map to a token in <code>src/app/globals.css</code> under <code>@theme</code>. The complete token list is in the <a href="../reference/design-tokens.html">Design Tokens reference sheet</a>.</p>
+
+    <h3>Rule 3 — No raw HTML for things the design system covers</h3>
+    <pre><code>// ❌ FORBIDDEN
+&lt;div className="flex flex-col"&gt;...&lt;/div&gt;  // use &lt;Page&gt;
+&lt;div onClick={handler}&gt;...&lt;/div&gt;          // use &lt;Button&gt;
+&lt;div role="dialog"&gt;...&lt;/div&gt;             // use &lt;Modal&gt;</code></pre>
+
+    <h3>Rule 4 — Interactive elements need all three states</h3>
+    <pre><code>// Every button/link needs hover, focus-visible, AND active
+className="bg-green hover:bg-green-dk focus-visible:ring-green active:translate-y-1"</code></pre>
+
+    <h3>Rule 5 — More than 5 utility classes? Extract a component</h3>
+    <p>If you find yourself writing 6+ Tailwind classes on one element, either use an existing primitive from <code>src/components/ui/</code> or create a named sub-component.</p>
+  </div>
+
+  <!-- ── KidContext ── -->
+  <div class="card">
+    <h2>KidContext — State for the Kid Shell</h2>
+    <pre><code>// src/context/KidContext.tsx
+type KidSession = {
+  kid: KidProfile;          // name, balance, avatarColor, familyId
+  streak: number;           // current daily streak
+  todayEarned: number;      // coins earned today
+  goal: Goal & { current, target };
+  tasks: Task[];
+  addCoins: (delta: number) =&gt; void;  // optimistic update
+}</code></pre>
+    <p>Access it in any kid-shell component with <code>useKid()</code>. Narrower selectors exist for specific pages:</p>
+    <ul>
+      <li><code>useKidHomeData()</code> — home page shape</li>
+      <li><code>useKidTasksData()</code> — tasks page shape</li>
+    </ul>
+    <div class="callout coin">
+      <p><strong>Current state:</strong> <code>KidContext</code> is backed by <code>useMockKidSession()</code> which returns hardcoded data. The comment in the file says "REPLACE WITH SUPABASE-BACKED IMPLEMENTATION." The public interface (<code>useKid</code>, <code>addCoins</code>, etc.) is stable — only the data source changes. This is the biggest pending task on the project.</p>
+    </div>
+  </div>
+
+  <!-- ── Writing a new page ── -->
+  <div class="card">
+    <h2>How to Add a New Kid Page</h2>
+    <pre><code>// src/app/(kid)/kid/my-new-page/page.tsx
+"use client";  // if you need state or animations
+
+import { Page } from "@/components/ui/Page/Page";
+import { useKid } from "@/context/KidContext";
+
+export default function MyNewPage() {
+  const { kid } = useKid();
+
+  return (
+    &lt;Page&gt;
+      &lt;Page.Header title="My Page" /&gt;
+      &lt;Page.Content&gt;
+        {/* your content here */}
+      &lt;/Page.Content&gt;
+    &lt;/Page&gt;
+  );
+}</code></pre>
+    <div class="callout green">
+      <p><strong>Pre-completion checklist (from AGENTS.md):</strong><br>
+      1. Did you check <code>src/components/ui/</code> before writing new UI?<br>
+      2. Zero arbitrary bracket values (<code>[…]</code>) in class strings?<br>
+      3. All colors and sizes trace back to a token in <code>globals.css</code>?</p>
+    </div>
+  </div>
+
+  <!-- ── Testing ── -->
+  <div class="card">
+    <h2>Testing Rules</h2>
+    <p>Every new module ships with a colocated test file:</p>
+    <table>
+      <thead><tr><th>New module</th><th>Test file</th></tr></thead>
+      <tbody>
+        <tr><td><code>MyComponent.tsx</code></td><td><code>MyComponent.test.tsx</code> (same dir)</td></tr>
+        <tr><td><code>useMyHook.ts</code></td><td><code>useMyHook.test.ts</code> (same dir)</td></tr>
+        <tr><td><code>route.ts</code></td><td><code>route.test.ts</code> (same dir)</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>Use Vitest + Testing Library (<code>@testing-library/react</code>)</li>
+      <li>Assert on user-visible output — not class names or internal state</li>
+      <li>Mock Supabase/Drizzle at the boundary — never hit the real DB in tests</li>
+      <li>Run with <code>pnpm test:run</code></li>
+    </ul>
+    <div class="callout">
+      <p>A test that only checks "it mounts without crashing" is not sufficient. Assert on something a user or caller would actually observe.</p>
+    </div>
+  </div>
+
+  <!-- ── Quiz ── -->
+  <div class="quiz">
+    <h2>🧠 Retrieval Check</h2>
+
+    <div class="quiz-q">
+      <p class="question">1. You want to add an animated coin counter to the kid home page. Should this be a Server Component or Client Component, and why?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Client Component. The coin counter uses Framer Motion for animation and reads from <code>KidContext</code> (which uses <code>useState</code>). Both require a browser environment. Add <code>"use client"</code> at the top of the file. The parent page can remain a Server Component and render this as a child island.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">2. A colleague submits a PR with this class string: <code>className="bg-[#CFE7D8] p-[20px] rounded-[16px]"</code>. What's wrong and what's the fix?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          All three values use arbitrary bracket syntax — this is forbidden. The fix:<br>
+          <code>#CFE7D8</code> is <code>--color-green-tint</code> → use <code>bg-green-tint</code><br>
+          <code>20px</code> padding → use <code>p-xl</code> (or check the spacing scale in globals.css)<br>
+          <code>16px</code> radius → use <code>rounded-card</code><br>
+          Fixed: <code>className="bg-green-tint p-xl rounded-card"</code>
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">3. You need a dropdown/select component for a parent settings page. What do you reach for first?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Check <code>src/components/ui/</code> first — if a Select component exists there, use it. If not, check <strong>Base UI</strong> (<code>@base-ui-components/react/select</code>) and wrap it with Earnie's design tokens. Never hand-roll focus trapping, keyboard navigation, or ARIA roles for interactive components that Base UI already covers.
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <a href="../reference/db-schema.html" class="nav-btn">Reference: DB Schema →</a>
+    <a href="04-coin-flow.html" class="nav-btn ghost">← The Coin Flow</a>
+  </div>
+
+  <div style="margin-top: 2rem; padding: 20px; background: var(--coin); border: 2.5px solid var(--ink); border-radius: 16px; box-shadow: 0 5px 0 var(--coin-dk);">
+    <p style="font-family: 'Fredoka', sans-serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">🎉 All 5 lessons complete!</p>
+    <p>You've covered the product loop, database, auth, coin flow, and frontend architecture. Open <a href="../NOTES.md"><code>NOTES.md</code></a> for a list of things that will surprise you in the real codebase, then start reading the code directly — you have the map now.</p>
+  </div>
+
+</div>
+</body>
+</html>

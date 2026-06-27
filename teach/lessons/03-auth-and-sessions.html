@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 03 — Auth & Sessions</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="lesson-meta">Lesson 03 of 05</div>
+  <h1 class="lesson-title">Auth & Sessions</h1>
+  <div class="win-chip">🏆 Win: Explain the auth model to a security reviewer without notes</div>
+
+  <!-- ── Overview ── -->
+  <div class="card">
+    <h2>Two Auth Models, One App</h2>
+    <p>Earnie has two completely different auth strategies for its two users — and this is by design:</p>
+    <div class="two-col">
+      <div>
+        <h3>Parents</h3>
+        <ul>
+          <li>Full <strong>Supabase Auth</strong> account</li>
+          <li>Email + password login</li>
+          <li>Standard JWT session managed by Supabase</li>
+          <li>Optional 4-digit PIN for the profile picker</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Kids</h3>
+        <ul>
+          <li><strong>No Supabase Auth account</strong></li>
+          <li>4-digit PIN only (age-appropriate)</li>
+          <li>PIN is verified server-side, then a short-lived session token is issued</li>
+          <li>Their identity lives entirely in <code>kid_profiles</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <p>Kids cannot log in independently — a parent must first authenticate, then the profile picker allows switching to a kid's session. The family is always the root auth unit.</p>
+    </div>
+  </div>
+
+  <!-- ── Parent auth flow ── -->
+  <div class="card">
+    <h2>Parent Auth Flow</h2>
+    <pre><code>1. POST /auth/v1/token (Supabase)
+   → Email + password → Supabase JWT (access + refresh tokens)
+   → Supabase UID stored as families.parent_user_id
+
+2. GET /profile-picker
+   → Supabase session confirmed via server client
+   → Lists all kid_profiles for this family
+
+3. (Optional) Parent PIN gate
+   → If families.parent_pin_hash is set, profile picker shows PIN prompt
+   → POST /api/parent/verify-pin  →  bcrypt.compare(input, hash)
+   → On success: opens /parent/home</code></pre>
+    <div class="callout green">
+      <p><strong>No PIN set?</strong> The parent tile on the profile picker opens <code>/parent/home</code> directly — no PIN prompt shown.</p>
+    </div>
+  </div>
+
+  <!-- ── Kid auth flow ── -->
+  <div class="card">
+    <h2>Kid Auth Flow</h2>
+    <pre><code>1. Parent is authenticated → /profile-picker shows kid tiles
+
+2. User taps a kid tile
+   → If kid has a PIN: PIN pad shown
+   → POST /api/kids/[id]/verify-pin  →  bcrypt.compare(pin, kid_profiles.pin_hash)
+
+3. On success:
+   → POST /api/kids/[id]/session  →  issues a signed session token
+   → Redirect to /kid/home
+
+4. All kid-facing API calls carry this session token
+   → Server extracts kid_id from token, never from URL params</code></pre>
+    <div class="callout danger">
+      <p><strong>Kids have no Supabase auth accounts.</strong> Never try to call Supabase Auth APIs for a kid. Their entire identity is a row in <code>kid_profiles</code> — the session token is the only thing that gives them access.</p>
+    </div>
+  </div>
+
+  <!-- ── PIN hashing ── -->
+  <div class="card">
+    <h2>PIN Hashing</h2>
+    <p>Both parent and kid PINs use <strong>bcrypt</strong> hashing. The hash is stored in:</p>
+    <ul>
+      <li><code>families.parent_pin_hash</code> — optional, null when no parent PIN is configured</li>
+      <li><code>kid_profiles.pin_hash</code> — always set (required to create a kid profile)</li>
+    </ul>
+    <p>Verification flow is always <code>bcrypt.compare(userInput, storedHash)</code>. The raw PIN is never stored, logged, or transmitted after the initial creation.</p>
+    <div class="callout coin">
+      <p><strong>Why bcrypt for a 4-digit PIN?</strong> 4-digit PINs have only 10,000 possibilities — bcrypt's cost factor prevents brute-force even if the DB leaks. The UX cost (slightly slower hash check) is acceptable.</p>
+    </div>
+  </div>
+
+  <!-- ── Proxy ── -->
+  <div class="card">
+    <h2>The Auth Proxy</h2>
+    <p>Route protection lives in <code>src/proxy.ts</code>. This Next.js middleware runs before every request and:</p>
+    <ul>
+      <li>Checks for a valid Supabase session on <code>/parent/*</code> routes</li>
+      <li>Checks for a valid kid session token on <code>/kid/*</code> routes</li>
+      <li>Redirects unauthenticated requests to <code>/login</code></li>
+    </ul>
+    <div class="callout">
+      <p>You don't need to add auth guards inside individual pages — the proxy handles it. But if you add a new route group, make sure it's covered by the proxy rules.</p>
+    </div>
+  </div>
+
+  <!-- ── API routes ── -->
+  <div class="card">
+    <h2>Auth-Related API Routes</h2>
+    <table>
+      <thead><tr><th>Route</th><th>Method</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/api/families/create</code></td><td>POST</td><td>Creates a family + family_settings row on parent signup</td></tr>
+        <tr><td><code>/api/kids</code></td><td>POST/GET</td><td>Create kid profile / list family's kids</td></tr>
+        <tr><td><code>/api/kids/[id]/verify-pin</code></td><td>POST</td><td>bcrypt compare for kid PIN</td></tr>
+        <tr><td><code>/api/kids/[id]/session</code></td><td>POST</td><td>Issues a signed session token for a kid</td></tr>
+        <tr><td><code>/api/kids/[id]/character</code></td><td>GET/PATCH</td><td>Read/update character customization</td></tr>
+        <tr><td><code>/api/parent/verify-pin</code></td><td>POST</td><td>bcrypt compare for optional parent PIN</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Quiz ── -->
+  <div class="quiz">
+    <h2>🧠 Retrieval Check</h2>
+
+    <div class="quiz-q">
+      <p class="question">1. Can a kid log into Earnie without a parent being involved at all? Why or why not?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          No. Kids have no Supabase Auth accounts and cannot start a session independently. A parent must first authenticate (Supabase email/password), which unlocks the profile picker. From there, a kid's session token is issued via <code>POST /api/kids/[id]/session</code> — but only after the parent's session is active on the device.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">2. A parent sets up a 4-digit PIN for themselves. Where is it stored and how is it verified?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Stored as a bcrypt hash in <code>families.parent_pin_hash</code>. When the parent tile is tapped on the profile picker, a PIN pad appears. The input is sent to <code>POST /api/parent/verify-pin</code>, which runs <code>bcrypt.compare(input, families.parent_pin_hash)</code>. On success, the parent is redirected to <code>/parent/home</code>. The raw PIN is never persisted.
+        </div>
+      </details>
+    </div>
+
+    <div class="quiz-q">
+      <p class="question">3. You're adding a new page at <code>/parent/reports</code>. What do you need to do to ensure unauthenticated users can't access it?</p>
+      <details>
+        <summary>Reveal answer</summary>
+        <div class="answer-body">
+          Check <code>src/proxy.ts</code> to confirm the middleware already covers <code>/parent/*</code> routes. If it does, no page-level changes are needed — the proxy will redirect unauthenticated requests to <code>/login</code> automatically. If the proxy has an explicit allowlist, add <code>/parent/reports</code> to the protected paths.
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <a href="04-coin-flow.html" class="nav-btn">Next: The Coin Flow →</a>
+    <a href="02-database-deep-dive.html" class="nav-btn ghost">← Database Deep Dive</a>
+  </div>
+
+</div>
+</body>
+</html>
