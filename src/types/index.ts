@@ -48,6 +48,7 @@ export interface CharacterState {
   eye: string;
   extra: string;
   bg: string;
+  outfit: string;
 }
 
 // ── Task completion / approval ─────────────────────────────────────────────

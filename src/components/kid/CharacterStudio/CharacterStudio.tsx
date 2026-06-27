@@ -9,6 +9,8 @@ import {
   CHARACTER_CATEGORIES,
   CHARACTER_OPTIONS,
   CATEGORY_FIELD,
+  OUTFIT_UNLOCK_COSTS,
+  FREE_OUTFITS,
   type CharacterCategory,
   randomCharacter,
 } from "@/lib/character";
@@ -20,6 +22,8 @@ type CharacterStudioProps = {
   onChange: (char: CharacterState) => void;
   onSave: () => void;
   saving?: boolean;
+  /** Outfit slugs the kid has unlocked; defaults to the two free outfits */
+  unlockedOutfits?: string[];
 };
 
 export function CharacterStudio({
@@ -27,6 +31,7 @@ export function CharacterStudio({
   onChange,
   onSave,
   saving = false,
+  unlockedOutfits = FREE_OUTFITS,
 }: CharacterStudioProps) {
   const [activeCategory, setActiveCategory] = useState<CharacterCategory>("Color");
   const [popKey, setPopKey] = useState(0);
@@ -76,7 +81,7 @@ export function CharacterStudio({
             onClick={() => setActiveCategory(cat)}
             className={cn(
               "flex-shrink-0 px-3.5 py-1.5 rounded-control border-[2.5px] border-ink font-display font-semibold text-[13px] transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
               activeCategory === cat ? "bg-ink text-cream" : "bg-cream-card text-ink"
             )}
           >
@@ -90,18 +95,29 @@ export function CharacterStudio({
           const selected = currentValue === opt.value;
           const isColor = activeCategory === "Color";
           const isBg = activeCategory === "Scene";
+          const isOutfit = activeCategory === "Outfit";
+
+          // Determine lock state for outfit options
+          const cost = isOutfit ? OUTFIT_UNLOCK_COSTS[opt.value] : undefined;
+          const isLocked = isOutfit && cost !== "free" && !unlockedOutfits.includes(opt.value);
+          const xpCost = isOutfit && cost && cost !== "free" ? (cost as { xp?: number }).xp : undefined;
 
           return (
             <button
               key={opt.value}
               type="button"
-              onClick={() => pick(opt.value)}
-              aria-label={opt.label}
-              aria-pressed={selected}
+              onClick={() => !isLocked && pick(opt.value)}
+              aria-label={isLocked ? `${opt.label} — locked (${xpCost} XP to unlock)` : opt.label}
+              aria-pressed={!isLocked && selected}
+              disabled={isLocked}
               className={cn(
-                "aspect-square rounded-card border-[2.5px] border-ink flex items-center justify-center text-[11px] font-body font-bold relative overflow-hidden transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
-                selected ? "bg-green-tint" : "bg-cream-card"
+                "aspect-square rounded-card border-[2.5px] border-ink flex flex-col items-center justify-center text-[10px] font-body font-bold relative overflow-hidden transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
+                isLocked
+                  ? "bg-cream-card opacity-60 cursor-not-allowed"
+                  : selected
+                    ? "bg-green-tint"
+                    : "bg-cream-card"
               )}
               style={
                 isColor
@@ -111,13 +127,24 @@ export function CharacterStudio({
                     : undefined
               }
             >
-              {!isColor && !isBg && (
-                <span className="text-center leading-tight px-1">{opt.label}</span>
-              )}
-              {selected && (
-                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-green flex items-center justify-center text-[9px] text-white">
-                  ✓
-                </span>
+              {isLocked ? (
+                <>
+                  <span className="text-[14px] leading-none">🔒</span>
+                  {xpCost && (
+                    <span className="text-[9px] text-ink-soft leading-tight mt-0.5">{xpCost} XP</span>
+                  )}
+                </>
+              ) : (
+                <>
+                  {!isColor && !isBg && (
+                    <span className="text-center leading-tight px-1">{opt.label}</span>
+                  )}
+                  {selected && (
+                    <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-green flex items-center justify-center text-[9px] text-white">
+                      ✓
+                    </span>
+                  )}
+                </>
               )}
             </button>
           );

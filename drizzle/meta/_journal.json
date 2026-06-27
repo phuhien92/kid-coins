@@ -22,6 +22,13 @@
       "when": 1782515418619,
       "tag": "0002_nappy_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782536100195,
+      "tag": "0003_woozy_harpoon",
+      "breakpoints": true
     }
   ]
 }

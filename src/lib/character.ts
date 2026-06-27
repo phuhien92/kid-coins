@@ -35,9 +35,10 @@ export const DEFAULT_CHARACTER: CharacterState = {
   eye: "default",
   extra: "none",
   bg: "sky",
+  outfit: "none",
 };
 
-export const CHARACTER_CATEGORIES = ["Color", "Hat", "Eye", "Extra", "Scene"] as const;
+export const CHARACTER_CATEGORIES = ["Color", "Hat", "Eye", "Extra", "Outfit", "Scene"] as const;
 export type CharacterCategory = (typeof CHARACTER_CATEGORIES)[number];
 
 export const CHARACTER_OPTIONS: Record<
@@ -63,6 +64,21 @@ export const CHARACTER_OPTIONS: Record<
     { value: "sunglasses", label: "Shades" },
     { value: "mustache", label: "Stache" },
   ],
+  Outfit: [
+    { value: "none",        label: "None" },
+    { value: "wizard",      label: "Wizard" },
+    { value: "knight",      label: "Knight" },
+    { value: "elf",         label: "Elf" },
+    { value: "dwarf",       label: "Dwarf" },
+    { value: "ranger",      label: "Ranger" },
+    { value: "thief",       label: "Thief" },
+    { value: "alchemist",   label: "Alchemist" },
+    { value: "monk",        label: "Monk" },
+    { value: "bard",        label: "Bard" },
+    { value: "shaman",      label: "Shaman" },
+    { value: "orc",         label: "Orc" },
+    { value: "necromancer", label: "Necro" },
+  ],
   Scene: Object.keys(BG_COLORS).map((k) => ({ value: k, label: k })),
 };
 
@@ -71,8 +87,30 @@ export const CATEGORY_FIELD: Record<CharacterCategory, keyof CharacterState> = {
   Hat: "hat",
   Eye: "eye",
   Extra: "extra",
+  Outfit: "outfit",
   Scene: "bg",
 };
+
+// "free" = unlocked by default; otherwise XP or coin cost required
+export const OUTFIT_UNLOCK_COSTS: Record<string, { xp?: number; coins?: number } | "free"> = {
+  none:        "free",
+  wizard:      "free",
+  knight:      { xp: 300 },
+  elf:         { xp: 300 },
+  ranger:      { xp: 400 },
+  thief:       { xp: 400 },
+  dwarf:       { xp: 500 },
+  alchemist:   { xp: 500 },
+  bard:        { xp: 600 },
+  monk:        { xp: 600 },
+  shaman:      { xp: 700 },
+  orc:         { xp: 700 },
+  necromancer: { xp: 900 },
+};
+
+export const FREE_OUTFITS = Object.entries(OUTFIT_UNLOCK_COSTS)
+  .filter(([, cost]) => cost === "free")
+  .map(([key]) => key);
 
 export const CHAR_STORAGE_KEY = "earnie_char";
 
@@ -81,7 +119,10 @@ export function loadCharFromStorage(): CharacterState | null {
   try {
     const raw = localStorage.getItem(CHAR_STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as CharacterState;
+    const parsed = JSON.parse(raw) as CharacterState;
+    // Backfill outfit for characters saved before this field existed
+    if (!parsed.outfit) parsed.outfit = "none";
+    return parsed;
   } catch {
     return null;
   }
@@ -100,6 +141,7 @@ export function randomCharacter(): CharacterState {
     eye: pick(["default", "star", "sun"]),
     extra: pick(["none", "bow", "freckles"]),
     bg: pick(Object.keys(BG_COLORS)),
+    outfit: pick(FREE_OUTFITS),
   };
 }
 

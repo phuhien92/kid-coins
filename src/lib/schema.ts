@@ -96,6 +96,7 @@ export const characters = pgTable("characters", {
   eye: text("eye").notNull().default("default"),
   extra: text("extra").notNull().default("none"),
   bg: text("bg").notNull().default("sky"),
+  outfit: text("outfit").notNull().default("none"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
