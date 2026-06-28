@@ -13,9 +13,15 @@
 
 ## Verdict
 
-_TBD — pick one (or a hybrid) after reviewing variants side-by-side._
+**`spec` promoted to production** as `ParentLayoutShell` (`src/components/parent/ParentLayoutShell.tsx`) via `src/app/parent/layout.tsx`.
 
-- [ ] `spec`
+Critique score at promotion: 28/40. Follow-up before deleting prototype:
+
+- [x] Nav active state: **`green-tint`** (handoff-faithful, shared with kid shell)
+- [ ] `/impeccable adapt` — prototype switcher vs mobile nav collision
+- [ ] `/impeccable polish` — normalize border grammar across remaining prototype variants
+
+- [x] `spec` — **production base**
 - [ ] `kid-parity`
 - [ ] `top-nav`
 - [ ] `focus-rail`
@@ -23,4 +29,4 @@ _TBD — pick one (or a hybrid) after reviewing variants side-by-side._
 
 **Notes from review:**
 
-_(fill in)_
+Promoted after `/impeccable critique` (2026-06-28). Production shell drops prototype state panel and uses real `Link` navigation. Placeholder parent name/family in `PARENT_SHELL_PLACEHOLDER` until family context is wired.

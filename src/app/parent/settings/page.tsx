@@ -45,11 +45,10 @@ export default function ParentSettingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-cream px-5 pt-8 pb-10">
-      <div className="max-w-[560px] mx-auto">
-        <h1 className="font-display font-bold text-[26px] text-ink mb-6">
+    <div className="max-w-[560px] mx-auto w-full">
+        <h2 className="font-display font-bold text-[26px] text-ink mb-6">
           Settings
-        </h1>
+        </h2>
 
         <section
           aria-label="Settings"
@@ -89,8 +88,7 @@ export default function ParentSettingsPage() {
             </button>
           </div>
         </section>
-      </div>
-    </main>
+    </div>
   );
 }
 

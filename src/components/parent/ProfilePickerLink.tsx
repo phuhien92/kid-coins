@@ -1,14 +1,10 @@
-import { StampedChipLink } from "@/components/ui";
+import { ProfileSwitchAction } from "@/components/shared/AppNav/ProfileSwitchAction";
 
 type ProfilePickerLinkProps = {
   className?: string;
 };
 
-/** Parent nav — back to kid profile selection. */
+/** Parent surfaces — back to profile selection. */
 export function ProfilePickerLink({ className }: ProfilePickerLinkProps) {
-  return (
-    <StampedChipLink href="/profile-picker" ring="purple" className={className}>
-      Profile picker →
-    </StampedChipLink>
-  );
+  return <ProfileSwitchAction register="parent" className={className} />;
 }

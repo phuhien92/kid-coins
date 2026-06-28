@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { appNavStampedChipRing } from "@/components/shared/AppNav/types";
 import { InitialAvatar, StampedChip } from "@/components/ui";
 import { useKid } from "@/context/KidContext";
-import { clearKidSession } from "@/lib/kid-session";
+import { useProfileSwitch } from "@/hooks/useProfileSwitch";
 import { cn } from "@/lib/utils";
 
 type SwitchProfileButtonProps = {
@@ -18,18 +18,13 @@ export function SwitchProfileButton({
   label = "Switch profile",
   size = "default",
 }: SwitchProfileButtonProps) {
-  const router = useRouter();
+  const switchProfile = useProfileSwitch();
   const { kid } = useKid();
-
-  function handleClick() {
-    clearKidSession();
-    router.push("/profile-picker");
-  }
 
   return (
     <StampedChip
-      onClick={handleClick}
-      ring="green"
+      onClick={switchProfile}
+      ring={appNavStampedChipRing("kid")}
       aria-label={`Switch profile (signed in as ${kid.name})`}
       className={cn(
         "gap-2.5",

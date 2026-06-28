@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { AppNavBottomTabs } from "@/components/shared/AppNav/AppNav";
+import { AppNavItemControl } from "@/components/shared/AppNav/AppNavItemControl";
 import { MOCK_PARENT } from "./parentNavItems";
 import {
-  ParentBrand,
+  EarnieBrand,
   ParentGreeting,
-  ParentNavButton,
   ParentNavList,
   ParentSidebarFooter,
   ParentTopbarActions,
@@ -36,7 +37,7 @@ export function SpecShell({ activeSection, onSelect, children, onDrawerChange }:
         aria-label="Primary navigation"
         className="hidden lg:flex sticky top-0 self-start h-screen w-60 flex-col gap-2 px-4 py-5 bg-cream-card border-r-2 border-ink"
       >
-        <ParentBrand />
+        <EarnieBrand href="/parent/home" register="parent" />
         <p className="font-body font-extrabold text-xs text-ink-soft uppercase tracking-wide px-3 pt-2">
           Menu
         </p>
@@ -49,7 +50,7 @@ export function SpecShell({ activeSection, onSelect, children, onDrawerChange }:
         aria-label="Primary navigation"
         className="hidden md:flex lg:hidden sticky top-0 self-start h-screen w-20 flex-col items-center gap-2 px-2 py-5 bg-cream-card border-r-2 border-ink"
       >
-        <ParentBrand compact />
+        <EarnieBrand href="/parent/home" register="parent" className="block text-center w-full" />
         <ParentNavList active={activeSection} onSelect={onSelect} showLabels={false} compact className="flex-1 w-full" />
         <ParentSidebarFooter compact />
       </aside>
@@ -69,7 +70,7 @@ export function SpecShell({ activeSection, onSelect, children, onDrawerChange }:
           drawerOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <ParentBrand />
+        <EarnieBrand href="/parent/home" register="parent" />
         <ParentNavList active={activeSection} onSelect={(s) => { onSelect(s); setDrawerOpen(false); }} className="flex-1" />
         <ParentSidebarFooter />
       </aside>
@@ -93,44 +94,14 @@ export function SpecShell({ activeSection, onSelect, children, onDrawerChange }:
         <main className="flex-1 px-4 md:px-6 py-6">{children}</main>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav
-        aria-label="Primary navigation"
-        className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-cream-card border-t-2 border-ink"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-      >
-        <ul className="flex justify-around px-2 pt-2 pb-2">
-          {PARENT_NAV_ITEMS.map((item) => {
-            const active = activeSection === item.id;
-            return (
-              <li key={item.id} className="flex-1">
-                <button
-                  type="button"
-                  onClick={() => onSelect(item.id)}
-                  className="w-full flex flex-col items-center gap-1 py-1"
-                >
-                  <span
-                    className={cn(
-                      "inline-flex items-center justify-center w-12 h-10 rounded-control relative",
-                      active ? "bg-green-tint border-2 border-ink text-ink" : "text-ink-soft"
-                    )}
-                  >
-                    {item.icon}
-                    {item.badge != null && item.badge > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-pill bg-coral text-white text-xs font-extrabold border-2 border-cream-card flex items-center justify-center">
-                        {item.badge}
-                      </span>
-                    )}
-                  </span>
-                  <span className={cn("font-display font-semibold text-xs", active ? "text-ink" : "text-ink-soft")}>
-                    {item.label}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <AppNavBottomTabs
+        mode="controlled"
+        items={PARENT_NAV_ITEMS}
+        register="parent"
+        activeId={activeSection}
+        onSelect={(id) => onSelect(id as ParentNavSection)}
+        className="md:hidden"
+      />
     </div>
   );
 }
@@ -143,7 +114,7 @@ export function KidParityShell({ activeSection, onSelect, children }: ShellFrame
         aria-label="Primary navigation"
         className="hidden md:flex sticky top-0 self-start h-screen w-56 flex-col gap-6 px-5 py-6 bg-cream border-r border-line"
       >
-        <ParentBrand />
+        <EarnieBrand href="/parent/home" register="parent" />
         <ParentNavList active={activeSection} onSelect={onSelect} />
         <div className="mt-auto border-t border-line pt-4">
           <ParentSidebarFooter />
@@ -159,27 +130,14 @@ export function KidParityShell({ activeSection, onSelect, children }: ShellFrame
         {children}
       </main>
 
-      <nav
-        aria-label="Primary navigation"
-        className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-cream border-t-2 border-line"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-      >
-        <ul className="flex justify-around px-2 pt-2 pb-2">
-          {PARENT_NAV_ITEMS.map((item) => {
-            const active = activeSection === item.id;
-            return (
-              <li key={item.id} className="flex-1">
-                <button type="button" onClick={() => onSelect(item.id)} className="w-full flex flex-col items-center gap-1 py-1">
-                  <span className={cn("inline-flex items-center justify-center w-12 h-10 rounded-control", active ? "bg-green-tint border-2 border-ink" : "text-ink-soft")}>
-                    {item.icon}
-                  </span>
-                  <span className={cn("font-body font-bold text-xs", active ? "text-ink" : "text-ink-soft")}>{item.label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <AppNavBottomTabs
+        mode="controlled"
+        items={PARENT_NAV_ITEMS}
+        register="parent"
+        activeId={activeSection}
+        onSelect={(id) => onSelect(id as ParentNavSection)}
+        className="md:hidden"
+      />
     </div>
   );
 }
@@ -196,15 +154,18 @@ export function TopNavShell({ activeSection, onSelect, children, onDrawerChange 
     <div className="min-h-screen bg-cream flex flex-col">
       <header className="sticky top-0 z-30 bg-cream-card border-b-2 border-ink">
         <div className="flex items-center gap-3 px-4 py-3">
-          <ParentBrand />
+          <EarnieBrand href="/parent/home" register="parent" />
           <div className="flex-1" />
           <div className="hidden md:flex items-center gap-1">
             {PARENT_NAV_ITEMS.map((item) => (
-              <ParentNavButton
+              <AppNavItemControl
                 key={item.id}
-                section={item.id}
+                item={item}
                 active={activeSection === item.id}
-                onSelect={onSelect}
+                compact
+                register="parent"
+                mode="button"
+                onSelect={() => onSelect(item.id)}
               />
             ))}
           </div>
@@ -242,7 +203,7 @@ export function FocusRailShell({ activeSection, onSelect, children }: ShellFrame
         aria-label="Primary navigation"
         className="hidden sm:flex sticky top-0 self-start h-screen w-20 flex-col items-center gap-3 px-2 py-5 bg-cream-card border-r-2 border-ink"
       >
-        <ParentBrand compact />
+        <EarnieBrand href="/parent/home" register="parent" className="block text-center w-full" />
         <ParentNavList active={activeSection} onSelect={onSelect} showLabels={false} compact className="flex-1 w-full" />
         <ParentSidebarFooter compact />
       </aside>
@@ -257,24 +218,14 @@ export function FocusRailShell({ activeSection, onSelect, children }: ShellFrame
         <main className="flex-1 px-4 md:px-8 py-6 max-w-5xl">{children}</main>
       </div>
 
-      <nav
-        aria-label="Primary navigation"
-        className="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-cream-card border-t-2 border-ink"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-      >
-        <ul className="flex justify-around px-2 pt-2 pb-2">
-          {PARENT_NAV_ITEMS.map((item) => (
-            <li key={item.id} className="flex-1">
-              <button type="button" onClick={() => onSelect(item.id)} className="w-full flex flex-col items-center gap-1 py-1 text-ink-soft">
-                <span className={cn("inline-flex items-center justify-center w-12 h-10 rounded-control", activeSection === item.id && "bg-green-tint border-2 border-ink text-ink")}>
-                  {item.icon}
-                </span>
-                <span className="font-display font-semibold text-xs">{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <AppNavBottomTabs
+        mode="controlled"
+        items={PARENT_NAV_ITEMS}
+        register="parent"
+        activeId={activeSection}
+        onSelect={(id) => onSelect(id as ParentNavSection)}
+        className="sm:hidden"
+      />
     </div>
   );
 }
