@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { signOutAccount } from "@/lib/auth-sign-out";
 import { cn } from "@/lib/utils";
 
 type ParentSignOutButtonProps = {
@@ -20,21 +20,10 @@ export function ParentSignOutButton({
   async function handleSignOut() {
     setSigningOut(true);
     try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch {
-      // Best-effort — still redirect even if the API call fails
+      await signOutAccount();
     } finally {
-      if (typeof window !== "undefined") {
-        Object.keys(localStorage)
-          .filter(
-            (k) =>
-              k.startsWith("sb-") ||
-              k.startsWith("earnie_")
-          )
-          .forEach((k) => localStorage.removeItem(k));
-      }
       router.push("/login");
+      setSigningOut(false);
     }
   }
 

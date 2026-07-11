@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Toggle } from "@/components/ui";
-import { createClient } from "@/lib/supabase";
-import { clearKidSession } from "@/lib/kid-session";
+import { signOutAccount } from "@/lib/auth-sign-out";
 import { cn } from "@/lib/utils";
 
 type SettingsState = {
@@ -29,18 +28,10 @@ export default function ParentSettingsPage() {
   async function handleSignOut() {
     setSigningOut(true);
     try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch {
-      // Best-effort — still redirect even if the API call fails
+      await signOutAccount();
     } finally {
-      if (typeof window !== "undefined") {
-        Object.keys(localStorage)
-          .filter((k) => k.startsWith("sb-"))
-          .forEach((k) => localStorage.removeItem(k));
-        clearKidSession();
-      }
       router.push("/login");
+      setSigningOut(false);
     }
   }
 

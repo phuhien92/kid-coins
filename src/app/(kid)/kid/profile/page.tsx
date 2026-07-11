@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Page, Toast } from "@/components/ui";
 import { FantasyGuildCharacter } from "@/components/kid/FantasyGuildCharacter";
 import { SwitchProfileButton } from "@/components/kid/SwitchProfileButton";
+import { ParentSignOutButton } from "@/components/shared/ParentSignOutButton";
 import {
   BG_COLORS,
   CHAR_COLORS,
@@ -208,8 +209,9 @@ function KidProfileContent() {
           </div>
         </div>
 
-        <div className="flex justify-center mt-auto pt-4">
+        <div className="flex flex-col items-center gap-3 mt-auto pt-4">
           <SwitchProfileButton size="full" className="max-w-[280px]" />
+          <ParentSignOutButton variant="text" />
         </div>
       </Page.Content>
 
