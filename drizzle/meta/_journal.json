@@ -29,6 +29,13 @@
       "when": 1782536100195,
       "tag": "0003_woozy_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782544478014,
+      "tag": "0004_zippy_katie_power",
+      "breakpoints": true
     }
   ]
 }

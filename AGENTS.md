@@ -204,6 +204,33 @@ Before merging to `main`:
 - **`localStorage`** persists character state (`earnie_char`) and streak; always read on mount, write on change
 - **Feature flags** via PostHog. When the user requests a new feature, ask if it should be gated behind a PostHog feature flag. Consult https://posthog.com/docs/feature-flags/best-practices for guidelines.
 
+## Concurrency & financial safety rules
+
+These rules exist because coins are real value to kids. Violating them causes silent data corruption that is very hard to debug.
+
+### Never read-then-write a balance
+**Forbidden pattern:**
+```ts
+const kid = await db.query.kidProfiles.findFirst(...)
+await tx.update(kidProfiles).set({ balance: kid.balance + amount })  // lost-update race
+```
+**Required:** use the helpers in `src/lib/kid-balance.ts`:
+```ts
+await creditBalance(tx, kidId, amount)   // balance = balance + amount (atomic)
+await debitBalance(tx, kidId, amount)    // balance = GREATEST(0, balance - amount) (atomic)
+```
+Never bypass these helpers with inline `sql\`...\`` balance arithmetic.
+
+### Always guard state-transition updates on the current state
+When approving or declining a completion / redemption, the UPDATE must include a `status = 'pending'` condition so a double-submit cannot process the same record twice:
+```ts
+.where(and(eq(table.id, id), eq(table.status, "pending")))
+```
+If `.returning()` yields no row, return **409 Conflict** — do not fall through to crediting coins.
+
+### Check stock before approving a reward redemption
+Before the transaction, call `hasRewardStock(reward.quantity, reward.quantityUsed)` from `src/lib/rewards.ts`. Return **400** if the reward is sold out. This prevents `quantityUsed` from exceeding `quantity` under concurrent approvals.
+
 ## Reference
 
 - Design spec: `design_handoff_earnie/README.md`
