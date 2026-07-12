@@ -225,8 +225,8 @@ describe("useApprovals", () => {
       await result.current.approveAllRedemptions();
     });
 
-    // The approve route checks balance and stock *before* its transaction, so
-    // overlapping requests would each read the same pre-debit balance.
+    // Fired in parallel, the batch's own members would be settled against the
+    // same committed balance and stock, and the losers rejected.
     expect(maxInFlight).toBe(1);
     expect(result.current.redemptionCount).toBe(0);
     expect(result.current.kidsById["kid-1"].balance).toBe(20);
@@ -260,12 +260,76 @@ describe("useApprovals", () => {
     const { result } = await renderLoaded();
 
     await act(async () => {
-      await expect(result.current.approveAllTasks()).rejects.toThrow(/couldn't be saved/i);
+      await expect(result.current.approveAllTasks()).rejects.toThrow(
+        /something went wrong/i
+      );
     });
 
     expect(maxInFlight).toBe(1);
     // The successful one is gone and credited; the failed one is restored.
     expect(result.current.taskCount).toBe(1);
     expect(result.current.kidsById["kid-1"].balance).toBe(30);
+  });
+
+  it("surfaces the server's reason when a bulk approval is rejected", async () => {
+    const multi = {
+      ...LIST,
+      redemptions: [
+        { ...LIST.redemptions[0], id: "red-1", coinsSpent: 10 },
+        { ...LIST.redemptions[0], id: "red-2", coinsSpent: 10 },
+      ],
+    };
+
+    mockFetch(async (url, init) => {
+      if (init?.method === "POST") {
+        const soldOut = url.includes("red-2");
+        return new Response(
+          JSON.stringify(soldOut ? { error: "Reward is sold out" } : { redemption: {} }),
+          { status: soldOut ? 400 : 200 }
+        );
+      }
+      return new Response(JSON.stringify(multi), { status: 200 });
+    });
+
+    const { result } = await renderLoaded();
+
+    await act(async () => {
+      await expect(result.current.approveAllRedemptions()).rejects.toThrow(
+        "Reward is sold out"
+      );
+    });
+
+    expect(result.current.redemptionCount).toBe(1);
+    expect(result.current.kidsById["kid-1"].balance).toBe(10);
+  });
+
+  it("counts the failures and names one reason when a batch fails several ways", async () => {
+    const multi = {
+      ...LIST,
+      redemptions: [
+        { ...LIST.redemptions[0], id: "red-1", coinsSpent: 10 },
+        { ...LIST.redemptions[0], id: "red-2", coinsSpent: 10 },
+      ],
+    };
+
+    mockFetch(async (url, init) => {
+      if (init?.method === "POST") {
+        const reason = url.includes("red-1") ? "Reward is sold out" : "Insufficient balance";
+        return new Response(JSON.stringify({ error: reason }), { status: 400 });
+      }
+      return new Response(JSON.stringify(multi), { status: 200 });
+    });
+
+    const { result } = await renderLoaded();
+
+    await act(async () => {
+      await expect(result.current.approveAllRedemptions()).rejects.toThrow(
+        "2 couldn't be approved — Reward is sold out"
+      );
+    });
+
+    // Both rows are restored and neither debit stuck.
+    expect(result.current.redemptionCount).toBe(2);
+    expect(result.current.kidsById["kid-1"].balance).toBe(20);
   });
 });

@@ -149,8 +149,8 @@ export default function ParentApprovalsPage() {
         if (tab === "tasks") await approveAllTasks();
         else await approveAllRedemptions();
         setToast("All caught up 🎉");
-      } catch {
-        setToast("Some approvals couldn't be saved.");
+      } catch (err) {
+        setToast(errorMessage(err, "Some approvals couldn't be saved."));
       }
     });
   }

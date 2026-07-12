@@ -64,6 +64,20 @@ async function postAction(url: string, reason?: string): Promise<void> {
 }
 
 /**
+ * Condenses the reasons a batch's failures gave into one message a parent can act on.
+ *
+ * A batch usually fails for one reason — the same reward ran out, the same kid
+ * ran short — so a single distinct reason is worth stating verbatim. Mixed
+ * reasons can't all fit in a toast, so the count carries the scale and one
+ * reason stands in for the rest.
+ */
+function summarizeFailures(reasons: string[]): string {
+  const distinct = [...new Set(reasons)];
+  if (distinct.length === 1) return distinct[0];
+  return `${reasons.length} couldn't be approved — ${distinct[0]}`;
+}
+
+/**
  * State whose latest value is readable synchronously, before React re-renders.
  *
  * Approvals are applied one after another across `await` boundaries, so each
@@ -198,40 +212,56 @@ export function useApprovals(): UseApprovalsResult {
   );
 
   /**
-   * Bulk approvals run one at a time, never in parallel: the approve routes
-   * check the kid's balance and the reward's remaining stock *before* opening
-   * their transaction, so concurrent requests would all read the same
-   * pre-debit state and each be allowed through.
+   * Approves a batch one item at a time, never in parallel.
+   *
+   * Overspending and overselling are prevented server-side, by guards inside
+   * each approve transaction that settle against committed state. Serializing
+   * here keeps a batch from tripping those guards with its own members: fired
+   * in parallel, every request would be settled against the same committed
+   * balance and stock, and the ones that lost would come back as rejections
+   * that only the batch's own concurrency caused.
+   *
+   * Failures keep the reason the server gave them: a batch that stops on a
+   * sold-out reward or a kid who has run short will fail the same way on every
+   * retry, so the reason is the only thing that gets the parent unstuck.
    */
-  const approveAllTasks = useCallback(async () => {
-    const ids = taskRef.current.map((completion) => completion.id);
-    let failed = false;
-    for (const id of ids) {
-      try {
-        await resolveTask(id, "approve");
-      } catch {
-        failed = true;
+  const approveEach = useCallback(
+    async (ids: string[], approve: (id: string) => Promise<void>) => {
+      const reasons: string[] = [];
+      for (const id of ids) {
+        try {
+          await approve(id);
+        } catch (err) {
+          reasons.push(err instanceof Error && err.message ? err.message : GENERIC_ERROR);
+        }
       }
-    }
-    if (failed) throw new Error("Some approvals couldn't be saved");
-  }, [taskRef, resolveTask]);
+      if (reasons.length > 0) throw new Error(summarizeFailures(reasons));
+    },
+    []
+  );
 
-  const approveAllRedemptions = useCallback(async () => {
-    const ids = redemptionRef.current.map((redemption) => redemption.id);
-    let failed = false;
-    for (const id of ids) {
-      try {
-        await resolveRedemption(id, "approve");
-      } catch {
-        failed = true;
-      }
-    }
-    if (failed) throw new Error("Some approvals couldn't be saved");
-  }, [redemptionRef, resolveRedemption]);
+  const approveAllTasks = useCallback(
+    () =>
+      approveEach(
+        taskRef.current.map((completion) => completion.id),
+        (id) => resolveTask(id, "approve")
+      ),
+    [taskRef, resolveTask, approveEach]
+  );
 
-  // An in-flight debit can drive the stored total below zero; the server floors
-  // debits at zero and rejects any redemption the kid can't afford, so the
-  // shortfall is always transient and only the displayed value is clamped.
+  const approveAllRedemptions = useCallback(
+    () =>
+      approveEach(
+        redemptionRef.current.map((redemption) => redemption.id),
+        (id) => resolveRedemption(id, "approve")
+      ),
+    [redemptionRef, resolveRedemption, approveEach]
+  );
+
+  // An optimistic debit can drive the stored total below zero, since it lands
+  // before the server has ruled on it. The server rejects outright any
+  // redemption the kid can't afford — and the revert then backs the debit out —
+  // so the shortfall is always transient and only the displayed value is clamped.
   const kidsById = useMemo(
     () =>
       Object.fromEntries(

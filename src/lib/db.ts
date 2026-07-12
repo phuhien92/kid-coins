@@ -24,3 +24,5 @@ export const db = new Proxy({} as DB, {
     return Reflect.get(getInstance(), prop as keyof DB);
   },
 });
+
+export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];

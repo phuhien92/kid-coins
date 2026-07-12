@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Tx } from "./kid-balance";
+import type { Tx } from "@/lib/db";
 import {
   claimRewardStock,
   getRemainingStock,

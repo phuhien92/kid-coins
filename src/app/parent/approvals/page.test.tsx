@@ -183,6 +183,27 @@ describe("ParentApprovalsPage", () => {
     expect(approveCalls).toHaveLength(4);
   });
 
+  it("toasts the server's reason when Approve all is rejected", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(global, "fetch").mockImplementation((input, init) => {
+      const method = (init?.method ?? "GET").toUpperCase();
+      if (method === "POST") {
+        return Promise.resolve(
+          new Response(JSON.stringify({ error: "Insufficient balance" }), { status: 400 })
+        );
+      }
+      return Promise.resolve(new Response(JSON.stringify(makeList(4)), { status: 200 }));
+    });
+    await renderPage();
+
+    await user.click(screen.getByRole("button", { name: /Approve all \(4\)/ }));
+
+    // Every member failed for the same permanent reason, so state it rather
+    // than telling the parent a batch they cannot retry "couldn't be saved".
+    expect(await screen.findByText("Insufficient balance")).toBeInTheDocument();
+    expect(screen.getByText("Task 1")).toBeInTheDocument();
+  });
+
   it("renders the kid's balance on each row and updates it on approval", async () => {
     const user = userEvent.setup();
     installFetch({ list: makeList(2) });

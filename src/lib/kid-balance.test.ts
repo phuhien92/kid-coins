@@ -14,12 +14,12 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+import type { Tx } from "@/lib/db";
 import {
   getKidEffectiveBalance,
   creditBalance,
   debitBalance,
   debitBalanceIfAffordable,
-  type Tx,
 } from "./kid-balance";
 
 /** Stands in for a transaction whose guarded UPDATE returns `debited`. */

@@ -1,8 +1,6 @@
 import { and, eq, gte, sql } from "drizzle-orm";
-import { db } from "@/lib/db";
+import { db, type Tx } from "@/lib/db";
 import { kidProfiles, redemptionRequests } from "@/lib/schema";
-
-export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export async function getKidEffectiveBalance(kidId: string): Promise<number | null> {
   const kid = await db.query.kidProfiles.findFirst({

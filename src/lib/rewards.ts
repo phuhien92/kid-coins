@@ -1,5 +1,5 @@
 import { and, eq, isNull, or, sql } from "drizzle-orm";
-import type { Tx } from "@/lib/kid-balance";
+import type { Tx } from "@/lib/db";
 import { rewards } from "@/lib/schema";
 
 export function getRemainingStock(
