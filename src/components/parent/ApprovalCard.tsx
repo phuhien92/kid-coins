@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button, CoinIcon, InitialAvatar } from "@/components/ui";
+import { Badge, Button, CoinIcon, InitialAvatar } from "@/components/ui";
 import { Card } from "@/components/ui/Card";
 import { cn, formatCoins } from "@/lib/utils";
 
@@ -14,6 +14,8 @@ export type ApprovalCardProps = {
   coins: number;
   /** Human-friendly submission time, e.g. "5m ago". */
   timeLabel: string;
+  /** The kid's current coin balance, kept live as approvals settle. */
+  kidBalance?: number;
   /** Disables both actions while a request is in flight. */
   busy?: boolean;
   onApprove: () => void;
@@ -34,6 +36,7 @@ export function ApprovalCard({
   subtitle,
   coins,
   timeLabel,
+  kidBalance,
   busy = false,
   onApprove,
   onDecline,
@@ -69,25 +72,38 @@ export function ApprovalCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t-2 border-line">
-          <Button
-            type="button"
-            variant="mini-no"
-            size="sm"
-            disabled={busy}
-            onClick={onDecline}
-          >
-            Not now
-          </Button>
-          <Button
-            type="button"
-            variant="mini-yes"
-            size="sm"
-            disabled={busy}
-            onClick={onApprove}
-          >
-            ✓ Approve
-          </Button>
+        <div className="flex items-center justify-between gap-2 mt-4 pt-4 border-t-2 border-line">
+          {kidBalance !== undefined && (
+            <Badge
+              variant="goal-chip"
+              role="status"
+              aria-label={`${kidName}'s balance: ${formatCoins(kidBalance)} coins`}
+            >
+              <CoinIcon size="sm" />
+              <span>{formatCoins(kidBalance)}</span>
+            </Badge>
+          )}
+
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              type="button"
+              variant="mini-no"
+              size="sm"
+              disabled={busy}
+              onClick={onDecline}
+            >
+              Not now
+            </Button>
+            <Button
+              type="button"
+              variant="mini-yes"
+              size="sm"
+              disabled={busy}
+              onClick={onApprove}
+            >
+              ✓ Approve
+            </Button>
+          </div>
         </div>
       </Card>
     </motion.li>

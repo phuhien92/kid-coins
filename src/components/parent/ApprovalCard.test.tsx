@@ -44,4 +44,16 @@ describe("ApprovalCard", () => {
     expect(screen.getByRole("button", { name: /Approve/ })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Not now" })).toBeDisabled();
   });
+
+  it("shows the kid's live coin balance as a status chip", () => {
+    renderCard({ kidBalance: 120 });
+    expect(
+      screen.getByRole("status", { name: "Leo's balance: 120 coins" })
+    ).toHaveTextContent("120");
+  });
+
+  it("omits the balance chip when no balance is known for the kid", () => {
+    renderCard({ kidBalance: undefined });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
 });

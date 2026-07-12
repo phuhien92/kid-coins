@@ -110,4 +110,95 @@ describe("useApprovals", () => {
     expect(result.current.taskCount).toBe(1);
     expect(result.current.kidsById["kid-1"].balance).toBe(20);
   });
+
+  it("restores the pre-attempt balance when a clamped redemption approval fails", async () => {
+    // Balance 20, redemption costs 50: the optimistic debit clamps to 0, so the
+    // revert has to restore the snapshot (20) rather than add the 50 back.
+    mockFetch((url, init) => {
+      if (init?.method === "POST")
+        return new Response(JSON.stringify({ error: "Insufficient balance" }), { status: 400 });
+      return new Response(JSON.stringify(LIST), { status: 200 });
+    });
+    const { result } = await renderLoaded();
+
+    await act(async () => {
+      await expect(result.current.approveRedemption("red-1")).rejects.toThrow();
+    });
+
+    expect(result.current.redemptionCount).toBe(1);
+    expect(result.current.kidsById["kid-1"].balance).toBe(20);
+  });
+
+  it("approves redemptions one at a time so each request sees the prior debit", async () => {
+    const multi = {
+      ...LIST,
+      redemptions: [
+        { ...LIST.redemptions[0], id: "red-1", coinsSpent: 30 },
+        { ...LIST.redemptions[0], id: "red-2", coinsSpent: 50 },
+      ],
+      kids: [{ id: "kid-1", name: "Sam", avatarColor: "#F4D34E", balance: 100 }],
+    };
+
+    let inFlight = 0;
+    let maxInFlight = 0;
+    mockFetch(async (url, init) => {
+      if (init?.method === "POST") {
+        inFlight += 1;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        inFlight -= 1;
+        return new Response(JSON.stringify({ redemption: {} }), { status: 200 });
+      }
+      return new Response(JSON.stringify(multi), { status: 200 });
+    });
+
+    const { result } = await renderLoaded();
+
+    await act(async () => {
+      await result.current.approveAllRedemptions();
+    });
+
+    // The approve route checks balance and stock *before* its transaction, so
+    // overlapping requests would each read the same pre-debit balance.
+    expect(maxInFlight).toBe(1);
+    expect(result.current.redemptionCount).toBe(0);
+    expect(result.current.kidsById["kid-1"].balance).toBe(20);
+  });
+
+  it("approves tasks one at a time and reports partial bulk failures", async () => {
+    const multi = {
+      ...LIST,
+      taskCompletions: [
+        { ...LIST.taskCompletions[0], id: "comp-1" },
+        { ...LIST.taskCompletions[0], id: "comp-2" },
+      ],
+    };
+
+    let inFlight = 0;
+    let maxInFlight = 0;
+    mockFetch(async (url, init) => {
+      if (init?.method === "POST") {
+        inFlight += 1;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        inFlight -= 1;
+        const failed = url.includes("comp-2");
+        return new Response(JSON.stringify(failed ? { error: "Server error" } : { completion: {} }), {
+          status: failed ? 500 : 200,
+        });
+      }
+      return new Response(JSON.stringify(multi), { status: 200 });
+    });
+
+    const { result } = await renderLoaded();
+
+    await act(async () => {
+      await expect(result.current.approveAllTasks()).rejects.toThrow(/couldn't be saved/i);
+    });
+
+    expect(maxInFlight).toBe(1);
+    // The successful one is gone and credited; the failed one is restored.
+    expect(result.current.taskCount).toBe(1);
+    expect(result.current.kidsById["kid-1"].balance).toBe(30);
+  });
 });

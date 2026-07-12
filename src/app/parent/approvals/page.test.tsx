@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // Make Framer Motion deterministic in jsdom: pass children through and strip
@@ -159,5 +159,86 @@ describe("ParentApprovalsPage", () => {
     await waitFor(() => expect(screen.queryByText("Task 1")).not.toBeInTheDocument());
     const approveCalls = calls.filter((c) => c.url.includes("/task/") && c.url.endsWith("/approve"));
     expect(approveCalls).toHaveLength(4);
+  });
+
+  it("renders the kid's balance on each row and updates it on approval", async () => {
+    const user = userEvent.setup();
+    installFetch({ list: makeList(2) });
+    await renderPage();
+
+    const chips = screen.getAllByRole("status", { name: /Sam's balance/ });
+    expect(chips).toHaveLength(2);
+    expect(chips[0]).toHaveTextContent("20");
+
+    // Approving one 10-coin task credits Sam, so the remaining row's chip follows.
+    await user.click(screen.getAllByRole("button", { name: /Approve/ })[0]);
+
+    await waitFor(() => {
+      const remaining = screen.getAllByRole("status", { name: /Sam's balance/ });
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0]).toHaveTextContent("30");
+    });
+  });
+
+  it("serializes the batch and locks the UI while Approve all is in flight", async () => {
+    const user = userEvent.setup();
+    let releaseFirst: (() => void) | undefined;
+    let posts = 0;
+    vi.spyOn(global, "fetch").mockImplementation((input, init) => {
+      const url = String(input);
+      const method = (init?.method ?? "GET").toUpperCase();
+      calls.push({ url, method, body: undefined });
+      if (method === "POST") {
+        posts += 1;
+        const ok = new Response(JSON.stringify({ ok: true }), { status: 200 });
+        // Park only the first request so the batch is observably mid-flight.
+        if (posts === 1) {
+          return new Promise<Response>((resolve) => {
+            releaseFirst = () => resolve(ok);
+          });
+        }
+        return Promise.resolve(ok);
+      }
+      return Promise.resolve(new Response(JSON.stringify(makeList(4)), { status: 200 }));
+    });
+    await renderPage();
+
+    await user.click(screen.getByRole("button", { name: /Approve all \(4\)/ }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: /Approving/ })).toBeDisabled());
+    // Only the parked request has been sent — the other three wait their turn,
+    // so each one sees the previous debit/credit committed.
+    expect(calls.filter((c) => c.method === "POST")).toHaveLength(1);
+    // Rows are locked too, so a stray click can't interleave with the batch.
+    expect(screen.getAllByRole("button", { name: "Not now" })[0]).toBeDisabled();
+
+    await act(async () => {
+      releaseFirst?.();
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: /Approving/ })).not.toBeInTheDocument()
+    );
+    expect(calls.filter((c) => c.method === "POST")).toHaveLength(4);
+  });
+
+  it("offers a retry that refetches when the initial load fails", async () => {
+    const user = userEvent.setup();
+    let attempt = 0;
+    vi.spyOn(global, "fetch").mockImplementation(() => {
+      attempt += 1;
+      if (attempt === 1) return Promise.resolve(new Response("nope", { status: 500 }));
+      return Promise.resolve(new Response(JSON.stringify(makeList(1)), { status: 200 }));
+    });
+
+    render(<ParentApprovalsPage />);
+
+    const retry = await screen.findByRole("button", { name: "Try again" });
+    expect(screen.getByRole("alert")).toHaveTextContent(/Couldn't load approvals/);
+
+    await user.click(retry);
+
+    expect(await screen.findByText("Task 1")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
   });
 });

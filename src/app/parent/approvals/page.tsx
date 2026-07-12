@@ -60,6 +60,7 @@ export default function ParentApprovalsPage() {
     declineRedemption,
     approveAllTasks,
     approveAllRedemptions,
+    refresh,
   } = useApprovals();
 
   const [tab, setTab] = useState<string>("tasks");
@@ -67,36 +68,66 @@ export default function ParentApprovalsPage() {
   const [declineTarget, setDeclineTarget] = useState<DeclineTarget | null>(null);
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(new Set());
+  const [approvingAll, setApprovingAll] = useState(false);
 
   function avatarColor(kidId: string) {
     return kidsById[kidId]?.avatarColor ?? FALLBACK_AVATAR;
   }
 
+  function kidBalance(kidId: string) {
+    return kidsById[kidId]?.balance;
+  }
+
+  function setPending(id: string, pending: boolean) {
+    setPendingIds((current) => {
+      const next = new Set(current);
+      if (pending) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  /** A row's actions are disabled while its own request — or a bulk run — is in flight. */
+  function isBusy(id: string) {
+    return approvingAll || pendingIds.has(id);
+  }
+
   async function handleApproveTask(item: TaskCompletion) {
+    setPending(item.id, true);
     try {
       await approveTask(item.id);
       setToast(`Approved — ${item.coinsEarned} coins sent to ${item.kidName}`);
     } catch {
       setToast("Couldn't approve. Please try again.");
+    } finally {
+      setPending(item.id, false);
     }
   }
 
   async function handleApproveRedemption(item: RedemptionRequest) {
+    setPending(item.id, true);
     try {
       await approveRedemption(item.id);
       setToast(`Approved — ${item.rewardTitle} for ${item.kidName}`);
     } catch {
       setToast("Couldn't approve. Please try again.");
+    } finally {
+      setPending(item.id, false);
     }
   }
 
   async function handleApproveAll() {
+    if (approvingAll) return;
+    setApprovingAll(true);
     try {
       if (tab === "tasks") await approveAllTasks();
       else await approveAllRedemptions();
       setToast("All caught up 🎉");
     } catch {
       setToast("Some approvals couldn't be saved.");
+    } finally {
+      setApprovingAll(false);
     }
   }
 
@@ -110,6 +141,7 @@ export default function ParentApprovalsPage() {
     const trimmed = reason.trim() || undefined;
     const { kind, id } = declineTarget;
     setSubmitting(true);
+    setPending(id, true);
     try {
       if (kind === "task") await declineTask(id, trimmed);
       else await declineRedemption(id, trimmed);
@@ -119,6 +151,7 @@ export default function ParentApprovalsPage() {
       setToast("Couldn't decline. Please try again.");
     } finally {
       setSubmitting(false);
+      setPending(id, false);
     }
   }
 
@@ -141,9 +174,14 @@ export default function ParentApprovalsPage() {
         </div>
 
         {error && (
-          <p className="font-body text-[14px] text-red-600 mt-4" role="alert">
-            {error}
-          </p>
+          <div className="flex flex-col items-start gap-3 mt-4">
+            <p className="font-body text-[14px] text-red-600" role="alert">
+              {error}
+            </p>
+            <Button type="button" variant="purple" size="sm" onClick={refresh}>
+              Try again
+            </Button>
+          </div>
         )}
 
         {loading && <ApprovalsSkeleton />}
@@ -159,15 +197,16 @@ export default function ParentApprovalsPage() {
               </Tabs.Tab>
             </Tabs.List>
 
-            {activeCount > 3 && (
+            {(activeCount > 3 || approvingAll) && (
               <Button
                 type="button"
                 variant="purple"
                 size="full"
+                disabled={approvingAll}
                 onClick={handleApproveAll}
                 className="mt-6"
               >
-                ✓ Approve all ({activeCount})
+                {approvingAll ? "Approving…" : `✓ Approve all (${activeCount})`}
               </Button>
             )}
 
@@ -189,7 +228,9 @@ export default function ParentApprovalsPage() {
                         title={item.taskTitle}
                         subtitle="Task completed"
                         coins={item.coinsEarned}
+                        kidBalance={kidBalance(item.kidId)}
                         timeLabel={formatRelativeTime(new Date(item.completedAt))}
+                        busy={isBusy(item.id)}
                         onApprove={() => handleApproveTask(item)}
                         onDecline={() =>
                           openDecline({ kind: "task", id: item.id, label: item.taskTitle })
@@ -219,7 +260,9 @@ export default function ParentApprovalsPage() {
                         title={item.rewardTitle}
                         subtitle="Reward redemption"
                         coins={item.coinsSpent}
+                        kidBalance={kidBalance(item.kidId)}
                         timeLabel={formatRelativeTime(new Date(item.createdAt))}
+                        busy={isBusy(item.id)}
                         onApprove={() => handleApproveRedemption(item)}
                         onDecline={() =>
                           openDecline({
