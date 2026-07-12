@@ -69,8 +69,15 @@ export async function POST(
           rejectionReason: reason,
           resolvedAt: new Date(),
         })
-        .where(eq(redemptionRequests.id, id))
+        .where(
+          and(
+            eq(redemptionRequests.id, id),
+            eq(redemptionRequests.status, "pending")
+          )
+        )
         .returning();
+
+      if (!redemption) return null;
 
       await tx.insert(activityLog).values({
         familyId: auth.family.id,
@@ -85,6 +92,10 @@ export async function POST(
 
       return redemption;
     });
+
+    if (!updated) {
+      return NextResponse.json({ error: "Redemption already resolved" }, { status: 409 });
+    }
 
     return NextResponse.json({
       redemption: {

@@ -143,9 +143,31 @@ describe("ParentApprovalsPage", () => {
 
     await user.click(screen.getByRole("button", { name: /Approve/ }));
 
-    expect(await screen.findByText(/Couldn't approve/)).toBeInTheDocument();
+    // A 5xx is worth retrying and has no actionable reason to give.
+    expect(await screen.findByText(/Something went wrong/)).toBeInTheDocument();
     // Row is restored after the failed request.
     expect(screen.getByText("Task 1")).toBeInTheDocument();
+  });
+
+  it("toasts the server's reason when an approval can never succeed", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(global, "fetch").mockImplementation((input, init) => {
+      const method = (init?.method ?? "GET").toUpperCase();
+      if (method === "POST") {
+        return Promise.resolve(
+          new Response(JSON.stringify({ error: "Reward is sold out" }), { status: 400 })
+        );
+      }
+      return Promise.resolve(new Response(JSON.stringify(makeList(1)), { status: 200 }));
+    });
+    await renderPage();
+
+    await user.click(screen.getByRole("tab", { name: /Rewards/ }));
+    await user.click(screen.getByRole("button", { name: /Approve/ }));
+
+    // Retrying a sold-out reward fails identically, so say why instead of "try again".
+    expect(await screen.findByText("Reward is sold out")).toBeInTheDocument();
+    expect(screen.getByText("Movie night")).toBeInTheDocument();
   });
 
   it("shows Approve all when a tab has more than 3 pending and approves them all", async () => {
@@ -166,7 +188,7 @@ describe("ParentApprovalsPage", () => {
     installFetch({ list: makeList(2) });
     await renderPage();
 
-    const chips = screen.getAllByRole("status", { name: /Sam's balance/ });
+    const chips = screen.getAllByLabelText(/Sam's balance/);
     expect(chips).toHaveLength(2);
     expect(chips[0]).toHaveTextContent("20");
 
@@ -174,7 +196,7 @@ describe("ParentApprovalsPage", () => {
     await user.click(screen.getAllByRole("button", { name: /Approve/ })[0]);
 
     await waitFor(() => {
-      const remaining = screen.getAllByRole("status", { name: /Sam's balance/ });
+      const remaining = screen.getAllByLabelText(/Sam's balance/);
       expect(remaining).toHaveLength(1);
       expect(remaining[0]).toHaveTextContent("30");
     });

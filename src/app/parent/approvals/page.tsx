@@ -34,6 +34,11 @@ function TabLabel({ children, count }: { children: React.ReactNode; count: numbe
   );
 }
 
+/** The hook only throws messages that are safe to show a parent verbatim. */
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof Error && err.message ? err.message : fallback;
+}
+
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
     <p
@@ -98,8 +103,8 @@ export default function ParentApprovalsPage() {
     try {
       await approveTask(item.id);
       setToast(`Approved — ${item.coinsEarned} coins sent to ${item.kidName}`);
-    } catch {
-      setToast("Couldn't approve. Please try again.");
+    } catch (err) {
+      setToast(errorMessage(err, "Couldn't approve. Please try again."));
     } finally {
       setPending(item.id, false);
     }
@@ -110,8 +115,8 @@ export default function ParentApprovalsPage() {
     try {
       await approveRedemption(item.id);
       setToast(`Approved — ${item.rewardTitle} for ${item.kidName}`);
-    } catch {
-      setToast("Couldn't approve. Please try again.");
+    } catch (err) {
+      setToast(errorMessage(err, "Couldn't approve. Please try again."));
     } finally {
       setPending(item.id, false);
     }
@@ -147,8 +152,8 @@ export default function ParentApprovalsPage() {
       else await declineRedemption(id, trimmed);
       setToast("Declined — coins stay saved");
       setDeclineTarget(null);
-    } catch {
-      setToast("Couldn't decline. Please try again.");
+    } catch (err) {
+      setToast(errorMessage(err, "Couldn't decline. Please try again."));
     } finally {
       setSubmitting(false);
       setPending(id, false);

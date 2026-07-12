@@ -111,6 +111,73 @@ describe("useApprovals", () => {
     expect(result.current.kidsById["kid-1"].balance).toBe(20);
   });
 
+  it("keeps a sibling row's credit when a concurrent approval for the same kid fails", async () => {
+    // Per-row busy state only locks the row that was clicked, so two rows for
+    // the same kid can be in flight at once. Backing out a failure must remove
+    // only its own delta, never restore a snapshot that predates the sibling.
+    const multi = {
+      ...LIST,
+      taskCompletions: [
+        { ...LIST.taskCompletions[0], id: "comp-1" },
+        { ...LIST.taskCompletions[0], id: "comp-2" },
+      ],
+    };
+
+    const release: Record<string, (res: Response) => void> = {};
+    mockFetch((url, init) => {
+      if (init?.method === "POST") {
+        const id = url.includes("comp-1") ? "comp-1" : "comp-2";
+        return new Promise<Response>((resolve) => {
+          release[id] = resolve;
+        });
+      }
+      return new Response(JSON.stringify(multi), { status: 200 });
+    });
+
+    const { result } = await renderLoaded();
+
+    let first: Promise<unknown> | undefined;
+    let second: Promise<unknown> | undefined;
+    await act(async () => {
+      first = result.current.approveTask("comp-1").catch(() => "failed");
+      second = result.current.approveTask("comp-2");
+      await waitFor(() => expect(Object.keys(release)).toHaveLength(2));
+    });
+
+    // Both optimistic credits are applied: 20 + 10 + 10.
+    expect(result.current.kidsById["kid-1"].balance).toBe(40);
+
+    await act(async () => {
+      release["comp-2"](new Response(JSON.stringify({ completion: {} }), { status: 200 }));
+      await second;
+      release["comp-1"](new Response(JSON.stringify({ error: "Server error" }), { status: 500 }));
+      await first;
+    });
+
+    // comp-1 rolled back, comp-2's credit survives: 20 + 10.
+    expect(result.current.kidsById["kid-1"].balance).toBe(30);
+    expect(result.current.taskCount).toBe(1);
+  });
+
+  it("surfaces a permanent server reason and hides transient ones", async () => {
+    mockFetch((url, init) => {
+      if (init?.method === "POST") {
+        return url.includes("red-1")
+          ? new Response(JSON.stringify({ error: "Reward is sold out" }), { status: 400 })
+          : new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+      }
+      return new Response(JSON.stringify(LIST), { status: 200 });
+    });
+    const { result } = await renderLoaded();
+
+    await act(async () => {
+      // A 400 will fail identically on retry, so the parent gets the reason.
+      await expect(result.current.approveRedemption("red-1")).rejects.toThrow("Reward is sold out");
+      // A 5xx is worth retrying and has nothing useful to say.
+      await expect(result.current.approveTask("comp-1")).rejects.toThrow(/something went wrong/i);
+    });
+  });
+
   it("restores the pre-attempt balance when a clamped redemption approval fails", async () => {
     // Balance 20, redemption costs 50: the optimistic debit clamps to 0, so the
     // revert has to restore the snapshot (20) rather than add the 50 back.

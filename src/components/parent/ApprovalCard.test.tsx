@@ -45,15 +45,20 @@ describe("ApprovalCard", () => {
     expect(screen.getByRole("button", { name: "Not now" })).toBeDisabled();
   });
 
-  it("shows the kid's live coin balance as a status chip", () => {
+  it("shows the kid's live coin balance as a labelled chip", () => {
     renderCard({ kidBalance: 120 });
-    expect(
-      screen.getByRole("status", { name: "Leo's balance: 120 coins" })
-    ).toHaveTextContent("120");
+    expect(screen.getByLabelText("Leo's balance: 120 coins")).toHaveTextContent("120");
   });
 
   it("omits the balance chip when no balance is known for the kid", () => {
     renderCard({ kidBalance: undefined });
+    expect(screen.queryByLabelText(/balance/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps the balance chip out of the live-region announcements", () => {
+    // One live region per row would announce the same balance N times; the page
+    // Toast is the single live region for approval outcomes.
+    renderCard({ kidBalance: 120 });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });

@@ -76,7 +76,6 @@ export function ApprovalCard({
           {kidBalance !== undefined && (
             <Badge
               variant="goal-chip"
-              role="status"
               aria-label={`${kidName}'s balance: ${formatCoins(kidBalance)} coins`}
             >
               <CoinIcon size="sm" />

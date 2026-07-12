@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RedemptionRequest, TaskCompletion } from "@/types";
 
 export type ApprovalKid = {
@@ -33,15 +33,33 @@ type ApprovalsResponse = {
   kids: ApprovalKid[];
 };
 
+/** Shown when the failure is transient or has no actionable server-side reason. */
+const GENERIC_ERROR = "Something went wrong. Please try again.";
+
+/**
+ * Throws an Error whose message is safe to show a parent verbatim.
+ *
+ * A 4xx carries a permanent, actionable reason ("Reward is sold out",
+ * "Insufficient balance", "Redemption already resolved") that retrying cannot
+ * fix, so it is surfaced as-is. Network faults and 5xx are worth retrying and
+ * have nothing useful to say, so they collapse to a generic message.
+ */
 async function postAction(url: string, reason?: string): Promise<void> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(reason ? { reason } : {}),
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(reason ? { reason } : {}),
+    });
+  } catch {
+    throw new Error(GENERIC_ERROR);
+  }
+
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error ?? "Request failed");
+    const serverReason = typeof data.error === "string" ? data.error.trim() : "";
+    throw new Error(res.status >= 500 || !serverReason ? GENERIC_ERROR : serverReason);
   }
 }
 
@@ -71,16 +89,20 @@ function useLiveState<T>(initial: T) {
  * Owns the pending task-completion and redemption queues plus a live per-kid
  * balance map. Every mutation is optimistic: the item is removed (and the kid's
  * balance adjusted) immediately so the row can slide out, then the API is
- * called. On failure the item is restored and the kid's balance is rolled back
- * to the value it held before the attempt, then the error is re-thrown so the
- * page can surface a toast.
+ * called. On failure the item is restored and the mutation's own balance delta
+ * is backed out, then the error is re-thrown so the page can surface a toast.
+ *
+ * Balances are stored unclamped and clamped only on the way out. Several rows
+ * for the same kid can be in flight at once, so reverts have to compose: adding
+ * and later subtracting the same delta is exact, whereas clamping on write (or
+ * restoring an absolute snapshot) would discard a sibling row's delta.
  */
 export function useApprovals(): UseApprovalsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [taskCompletions, setTaskCompletions, taskRef] = useLiveState<TaskCompletion[]>([]);
   const [redemptions, setRedemptions, redemptionRef] = useLiveState<RedemptionRequest[]>([]);
-  const [kidsById, setKidsById, kidsRef] = useLiveState<Record<string, ApprovalKid>>({});
+  const [rawKidsById, setKidsById] = useLiveState<Record<string, ApprovalKid>>({});
 
   const load = useCallback(() => {
     setLoading(true);
@@ -102,12 +124,13 @@ export function useApprovals(): UseApprovalsResult {
     load();
   }, [load]);
 
-  const setBalance = useCallback(
-    (kidId: string, balance: number) => {
+  const applyBalanceDelta = useCallback(
+    (kidId: string, delta: number) => {
+      if (delta === 0) return;
       setKidsById((current) => {
         const kid = current[kidId];
         if (!kid) return current;
-        return { ...current, [kidId]: { ...kid, balance } };
+        return { ...current, [kidId]: { ...kid, balance: kid.balance + delta } };
       });
     },
     [setKidsById]
@@ -117,41 +140,35 @@ export function useApprovals(): UseApprovalsResult {
     async (id: string, action: "approve" | "decline", reason?: string) => {
       const item = taskRef.current.find((completion) => completion.id === id);
       if (!item) return;
-      const previousBalance = kidsRef.current[item.kidId]?.balance;
+      const delta = action === "approve" ? item.coinsEarned : 0;
 
       // Optimistic removal + (on approve) live balance credit.
       setTaskCompletions((current) => current.filter((c) => c.id !== id));
-      if (action === "approve" && previousBalance !== undefined) {
-        setBalance(item.kidId, previousBalance + item.coinsEarned);
-      }
+      applyBalanceDelta(item.kidId, delta);
 
       try {
         await postAction(`/api/parent/approvals/task/${id}/${action}`, reason);
       } catch (err) {
-        // Restore the row and the pre-attempt balance so the UI matches the server.
+        // Restore the row and back out only this attempt's own credit.
         setTaskCompletions((current) =>
           current.some((c) => c.id === id) ? current : [item, ...current]
         );
-        if (action === "approve" && previousBalance !== undefined) {
-          setBalance(item.kidId, previousBalance);
-        }
+        applyBalanceDelta(item.kidId, -delta);
         throw err;
       }
     },
-    [taskRef, kidsRef, setTaskCompletions, setBalance]
+    [taskRef, setTaskCompletions, applyBalanceDelta]
   );
 
   const resolveRedemption = useCallback(
     async (id: string, action: "approve" | "decline", reason?: string) => {
       const item = redemptionRef.current.find((redemption) => redemption.id === id);
       if (!item) return;
-      const previousBalance = kidsRef.current[item.kidId]?.balance;
+      const delta = action === "approve" ? -item.coinsSpent : 0;
 
       // Optimistic removal + (on approve) live balance debit.
       setRedemptions((current) => current.filter((r) => r.id !== id));
-      if (action === "approve" && previousBalance !== undefined) {
-        setBalance(item.kidId, Math.max(0, previousBalance - item.coinsSpent));
-      }
+      applyBalanceDelta(item.kidId, delta);
 
       try {
         await postAction(`/api/parent/approvals/redemption/${id}/${action}`, reason);
@@ -159,13 +176,11 @@ export function useApprovals(): UseApprovalsResult {
         setRedemptions((current) =>
           current.some((r) => r.id === id) ? current : [item, ...current]
         );
-        if (action === "approve" && previousBalance !== undefined) {
-          setBalance(item.kidId, previousBalance);
-        }
+        applyBalanceDelta(item.kidId, -delta);
         throw err;
       }
     },
-    [redemptionRef, kidsRef, setRedemptions, setBalance]
+    [redemptionRef, setRedemptions, applyBalanceDelta]
   );
 
   const approveTask = useCallback((id: string) => resolveTask(id, "approve"), [resolveTask]);
@@ -213,6 +228,20 @@ export function useApprovals(): UseApprovalsResult {
     }
     if (failed) throw new Error("Some approvals couldn't be saved");
   }, [redemptionRef, resolveRedemption]);
+
+  // An in-flight debit can drive the stored total below zero; the server floors
+  // debits at zero and rejects any redemption the kid can't afford, so the
+  // shortfall is always transient and only the displayed value is clamped.
+  const kidsById = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(rawKidsById).map(([id, kid]) => [
+          id,
+          kid.balance < 0 ? { ...kid, balance: 0 } : kid,
+        ])
+      ),
+    [rawKidsById]
+  );
 
   return {
     loading,
