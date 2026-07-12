@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Badge, Button, Modal, Page, Skeleton, Tabs, Toast } from "@/components/ui";
 import { ProfilePickerLink } from "@/components/parent/ProfilePickerLink";
@@ -10,6 +10,9 @@ import type { RedemptionRequest, TaskCompletion } from "@/types";
 import { formatRelativeTime } from "@/lib/utils";
 
 const FALLBACK_AVATAR = "#F4D34E";
+
+/** Stands in for a row id while the bulk run holds the approval lock. */
+const APPROVE_ALL = "approve-all";
 
 type DeclineTarget =
   | { kind: "task"; id: string; label: string }
@@ -73,8 +76,9 @@ export default function ParentApprovalsPage() {
   const [declineTarget, setDeclineTarget] = useState<DeclineTarget | null>(null);
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(new Set());
-  const [approvingAll, setApprovingAll] = useState(false);
+  const [decliningIds, setDecliningIds] = useState<ReadonlySet<string>>(new Set());
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const approvalLock = useRef(false);
 
   function avatarColor(kidId: string) {
     return kidsById[kidId]?.avatarColor ?? FALLBACK_AVATAR;
@@ -84,56 +88,71 @@ export default function ParentApprovalsPage() {
     return kidsById[kidId]?.balance;
   }
 
-  function setPending(id: string, pending: boolean) {
-    setPendingIds((current) => {
+  function setDeclining(id: string, declining: boolean) {
+    setDecliningIds((current) => {
       const next = new Set(current);
-      if (pending) next.add(id);
+      if (declining) next.add(id);
       else next.delete(id);
       return next;
     });
   }
 
-  /** A row's actions are disabled while its own request — or a bulk run — is in flight. */
+  /**
+   * Approvals run one at a time — never two rows, never a row alongside a bulk
+   * run. The approve routes settle balance and stock against the *committed*
+   * state, so an overlapping second approval is answered with a rejection the
+   * parent then has to make sense of. The ref (not the state) is the lock: a
+   * second click can land before React has re-rendered the disabled buttons.
+   */
+  async function runApproval(lockId: string, approve: () => Promise<void>) {
+    if (approvalLock.current) return;
+    approvalLock.current = true;
+    setApprovingId(lockId);
+    try {
+      await approve();
+    } finally {
+      approvalLock.current = false;
+      setApprovingId(null);
+    }
+  }
+
+  /** Rows lock while any approval runs, and while their own decline is in flight. */
   function isBusy(id: string) {
-    return approvingAll || pendingIds.has(id);
+    return approvingId !== null || decliningIds.has(id);
   }
 
   async function handleApproveTask(item: TaskCompletion) {
-    setPending(item.id, true);
-    try {
-      await approveTask(item.id);
-      setToast(`Approved — ${item.coinsEarned} coins sent to ${item.kidName}`);
-    } catch (err) {
-      setToast(errorMessage(err, "Couldn't approve. Please try again."));
-    } finally {
-      setPending(item.id, false);
-    }
+    await runApproval(item.id, async () => {
+      try {
+        await approveTask(item.id);
+        setToast(`Approved — ${item.coinsEarned} coins sent to ${item.kidName}`);
+      } catch (err) {
+        setToast(errorMessage(err, "Couldn't approve. Please try again."));
+      }
+    });
   }
 
   async function handleApproveRedemption(item: RedemptionRequest) {
-    setPending(item.id, true);
-    try {
-      await approveRedemption(item.id);
-      setToast(`Approved — ${item.rewardTitle} for ${item.kidName}`);
-    } catch (err) {
-      setToast(errorMessage(err, "Couldn't approve. Please try again."));
-    } finally {
-      setPending(item.id, false);
-    }
+    await runApproval(item.id, async () => {
+      try {
+        await approveRedemption(item.id);
+        setToast(`Approved — ${item.rewardTitle} for ${item.kidName}`);
+      } catch (err) {
+        setToast(errorMessage(err, "Couldn't approve. Please try again."));
+      }
+    });
   }
 
   async function handleApproveAll() {
-    if (approvingAll) return;
-    setApprovingAll(true);
-    try {
-      if (tab === "tasks") await approveAllTasks();
-      else await approveAllRedemptions();
-      setToast("All caught up 🎉");
-    } catch {
-      setToast("Some approvals couldn't be saved.");
-    } finally {
-      setApprovingAll(false);
-    }
+    await runApproval(APPROVE_ALL, async () => {
+      try {
+        if (tab === "tasks") await approveAllTasks();
+        else await approveAllRedemptions();
+        setToast("All caught up 🎉");
+      } catch {
+        setToast("Some approvals couldn't be saved.");
+      }
+    });
   }
 
   function openDecline(target: DeclineTarget) {
@@ -146,7 +165,7 @@ export default function ParentApprovalsPage() {
     const trimmed = reason.trim() || undefined;
     const { kind, id } = declineTarget;
     setSubmitting(true);
-    setPending(id, true);
+    setDeclining(id, true);
     try {
       if (kind === "task") await declineTask(id, trimmed);
       else await declineRedemption(id, trimmed);
@@ -156,11 +175,12 @@ export default function ParentApprovalsPage() {
       setToast(errorMessage(err, "Couldn't decline. Please try again."));
     } finally {
       setSubmitting(false);
-      setPending(id, false);
+      setDeclining(id, false);
     }
   }
 
   const activeCount = tab === "tasks" ? taskCount : redemptionCount;
+  const approvingAll = approvingId === APPROVE_ALL;
 
   return (
     <Page>
@@ -207,7 +227,7 @@ export default function ParentApprovalsPage() {
                 type="button"
                 variant="purple"
                 size="full"
-                disabled={approvingAll}
+                disabled={approvingId !== null}
                 onClick={handleApproveAll}
                 className="mt-6"
               >

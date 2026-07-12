@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { debitBalance } from "@/lib/kid-balance";
+import { debitBalanceIfAffordable } from "@/lib/kid-balance";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
-import { hasRewardStock, shouldDeactivateReward } from "@/lib/rewards";
+import { claimRewardStock, hasRewardStock } from "@/lib/rewards";
 import {
   activityLog,
   coinTransactions,
@@ -11,6 +11,9 @@ import {
   redemptionRequests,
   rewards,
 } from "@/lib/schema";
+
+/** Thrown inside the transaction to roll it back and answer 400 with a reason. */
+class RedemptionRejected extends Error {}
 
 async function getFamilyRedemption(requestId: string, familyId: string) {
   const redemption = await db.query.redemptionRequests.findFirst({
@@ -57,6 +60,8 @@ export async function POST(
       return NextResponse.json({ error: "Redemption not found" }, { status: 404 });
     }
 
+    // Fast-path rejections so the parent gets an answer without a transaction.
+    // They are advisory only: the writes below re-check both conditions.
     if (record.kid.balance < record.redemption.coinsSpent) {
       return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
@@ -79,21 +84,19 @@ export async function POST(
 
       if (!redemption) return null;
 
-      await debitBalance(tx, record.kid.id, record.redemption.coinsSpent);
-
-      const nextQuantityUsed = record.reward.quantityUsed + 1;
-      const rewardUpdates: Partial<typeof rewards.$inferInsert> = {
-        quantityUsed: nextQuantityUsed,
-      };
-
-      if (shouldDeactivateReward(record.reward.quantity, nextQuantityUsed)) {
-        rewardUpdates.isActive = false;
+      if (!(await claimRewardStock(tx, record.reward.id))) {
+        throw new RedemptionRejected("Reward is sold out");
       }
 
-      await tx
-        .update(rewards)
-        .set(rewardUpdates)
-        .where(eq(rewards.id, record.reward.id));
+      if (
+        !(await debitBalanceIfAffordable(
+          tx,
+          record.kid.id,
+          record.redemption.coinsSpent
+        ))
+      ) {
+        throw new RedemptionRejected("Insufficient balance");
+      }
 
       await tx.insert(coinTransactions).values({
         kidId: record.kid.id,
@@ -128,6 +131,9 @@ export async function POST(
       },
     });
   } catch (err) {
+    if (err instanceof RedemptionRejected) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     console.error("POST /api/parent/approvals/redemption/[id]/approve error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

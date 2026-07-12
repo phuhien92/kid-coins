@@ -244,6 +244,40 @@ describe("ParentApprovalsPage", () => {
     expect(calls.filter((c) => c.method === "POST")).toHaveLength(4);
   });
 
+  it("locks every approval while a single row's approval is in flight", async () => {
+    const user = userEvent.setup();
+    let release: (() => void) | undefined;
+    vi.spyOn(global, "fetch").mockImplementation((input, init) => {
+      const url = String(input);
+      const method = (init?.method ?? "GET").toUpperCase();
+      calls.push({ url, method, body: undefined });
+      if (method === "POST") {
+        return new Promise<Response>((resolve) => {
+          release = () => resolve(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+        });
+      }
+      return Promise.resolve(new Response(JSON.stringify(makeList(5)), { status: 200 }));
+    });
+    await renderPage();
+
+    const rowButtons = () => screen.getAllByRole("button", { name: /✓ Approve$/ });
+    await user.click(rowButtons()[0]);
+
+    // A second approval would race the first: both would settle against the
+    // same pre-credit balance and stock server-side.
+    await waitFor(() => expect(rowButtons()[1]).toBeDisabled());
+    expect(screen.getByRole("button", { name: /Approve all/ })).toBeDisabled();
+
+    await user.click(rowButtons()[1]);
+    expect(calls.filter((c) => c.method === "POST")).toHaveLength(1);
+
+    await act(async () => {
+      release?.();
+    });
+
+    await waitFor(() => expect(rowButtons()[0]).toBeEnabled());
+  });
+
   it("offers a retry that refetches when the initial load fails", async () => {
     const user = userEvent.setup();
     let attempt = 0;
