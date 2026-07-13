@@ -72,8 +72,11 @@ export async function POST(
       return NextResponse.json({ error: "Invalid paymentPercent" }, { status: 400 });
     }
 
+    // The base is the reward snapshotted on the completion when the kid
+    // submitted it, not the task's current one: editing a task must not change
+    // what an already-submitted completion pays out.
     const coinsEarned = calculateCoinsEarned(
-      record.task.coinReward,
+      record.completion.coinsEarned,
       paymentPercent,
       bonusCoins
     );

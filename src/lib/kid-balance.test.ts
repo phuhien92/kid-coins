@@ -14,7 +14,24 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-import { getKidEffectiveBalance, creditBalance, debitBalance } from "./kid-balance";
+import type { Tx } from "@/lib/db";
+import {
+  getKidEffectiveBalance,
+  creditBalance,
+  debitBalance,
+  debitBalanceIfAffordable,
+} from "./kid-balance";
+
+/** Stands in for a transaction whose guarded UPDATE returns `debited`. */
+function fakeTx(debited: Array<{ id: string }>) {
+  return {
+    update: () => ({
+      set: () => ({
+        where: () => ({ returning: async () => debited }),
+      }),
+    }),
+  } as unknown as Tx;
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -73,5 +90,19 @@ describe("debitBalance", () => {
     expect(mockUpdate).toHaveBeenCalledOnce();
     expect(setFn).toHaveBeenCalledOnce();
     expect(whereFn).toHaveBeenCalledOnce();
+  });
+});
+
+describe("debitBalanceIfAffordable", () => {
+  it("reports success when the guarded update debits a row", async () => {
+    await expect(
+      debitBalanceIfAffordable(fakeTx([{ id: "kid-1" }]), "kid-1", 10)
+    ).resolves.toBe(true);
+  });
+
+  it("reports failure when the balance no longer covers the amount", async () => {
+    // The coins were spent by a concurrent approval after the caller's advisory
+    // check, so the UPDATE matches no row and nothing is debited.
+    await expect(debitBalanceIfAffordable(fakeTx([]), "kid-1", 10)).resolves.toBe(false);
   });
 });

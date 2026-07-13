@@ -72,8 +72,10 @@ export async function POST(
           rejectionReason: reason,
           resolvedAt: new Date(),
         })
-        .where(eq(taskCompletions.id, id))
+        .where(and(eq(taskCompletions.id, id), eq(taskCompletions.status, "pending")))
         .returning();
+
+      if (!completion) return null;
 
       await tx.insert(activityLog).values({
         familyId: auth.family.id,
@@ -88,6 +90,10 @@ export async function POST(
 
       return completion;
     });
+
+    if (!updated) {
+      return NextResponse.json({ error: "Completion already resolved" }, { status: 409 });
+    }
 
     return NextResponse.json({
       completion: {

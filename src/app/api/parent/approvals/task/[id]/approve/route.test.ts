@@ -40,6 +40,7 @@ beforeEach(() => {
     taskId: "task-1",
     kidId: "kid-1",
     status: "pending",
+    coinsEarned: 10,
   });
   mockKidFindFirst.mockResolvedValue({
     id: "kid-1",
@@ -98,5 +99,18 @@ describe("POST /api/parent/approvals/task/[id]/approve", () => {
     const body = await res.json();
     expect(body.completion.coinsEarned).toBe(12);
     expect(mockCalculateCoinsEarned).toHaveBeenCalledWith(10, 75, 5);
+  });
+
+  it("pays out the reward snapshotted on the completion, not the task's current one", async () => {
+    // The parent raised the task's reward to 40 while this completion sat
+    // pending; the kid — and the Approvals card — were promised 10.
+    mockTaskFindFirst.mockResolvedValueOnce({ id: "task-1", title: "Make bed", coinReward: 40 });
+
+    await POST(
+      new Request("http://localhost", { method: "POST", body: JSON.stringify({}) }),
+      { params: Promise.resolve({ id: "completion-1" }) }
+    );
+
+    expect(mockCalculateCoinsEarned).toHaveBeenCalledWith(10, 100, 0);
   });
 });

@@ -228,8 +228,15 @@ When approving or declining a completion / redemption, the UPDATE must include a
 ```
 If `.returning()` yields no row, return **409 Conflict** — do not fall through to crediting coins.
 
-### Check stock before approving a reward redemption
-Before the transaction, call `hasRewardStock(reward.quantity, reward.quantityUsed)` from `src/lib/rewards.ts`. Return **400** if the reward is sold out. This prevents `quantityUsed` from exceeding `quantity` under concurrent approvals.
+### Never spend coins or stock you only checked beforehand
+A read-then-check outside the transaction is advisory: two concurrent approvals both read the pre-spend state and both pass it. The condition has to be part of the write, and the write has to tell you whether it applied:
+```ts
+await claimRewardStock(tx, rewardId)                 // false → sold out
+await debitBalanceIfAffordable(tx, kidId, amount)    // false → can't afford it
+```
+Both live where the rest of that resource's rules do (`src/lib/rewards.ts`, `src/lib/kid-balance.ts`) and guard themselves in SQL (`quantity_used < quantity`, `balance >= amount`) using `.returning()` to detect the losing writer. When either returns `false`, roll the transaction back and return **400** — never fall through to the other write.
+
+`hasRewardStock(...)` / a balance comparison before the transaction are still worth keeping as a fast rejection, but they are a UX shortcut, not the safety property.
 
 ## Reference
 
