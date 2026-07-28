@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Page, Toast } from "@/components/ui";
 import { FantasyGuildCharacter } from "@/components/kid/FantasyGuildCharacter";
 import { SwitchProfileButton } from "@/components/kid/SwitchProfileButton";
+import { KidJarsSection } from "@/components/kid/KidJarsSection";
 import {
   BG_COLORS,
   CHAR_COLORS,
@@ -110,6 +111,8 @@ function KidProfileContent() {
   return (
     <Page>
       <Page.Content className="gap-6 pb-8">
+        <KidJarsSection />
+
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
           <section className="bg-cream-card border-[3px] border-ink rounded-card shadow-card overflow-hidden">
             <div

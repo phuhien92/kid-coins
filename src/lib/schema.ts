@@ -7,6 +7,7 @@ import {
   uuid,
   pgEnum,
   json,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -30,6 +31,13 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
   "earned",    // task approved
   "redeemed",  // reward redemption approved
   "adjusted",  // manual parent adjustment
+  "allocated", // coins moved from Spend into a Save/Give jar (or back)
+  "interest",  // interest paid into the Save jar
+]);
+
+export const jarTypeEnum = pgEnum("jar_type", [
+  "save", // holds coins set aside; earns interest
+  "give", // one-way donation counter
 ]);
 
 export const activityTypeEnum = pgEnum("activity_type", [
@@ -41,6 +49,8 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "reward_denied",    // parent denied redemption
   "coins_adjusted",   // parent manually adjusted balance
   "kid_added",        // new kid profile created
+  "coins_allocated",  // kid moved coins between Spend and a jar
+  "interest_paid",    // interest credited to a Save jar
 ]);
 
 // ── Tables ─────────────────────────────────────────────────────────────────
@@ -70,6 +80,9 @@ export const familySettings = pgTable("family_settings", {
   // Notification prefs
   weeklyAiSummary: boolean("weekly_ai_summary").notNull().default(true),
   quietHours: boolean("quiet_hours").notNull().default(false),
+  // Savings jars: weekly interest rate on the Save jar, in basis points
+  // (500 = 5.00% per week). 0 disables interest.
+  saveInterestBps: integer("save_interest_bps").notNull().default(500),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -99,6 +112,26 @@ export const characters = pgTable("characters", {
   outfit: text("outfit").notNull().default("none"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+/**
+ * Savings-jar overlay. `kidProfiles.balance` is the spendable "Spend" jar and
+ * is not represented here; only Save and Give live in this table. Coins are
+ * moved explicitly from Spend into a jar (and Save back out) via the atomic
+ * helpers in `src/lib/jars.ts`. One row per (kid, type), provisioned when the
+ * kid profile is created.
+ */
+export const jars = pgTable("jars", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  kidId: uuid("kid_id")
+    .notNull()
+    .references(() => kidProfiles.id, { onDelete: "cascade" }),
+  type: jarTypeEnum("type").notNull(),
+  balance: integer("balance").notNull().default(0),
+  // Save jar only: when interest was last accrued. Null until the first
+  // accrual; the accrual UPDATE guards on this value to stay idempotent.
+  lastInterestAt: timestamp("last_interest_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [unique().on(t.kidId, t.type)]);
 
 export const tasks = pgTable("tasks", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -269,12 +302,20 @@ export const kidProfilesRelations = relations(kidProfiles, ({ one, many }) => ({
   transactions: many(coinTransactions),
   redemptions: many(redemptionRequests),
   goals: many(goals),
+  jars: many(jars),
   badges: many(badges),
   streak: one(streaks, {
     fields: [kidProfiles.id],
     references: [streaks.kidId],
   }),
   activityLog: many(activityLog),
+}));
+
+export const jarsRelations = relations(jars, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [jars.kidId],
+    references: [kidProfiles.id],
+  }),
 }));
 
 export const charactersRelations = relations(characters, ({ one }) => ({
