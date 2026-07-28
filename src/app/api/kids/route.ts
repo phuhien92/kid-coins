@@ -10,7 +10,7 @@ import {
 } from "@/lib/character";
 import { getOrCreateFamily } from "@/lib/family";
 import { getDbErrorMessage } from "@/lib/utils";
-import { activityLog, characters, families, kidProfiles } from "@/lib/schema";
+import { activityLog, characters, families, jars, kidProfiles } from "@/lib/schema";
 
 export async function GET() {
   try {
@@ -125,6 +125,13 @@ export async function POST(request: Request) {
             }
           : { kidId: inserted.id }
       );
+
+      // Provision the Save and Give jars alongside the profile so the savings
+      // overlay always has its rows (Spend is kidProfiles.balance itself).
+      await tx.insert(jars).values([
+        { kidId: inserted.id, type: "save" },
+        { kidId: inserted.id, type: "give" },
+      ]);
 
       await tx.insert(activityLog).values({
         familyId: family.id,

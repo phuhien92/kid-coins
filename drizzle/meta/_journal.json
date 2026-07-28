@@ -36,6 +36,13 @@
       "when": 1782544478014,
       "tag": "0004_zippy_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785198283486,
+      "tag": "0005_wooden_franklin_storm",
+      "breakpoints": true
     }
   ]
 }
