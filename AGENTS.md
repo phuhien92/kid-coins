@@ -10,6 +10,41 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Earnie is a gamified financial-literacy web app for families. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The design handoff lives in `design_handoff_earnie/` — treat those HTML prototypes as the living spec.
 
+This file is the lean index. Detailed, task-specific rules live in **skills** (`.claude/skills/`) that you load on demand — keep this file short and let the skills carry the depth.
+
+## Skills — load the right one before you work
+
+Read the matching skill **before** writing code in its area. Each skill carries the full rules plus a link to a canonical reference implementation to copy.
+
+| When you're about to… | Load skill |
+|---|---|
+| Write or modify any component, page, layout, or styling | `component-authoring` |
+| Touch a coin balance, reward stock, or approve/decline a pending record | `financial-safety` |
+| Add a new component / page / hook / util / lib / route | `testing` |
+| Change the DB schema or write a migration | `db-migrations` |
+| Review a PR for compliance with these skills | `pr-skill-compliance` |
+
+## Longer-form docs — dive in when relevant
+
+| Doc | Read when |
+|---|---|
+| `PRODUCT.md` | You need product context or the design principles behind a feature |
+| `DESIGN.md` | Full design-system spec — colors, typography, elevation, component inventory |
+| `design_handoff_earnie/` | The living visual spec — HTML prototypes + `README.md` |
+| `src/lib/schema.ts` | The DB schema, single source of truth for DB types |
+| `src/types/index.ts` | Shared TypeScript types |
+| `docs/` | Feature planning docs (e.g. `docs/PLAN-task-reward-system.md`) |
+
+## Keeping docs honest (self-healing)
+
+Docs and skills diverge from reality the moment code moves past them. So, in the same change that moves the code:
+
+- **Change component conventions, tokens, or add/rename a design-system primitive** → update the `component-authoring` skill and `DESIGN.md`.
+- **Change money/concurrency handling or add a balance/stock helper** → update the `financial-safety` skill (and its reference-implementation table).
+- **Change the testing contract or DB workflow** → update the `testing` / `db-migrations` skill.
+- **Find a rule that is wrong, missing, or outdated** → fix the skill as part of your PR; a stale rule is worse than none. Small factual corrections: just make them. Structural rewrites of a skill: flag them for human review.
+- Every doc edit should leave the document **shorter or more useful**, never just longer.
+
 ## Tech stack
 
 | Layer | Choice |
@@ -43,6 +78,8 @@ src/
 │   ├── db.ts           # Drizzle client (postgres-js driver)
 │   ├── supabase.ts     # Supabase browser + server clients
 │   ├── ai.ts           # Anthropic client + model constant
+│   ├── kid-balance.ts  # Atomic coin balance helpers — see financial-safety skill
+│   ├── rewards.ts      # Reward stock helpers — see financial-safety skill
 │   └── utils.ts        # cn(), formatCoins(), formatDate()
 ├── context/            # KidContext, ParentContext providers
 ├── hooks/              # useCoins, useStreak, useTasks, useApprovals
@@ -52,68 +89,6 @@ drizzle/                # Generated SQL migration files
 drizzle.config.ts       # Drizzle Kit config
 ```
 
-## Design system
-
-All color, radius, and shadow tokens are defined in `src/app/globals.css` under `@theme`. Use semantic names:
-
-- **Backgrounds**: `bg-cream`, `bg-cream-card`
-- **Text**: `text-ink`, `text-ink-soft`
-- **Kid CTA (green)**: `bg-green`, `bg-green-dk`, `text-green`, `bg-green-tint`
-- **Parent CTA (purple)**: `bg-purple`, `bg-purple-dk`
-- **Coins**: `bg-coin`, `text-coin`, `bg-coin-dk`
-- **Radius**: `rounded-card` (16px), `rounded-control` (10px), `rounded-pill`
-- **Shadow**: `shadow-card`
-- **Fonts**: `font-display` (Fredoka — headings), `font-body` (Nunito — body)
-
-Do not add hex color values inline; always use the token classes.
-
-## Component authoring rules
-
-When building UI components, act as a Senior Staff Frontend Engineer targeting WCAG 2.2 AA and a reusable design-system API.
-
-**Component discovery — check `src/components/ui/` first**
-- Before writing any UI layout or HTML tags, scan `src/components/ui/` for an existing match.
-- Do not use raw HTML elements (`<div>`, `<button>`, `<a>`, `<input>`) when a design-system component already exists for that purpose.
-- If an existing component needs a minor adjustment, extend its props interface rather than wrapping it in a new heavily-styled container.
-- Never write `<div className="flex-1 flex flex-col">` or similar structural divs directly in pages — use `<Page>`, `<Page.Header>`, `<Page.Content>` from `src/components/ui/Page/`.
-- Never write raw `<div onClick>` or hand-rolled tab buttons — use the design-system primitives.
-
-**Headless UI foundation — Base UI**
-- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui-components/react`). Import subpaths: `@base-ui-components/react/dialog`, `/tabs`, `/switch`, etc.
-- Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` components in `src/components/ui/` are already backed by Base UI — use and extend them, don't duplicate.
-- When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
-
-**Tokens & styling**
-- Use Tailwind utility classes that match token names exactly (`bg-cream`, `text-ink`, `rounded-card`, `font-display`, etc.). Never hardcode hex values or pixel sizes.
-- **Never use arbitrary bracket syntax.** `bg-[#f3f4f6]`, `p-[13px]`, `w-[32vw]` are all forbidden. Every size, color, spacing, and radius value must map to a token defined in `globals.css` or a Tailwind scale step.
-- Dark variants for interactive states: `bg-green` → `hover:bg-green-dk`; focus rings use `focus-visible:ring-purple` (parent) or `focus-visible:ring-green` (kid).
-
-**Tailwind bloat prevention**
-- Do not generate deep trees of generic containers with long utility strings.
-- If a single element needs more than 5 Tailwind utility classes, first check `src/components/ui/` for a structural primitive (Card, Page, Stack, etc.); if none fits, extract the block into a named sub-component.
-- If a layout pattern appears more than once, extract it into a component in `src/components/ui/`.
-- Prefer semantic HTML (`<section>`, `<article>`, `<aside>`, `<nav>`) over a plain `<div>` whenever a generic container is unavoidable.
-
-**Component API**
-- Functional components with TypeScript-typed props only.
-- Always accept an optional `className` prop and merge it with `cn()` from `src/lib/utils.ts` so callers can override layout.
-- Prefer composable sub-components (e.g. `<Card>` + `<Card.Header>`, `<Tabs.Root>` + `<Tabs.Tab>`) over monolithic props-only components for anything beyond a simple primitive.
-
-**Interactive states**
-- Explicitly implement `:hover`, `:focus-visible`, and `:active` for every interactive element.
-- Use `transition-colors` or `transition-transform` (not arbitrary durations) to animate state changes.
-
-**Accessibility**
-- Use semantic HTML (`<button>`, `<nav>`, `<main>`, etc.) — never `<div onClick>`.
-- Add ARIA attributes where semantics are ambiguous (e.g. `aria-label` on icon-only buttons, `role="status"` on coin balance updates).
-- Ensure full keyboard navigability; test tab order mentally before shipping.
-
-**Pre-completion UI checklist**
-Before finishing any task that touches UI, confirm:
-1. `src/components/ui/` was checked — no existing component was reinvented.
-2. Zero arbitrary bracket values introduced (no `[…]` in class strings).
-3. All colors and sizes trace back to a token in `globals.css`.
-
 ## Environment variables
 
 Copy `.env.example` → `.env.local` and fill in:
@@ -122,52 +97,24 @@ Copy `.env.example` → `.env.local` and fill in:
 - `DATABASE_URL` — use the **transaction pooler** connection string from Supabase for serverless
 - `ANTHROPIC_API_KEY`
 
-## Database
-
-Schema is in `src/lib/schema.ts` (Drizzle). To add a column or table:
-1. Edit the schema
-2. `pnpm db:generate` — creates a migration file in `drizzle/`
-3. `pnpm db:migrate` — applies it (requires `DATABASE_URL`)
-
 ## Auth model
 
 - **Parents** log in with email + password via Supabase Auth. Their Supabase UID is stored in `families.parentUserId`. A parent may optionally set a 4-digit PIN — hashed (bcrypt) in `families.parentPinHash` — that guards entry to the parent area from the profile picker (verified via `POST /api/parent/verify-pin`). When no PIN is set, the parent tile opens `/parent/home` directly.
 - **Kids** authenticate with a 4-digit PIN. PINs are hashed (bcrypt) and stored in `kidProfiles.pinHash`. Kids do not have Supabase Auth accounts. From the (parent-authenticated) profile picker, selecting a kid issues a session token without a PIN via `POST /api/kids/[id]/session`.
 - Auth proxy (`src/proxy.ts`) redirects unauthenticated users to `/login`.
 
-## Testing
+## Key patterns
 
-**When to add tests:** Every new **component, page, hook, util, or API route** created during active development must ship with a colocated test file. This is not optional — a PR that adds a new module without a test is incomplete.
+- **Server Components** for data-fetching pages (parent dashboard, task lists)
+- **Client Components** (`"use client"`) for anything with Framer Motion, `useState`, or event handlers
+- **Optimistic UI** for task completion — update balance in KidContext immediately, then confirm via API
+- **Supabase Realtime** for parent→kid sync (approval triggers balance refresh in kid session)
+- **`localStorage`** persists character state (`earnie_char`) and streak; always read on mount, write on change
+- **Feature flags** via PostHog. When the user requests a new feature, ask if it should be gated behind a PostHog feature flag. Consult https://posthog.com/docs/feature-flags/best-practices for guidelines.
 
-**When to skip tests:** Bug fixes that don't add new modules, config/tooling changes, copy or design-token updates, and changes that only consume existing tested APIs.
+## Financial safety — the rule you cannot get wrong
 
-**Test file placement — colocated Vitest files next to the code they test:**
-
-| New module type | Test file |
-|---|---|
-| React component (`*.tsx`) | `ComponentName.test.tsx` in the same directory |
-| Hook, util, lib (`*.ts`) | `filename.test.ts` in the same directory |
-| API route (`route.ts`) | `route.test.ts` in the same directory |
-
-**What to test per module type:**
-
-- **Components** — use Testing Library (`@testing-library/react`). Render the component and assert on user-visible output: text, roles, states (disabled, checked, aria attributes). Do not test implementation details like class names or internal state.
-- **Hooks & utils** — pure logic tests. Cover the happy path, edge cases, and error/fallback behavior.
-- **API routes** — mock Supabase and Drizzle at the boundary (never hit the real DB). Assert on response status codes and body shape for success and error paths.
-
-**Quality bar:** Tests must cover meaningful behavior, not trivial renders. A component test that only checks "it mounts without crashing" is not sufficient. Assert on what a user or caller would actually observe.
-
-Add **Playwright E2E** (`e2e/*.spec.ts`) only for new end-to-end user flows (e.g. signup → create kid → kid login), not for every page.
-
-Manual E2E passes should be narrow: identify the one user-visible behavior to verify, run the minimal path to confirm it, and stop. Do not use manual E2E as a substitute for automated tests.
-
-Tests should cover meaningful behavior — not trivial renders or props that merely mirror implementation.
-
-```bash
-pnpm test          # watch mode
-pnpm test:run      # single run (CI)
-pnpm test:coverage # coverage report
-```
+Coins are real value to kids; the failure mode is silent balance corruption. **Never read-then-write a balance, never spend coins or stock you only checked before the transaction, and always guard a status transition on `status = 'pending'`.** Use the atomic helpers in `src/lib/kid-balance.ts` and `src/lib/rewards.ts` — never inline balance arithmetic. This is not summarizable away: load the **`financial-safety` skill** for the full rules, rationale, and reference implementations before touching money code.
 
 ## Common commands
 
@@ -195,54 +142,9 @@ Before merging to `main`:
 - All CI checks must pass (`pnpm build`, `pnpm test:run`)
 - Branch must be up to date with `main`
 
-## Key patterns
-
-- **Server Components** for data-fetching pages (parent dashboard, task lists)
-- **Client Components** (`"use client"`) for anything with Framer Motion, `useState`, or event handlers
-- **Optimistic UI** for task completion — update balance in KidContext immediately, then confirm via API
-- **Supabase Realtime** for parent→kid sync (approval triggers balance refresh in kid session)
-- **`localStorage`** persists character state (`earnie_char`) and streak; always read on mount, write on change
-- **Feature flags** via PostHog. When the user requests a new feature, ask if it should be gated behind a PostHog feature flag. Consult https://posthog.com/docs/feature-flags/best-practices for guidelines.
-
-## Concurrency & financial safety rules
-
-These rules exist because coins are real value to kids. Violating them causes silent data corruption that is very hard to debug.
-
-### Never read-then-write a balance
-**Forbidden pattern:**
-```ts
-const kid = await db.query.kidProfiles.findFirst(...)
-await tx.update(kidProfiles).set({ balance: kid.balance + amount })  // lost-update race
-```
-**Required:** use the helpers in `src/lib/kid-balance.ts`:
-```ts
-await creditBalance(tx, kidId, amount)   // balance = balance + amount (atomic)
-await debitBalance(tx, kidId, amount)    // balance = GREATEST(0, balance - amount) (atomic)
-```
-Never bypass these helpers with inline `sql\`...\`` balance arithmetic.
-
-### Always guard state-transition updates on the current state
-When approving or declining a completion / redemption, the UPDATE must include a `status = 'pending'` condition so a double-submit cannot process the same record twice:
-```ts
-.where(and(eq(table.id, id), eq(table.status, "pending")))
-```
-If `.returning()` yields no row, return **409 Conflict** — do not fall through to crediting coins.
-
-### Never spend coins or stock you only checked beforehand
-A read-then-check outside the transaction is advisory: two concurrent approvals both read the pre-spend state and both pass it. The condition has to be part of the write, and the write has to tell you whether it applied:
-```ts
-await claimRewardStock(tx, rewardId)                 // false → sold out
-await debitBalanceIfAffordable(tx, kidId, amount)    // false → can't afford it
-```
-Both live where the rest of that resource's rules do (`src/lib/rewards.ts`, `src/lib/kid-balance.ts`) and guard themselves in SQL (`quantity_used < quantity`, `balance >= amount`) using `.returning()` to detect the losing writer. When either returns `false`, roll the transaction back and return **400** — never fall through to the other write.
-
-`hasRewardStock(...)` / a balance comparison before the transaction are still worth keeping as a fast rejection, but they are a UX shortcut, not the safety property.
-
 ## Reference
 
-- Design spec: `design_handoff_earnie/README.md`
-- Interactive prototypes: `design_handoff_earnie/Earnie - *.html`
-- DB schema: `src/lib/schema.ts`
-- Type definitions: `src/types/index.ts`
+- Skills: `.claude/skills/` — component-authoring, financial-safety, testing, db-migrations, pr-skill-compliance
+- Design spec: `design_handoff_earnie/README.md` · Full design system: `DESIGN.md`
 - Product context & design principles: `PRODUCT.md`
-- Full design system spec (colors, typography, elevation, components): `DESIGN.md`
+- DB schema: `src/lib/schema.ts` · Type definitions: `src/types/index.ts`
