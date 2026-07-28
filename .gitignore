@@ -56,8 +56,9 @@ ds-bundle/
 /playwright-report/
 /playwright/.cache/
 
-# agent skills
-.claude/
+# agent skills — track shared skills, ignore local/machine state
+.claude/*
+!.claude/skills/
 .impeccable/
 
 # git worktrees
