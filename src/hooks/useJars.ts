@@ -52,6 +52,10 @@ export function useJars(kidId: string | null): UseJarsResult {
   const load = useCallback(
     (showLoading = true) => {
       if (!kidId) {
+        // Drop any previously loaded balances so a kid switch (or a transient
+        // null id) can't leave stale numbers for the wrong kid on screen.
+        setJars(null);
+        setInterest(null);
         setLoading(false);
         return;
       }

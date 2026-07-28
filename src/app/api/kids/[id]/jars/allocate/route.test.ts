@@ -12,7 +12,6 @@ vi.mock("@/lib/jars", () => ({
 
 const mockKidFindFirst = vi.fn();
 const mockTransaction = vi.fn();
-const mockSelect = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -20,7 +19,6 @@ vi.mock("@/lib/db", () => ({
       kidProfiles: { findFirst: (...args: unknown[]) => mockKidFindFirst(...args) },
     },
     transaction: (fn: (tx: unknown) => Promise<unknown>) => mockTransaction(fn),
-    select: (...args: unknown[]) => mockSelect(...args),
   },
 }));
 
@@ -46,9 +44,6 @@ beforeEach(() => {
   mockVerifyKidSession.mockReturnValue(true);
   mockKidFindFirst.mockResolvedValue({ id: KID_ID, familyId: "fam-1", balance: 40 });
   mockTransaction.mockImplementation(async (fn) => fn(fakeTx));
-  mockSelect.mockReturnValue({
-    from: () => ({ where: async () => [{ balance: 25 }] }),
-  });
 });
 
 describe("POST /api/kids/[id]/jars/allocate", () => {
@@ -77,20 +72,18 @@ describe("POST /api/kids/[id]/jars/allocate", () => {
     expect(mockTransaction).not.toHaveBeenCalled();
   });
 
-  it("moves coins and reports the new balances on success", async () => {
-    mockAllocateToJar.mockResolvedValueOnce(true);
+  it("reports the helper's authoritative post-move balances on success", async () => {
+    mockAllocateToJar.mockResolvedValueOnce({ spend: 15, jarBalance: 125 });
     const res = await POST(makeReq({ jarType: "save", amount: 25 }), ctx());
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(mockAllocateToJar).toHaveBeenCalledWith(fakeTx, KID_ID, "save", 25);
-    expect(body).toEqual({ jarType: "save", moved: 25, spend: 15, jarBalance: 25 });
+    expect(body).toEqual({ jarType: "save", moved: 25, spend: 15, jarBalance: 125 });
   });
 
   it("returns 400 when the guarded allocate loses the race (no fall-through)", async () => {
-    mockAllocateToJar.mockResolvedValueOnce(false);
+    mockAllocateToJar.mockResolvedValueOnce(null);
     const res = await POST(makeReq({ jarType: "give", amount: 25 }), ctx());
     expect(res.status).toBe(400);
-    // The final balance read must not run when nothing moved.
-    expect(mockSelect).not.toHaveBeenCalled();
   });
 });

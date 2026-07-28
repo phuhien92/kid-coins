@@ -12,7 +12,6 @@ vi.mock("@/lib/jars", () => ({
 
 const mockKidFindFirst = vi.fn();
 const mockTransaction = vi.fn();
-const mockSelect = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -20,7 +19,6 @@ vi.mock("@/lib/db", () => ({
       kidProfiles: { findFirst: (...args: unknown[]) => mockKidFindFirst(...args) },
     },
     transaction: (fn: (tx: unknown) => Promise<unknown>) => mockTransaction(fn),
-    select: (...args: unknown[]) => mockSelect(...args),
   },
 }));
 
@@ -43,9 +41,6 @@ beforeEach(() => {
   mockVerifyKidSession.mockReturnValue(true);
   mockKidFindFirst.mockResolvedValue({ id: KID_ID, familyId: "fam-1", balance: 40 });
   mockTransaction.mockImplementation(async (fn) => fn(fakeTx));
-  mockSelect.mockReturnValue({
-    from: () => ({ where: async () => [{ balance: 70 }] }),
-  });
 });
 
 describe("POST /api/kids/[id]/jars/withdraw", () => {
@@ -62,7 +57,7 @@ describe("POST /api/kids/[id]/jars/withdraw", () => {
   });
 
   it("moves coins back to Spend and reports balances on success", async () => {
-    mockWithdrawFromSaveJar.mockResolvedValueOnce(true);
+    mockWithdrawFromSaveJar.mockResolvedValueOnce({ spend: 70, jarBalance: 70 });
     const res = await POST(makeReq({ amount: 30 }), ctx());
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -71,9 +66,8 @@ describe("POST /api/kids/[id]/jars/withdraw", () => {
   });
 
   it("returns 400 when the Save jar lacks the coins (no fall-through)", async () => {
-    mockWithdrawFromSaveJar.mockResolvedValueOnce(false);
+    mockWithdrawFromSaveJar.mockResolvedValueOnce(null);
     const res = await POST(makeReq({ amount: 30 }), ctx());
     expect(res.status).toBe(400);
-    expect(mockSelect).not.toHaveBeenCalled();
   });
 });

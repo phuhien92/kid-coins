@@ -71,6 +71,29 @@ describe("POST /api/cron/accrue-interest", () => {
     expect(body).toEqual({ jarsPaid: 1, coinsPaid: 10 });
   });
 
+  it("advances lastInterestAt without paying when the balance earns nothing", async () => {
+    // 10 @ 5% floors to 0 every week: the cron still advances lastInterestAt
+    // (so it enters the tx) but pays out nothing and counts no jar.
+    let setArg: Record<string, unknown> | undefined;
+    mockTransaction.mockImplementationOnce(async (fn) =>
+      fn({
+        update: () => ({
+          set: (v: Record<string, unknown>) => {
+            setArg = v;
+            return { where: () => ({ returning: async () => [{ id: "jar-1" }] }) };
+          },
+        }),
+        insert: () => ({ values: async () => undefined }),
+      })
+    );
+    mockJarsFindMany.mockResolvedValue([saveJar({ balance: 10 })]);
+
+    const res = await POST(makeReq(`Bearer ${SECRET}`));
+    expect(await res.json()).toEqual({ jarsPaid: 0, coinsPaid: 0 });
+    // Only lastInterestAt is written — no balance clobber of concurrent moves.
+    expect(setArg && Object.keys(setArg)).toEqual(["lastInterestAt"]);
+  });
+
   it("skips jars with a zero rate or less than a week elapsed", async () => {
     mockJarsFindMany.mockResolvedValue([
       saveJar({ id: "j-zero", kid: { familyId: "f", family: { id: "f", settings: { saveInterestBps: 0 } } } }),

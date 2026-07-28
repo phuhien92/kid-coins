@@ -63,10 +63,16 @@ export async function POST(request: Request) {
         // Idempotency guard: only advance from the lastInterestAt we read.
         const updated = await tx
           .update(jars)
-          .set({
-            balance: interest > 0 ? sql`${jars.balance} + ${interest}` : jar.balance,
-            lastInterestAt: nextInterestAt,
-          })
+          .set(
+            // When interest is 0, advance only lastInterestAt. Writing back the
+            // stale pre-read balance would clobber any allocate/withdraw that
+            // landed on this Save jar since we read it. When interest is > 0 the
+            // balance change is an atomic in-SQL increment, so it composes with
+            // concurrent moves.
+            interest > 0
+              ? { balance: sql`${jars.balance} + ${interest}`, lastInterestAt: nextInterestAt }
+              : { lastInterestAt: nextInterestAt }
+          )
           .where(
             and(
               eq(jars.id, jar.id),

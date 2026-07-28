@@ -14,4 +14,9 @@ CREATE TABLE "jars" (
 );
 --> statement-breakpoint
 ALTER TABLE "family_settings" ADD COLUMN "save_interest_bps" integer DEFAULT 500 NOT NULL;--> statement-breakpoint
-ALTER TABLE "jars" ADD CONSTRAINT "jars_kid_id_kid_profiles_id_fk" FOREIGN KEY ("kid_id") REFERENCES "public"."kid_profiles"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "jars" ADD CONSTRAINT "jars_kid_id_kid_profiles_id_fk" FOREIGN KEY ("kid_id") REFERENCES "public"."kid_profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- Backfill Save/Give jars for kids that predate this table. New kids get their
+-- rows provisioned at creation time; the unique (kid_id, type) constraint makes
+-- this idempotent.
+INSERT INTO "jars" ("kid_id", "type") SELECT "id", 'save' FROM "kid_profiles" ON CONFLICT ("kid_id", "type") DO NOTHING;--> statement-breakpoint
+INSERT INTO "jars" ("kid_id", "type") SELECT "id", 'give' FROM "kid_profiles" ON CONFLICT ("kid_id", "type") DO NOTHING;

@@ -17,18 +17,25 @@ import {
   WEEK_MS,
 } from "./jars";
 
-/** Records jar UPDATEs and returns `debited` from the guarded write. */
-function fakeTx(debited: Array<{ id: string }> = []) {
+/**
+ * Records jar UPDATEs. The guarded jar write returns `returning`, and the
+ * post-move Spend read returns `kidBalance`.
+ */
+function fakeTx({
+  returning = [{ balance: 25 }] as Array<{ balance: number }>,
+  kidBalance = 15,
+}: { returning?: Array<{ balance: number }>; kidBalance?: number } = {}) {
   const setSpy = vi.fn();
   const tx = {
     update: () => ({
       set: (v: unknown) => {
         setSpy(v);
         return {
-          where: () => ({ returning: async () => debited }),
+          where: () => ({ returning: async () => returning }),
         };
       },
     }),
+    select: () => ({ from: () => ({ where: async () => [{ balance: kidBalance }] }) }),
   } as unknown as Tx;
   return { tx, setSpy };
 }
@@ -76,15 +83,18 @@ describe("calculateInterest", () => {
 describe("allocateToJar", () => {
   it("rejects non-positive amounts without touching balances", async () => {
     const { tx } = fakeTx();
-    await expect(allocateToJar(tx, "kid-1", "save", 0)).resolves.toBe(false);
+    await expect(allocateToJar(tx, "kid-1", "save", 0)).resolves.toBeNull();
     expect(mockDebitIfAffordable).not.toHaveBeenCalled();
   });
 
-  it("credits the jar only after Spend is successfully debited", async () => {
+  it("credits the jar after Spend is debited and returns post-move balances", async () => {
     mockDebitIfAffordable.mockResolvedValueOnce(true);
-    const { tx, setSpy } = fakeTx();
+    const { tx, setSpy } = fakeTx({ returning: [{ balance: 125 }], kidBalance: 15 });
 
-    await expect(allocateToJar(tx, "kid-1", "save", 25)).resolves.toBe(true);
+    await expect(allocateToJar(tx, "kid-1", "save", 25)).resolves.toEqual({
+      spend: 15,
+      jarBalance: 125,
+    });
     expect(mockDebitIfAffordable).toHaveBeenCalledWith(tx, "kid-1", 25);
     expect(setSpy).toHaveBeenCalledOnce(); // the jar increment ran
   });
@@ -93,27 +103,39 @@ describe("allocateToJar", () => {
     mockDebitIfAffordable.mockResolvedValueOnce(false);
     const { tx, setSpy } = fakeTx();
 
-    await expect(allocateToJar(tx, "kid-1", "give", 25)).resolves.toBe(false);
+    await expect(allocateToJar(tx, "kid-1", "give", 25)).resolves.toBeNull();
     expect(setSpy).not.toHaveBeenCalled(); // jar never touched
+  });
+
+  it("throws when the jar row is missing after Spend was debited", async () => {
+    // Spend was debited but the guarded jar credit matched no row, so throwing
+    // rolls the whole transaction back rather than losing the coins.
+    mockDebitIfAffordable.mockResolvedValueOnce(true);
+    const { tx } = fakeTx({ returning: [] });
+
+    await expect(allocateToJar(tx, "kid-1", "save", 25)).rejects.toThrow(/Missing save jar/);
   });
 });
 
 describe("withdrawFromSaveJar", () => {
   it("rejects non-positive amounts", async () => {
     const { tx } = fakeTx();
-    await expect(withdrawFromSaveJar(tx, "kid-1", 0)).resolves.toBe(false);
+    await expect(withdrawFromSaveJar(tx, "kid-1", 0)).resolves.toBeNull();
     expect(mockCreditBalance).not.toHaveBeenCalled();
   });
 
-  it("credits Spend when the guarded jar debit applied", async () => {
-    const { tx } = fakeTx([{ id: "jar-1" }]);
-    await expect(withdrawFromSaveJar(tx, "kid-1", 10)).resolves.toBe(true);
+  it("credits Spend when the guarded jar debit applied and returns balances", async () => {
+    const { tx } = fakeTx({ returning: [{ balance: 70 }], kidBalance: 90 });
+    await expect(withdrawFromSaveJar(tx, "kid-1", 10)).resolves.toEqual({
+      spend: 90,
+      jarBalance: 70,
+    });
     expect(mockCreditBalance).toHaveBeenCalledWith(tx, "kid-1", 10);
   });
 
   it("does not credit Spend when the jar lacked the coins", async () => {
-    const { tx } = fakeTx([]); // guarded UPDATE matched no row
-    await expect(withdrawFromSaveJar(tx, "kid-1", 10)).resolves.toBe(false);
+    const { tx } = fakeTx({ returning: [] }); // guarded UPDATE matched no row
+    await expect(withdrawFromSaveJar(tx, "kid-1", 10)).resolves.toBeNull();
     expect(mockCreditBalance).not.toHaveBeenCalled();
   });
 });

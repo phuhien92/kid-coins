@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { verifyKidSession } from "@/lib/kid-session.server";
 import { withdrawFromSaveJar } from "@/lib/jars";
-import { activityLog, coinTransactions, jars, kidProfiles } from "@/lib/schema";
+import { activityLog, coinTransactions, kidProfiles } from "@/lib/schema";
 
 /**
  * Moves coins from the kid's Save jar back into their spendable Spend balance.
@@ -41,9 +41,9 @@ export async function POST(
       return NextResponse.json({ error: "Kid not found" }, { status: 404 });
     }
 
-    const moved = await db.transaction(async (tx) => {
-      const ok = await withdrawFromSaveJar(tx, kidId, amount);
-      if (!ok) return false;
+    const result = await db.transaction(async (tx) => {
+      const balances = await withdrawFromSaveJar(tx, kidId, amount);
+      if (!balances) return null;
 
       await tx.insert(coinTransactions).values({
         kidId,
@@ -59,22 +59,17 @@ export async function POST(
         payload: { jarType: "save", amount, direction: "withdraw" },
       });
 
-      return true;
+      return balances;
     });
 
-    if (!moved) {
+    if (!result) {
       return NextResponse.json({ error: "Not enough coins in the Save jar" }, { status: 400 });
     }
 
-    const [jar] = await db
-      .select({ balance: jars.balance })
-      .from(jars)
-      .where(and(eq(jars.kidId, kidId), eq(jars.type, "save")));
-
     return NextResponse.json({
       moved: amount,
-      spend: kid.balance + amount,
-      saveBalance: jar?.balance ?? 0,
+      spend: result.spend,
+      saveBalance: result.jarBalance,
     });
   } catch (err) {
     console.error("POST /api/kids/[id]/jars/withdraw error:", err);
