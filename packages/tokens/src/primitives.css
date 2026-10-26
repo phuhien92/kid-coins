@@ -1,0 +1,123 @@
+/*
+ * Tier 1: primitives.
+ *
+ * Raw values only, under a `--kc-` prefix. They are plain CSS variables, not
+ * Tailwind theme entries, so they never become utilities. Screens can't use
+ * a raw ramp step by accident; they go through a semantic role
+ * (semantic.css). To retune the brand, change a value here.
+ */
+:root {
+  /* ── Navy (ink) ─────────────────────────────────────────────────────── */
+  --kc-navy-950: #071230;
+  --kc-navy-900: #0B1A3A;
+  --kc-navy-800: #1B2D57;
+  --kc-navy-700: #2A3E6B;
+  --kc-navy-600: #4A5672;
+  --kc-navy-500: #7C869C;
+  --kc-navy-300: #B8BFCE;
+  --kc-navy-100: #E6E9F0;
+  --kc-navy-alpha-10: rgba(11, 26, 58, 0.10);
+
+  /* ── Gold (coins, primary action) ───────────────────────────────────── */
+  --kc-gold-100: #FFF4D1;
+  --kc-gold-300: #FFE38A;
+  --kc-gold-400: #FFC93C;
+  --kc-gold-500: #F5B800;
+  --kc-gold-600: #E5A800;
+  --kc-gold-800: #7A5600;
+
+  /* ── Cream (surfaces) ───────────────────────────────────────────────── */
+  --kc-cream-50: #FFFDF9;
+  --kc-cream-100: #FBF8F2;
+  --kc-cream-200: #F4EEE2;
+
+  --kc-white: #FFFFFF;
+
+  /* ── Step colours: yellow · blue · coral · mint · lavender ──────────── */
+  --kc-yellow-100: #FFF5CC;
+  --kc-yellow-300: #FFE27A;
+  --kc-yellow-400: #FFD23F;
+  --kc-yellow-700: #735200;
+
+  --kc-blue-100: #E3EEFE;
+  --kc-blue-200: #CFE3FF;
+  --kc-blue-400: #5B9BF5;
+  --kc-blue-700: #1F4FA8;
+
+  --kc-coral-100: #FFE6E0;
+  --kc-coral-200: #FFD3B8;
+  --kc-coral-400: #FF8A75;
+  --kc-coral-700: #A93A26;
+
+  --kc-mint-100: #E2F6EC;
+  --kc-mint-400: #7DD9B0;
+  --kc-mint-700: #146B4A;
+  --kc-mint-800: #0F5239;
+
+  --kc-lavender-100: #EEE8FD;
+  --kc-lavender-300: #D6CBF8;
+  --kc-lavender-400: #A890F0;
+  --kc-lavender-700: #5636B8;
+
+  /* ── Feedback ramps ─────────────────────────────────────────────────── */
+  --kc-red-100: #FDE7E4;
+  --kc-red-700: #B42318;
+  --kc-amber-100: #FFF1D6;
+  --kc-amber-700: #8A4B00;
+
+  /* ── Radii ──────────────────────────────────────────────────────────── */
+  --kc-radius-sm: 10px;
+  --kc-radius-md: 14px;
+  --kc-radius-lg: 20px;
+  --kc-radius-xl: 24px;
+  --kc-radius-2xl: 32px;
+  --kc-radius-full: 999px;
+
+  /* ── Spacing (4pt grid) + touch ─────────────────────────────────────── */
+  --kc-space-1: 4px;
+  --kc-space-2: 8px;
+  --kc-space-3: 12px;
+  --kc-space-4: 16px;
+  --kc-space-6: 24px;
+  --kc-space-8: 32px;
+  --kc-space-11: 44px;   /* Apple HIG minimum tap target */
+  --kc-space-20: 80px;
+  --kc-space-58: 232px;
+
+  /* ── Shadows (navy-tinted, soft) ────────────────────────────────────── */
+  --kc-shadow-1: 0 1px 2px rgba(11, 26, 58, 0.04), 0 12px 32px -18px rgba(11, 26, 58, 0.22);
+  --kc-shadow-2: 0 2px 4px rgba(11, 26, 58, 0.05), 0 18px 40px -18px rgba(11, 26, 58, 0.30);
+  --kc-shadow-3: 0 30px 60px -20px rgba(11, 26, 58, 0.40);
+  --kc-shadow-gold: 0 10px 22px -10px rgba(229, 168, 0, 0.75);
+
+  /* ── Type scale (px) + line heights ─────────────────────────────────── */
+  --kc-font-size-12: 0.75rem;
+  --kc-font-size-14: 0.875rem;
+  --kc-font-size-16: 1rem;
+  --kc-font-size-18: 1.125rem;
+  --kc-font-size-20: 1.25rem;
+  --kc-font-size-24: 1.5rem;
+  --kc-font-size-30: 1.875rem;
+  --kc-font-size-36: 2.25rem;
+  --kc-font-size-48: 3rem;
+  --kc-font-size-60: 3.75rem;
+  --kc-leading-tight: 1.1;
+  --kc-leading-snug: 1.3;
+  --kc-leading-normal: 1.5;
+
+  /* Font faces are loaded by the app (next/font) into these variables. */
+  --kc-font-display: var(--font-brand-display), "Nunito", system-ui, sans-serif;
+  --kc-font-body: var(--font-brand-body), "Nunito Sans", system-ui, sans-serif;
+
+  /* ── Motion ─────────────────────────────────────────────────────────── */
+  --kc-duration-fast: 150ms;
+  --kc-duration-base: 250ms;
+  --kc-duration-slow: 500ms;
+  --kc-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --kc-ease-spring: cubic-bezier(0.2, 1.2, 0.4, 1);
+
+  /* ── Viewports (reference values for the breakpoints in semantic.css) ── */
+  --kc-viewport-ipad-portrait: 48rem;   /* 768px  */
+  --kc-viewport-ipad-landscape: 64rem;  /* 1024px */
+  --kc-viewport-desktop: 80rem;         /* 1280px */
+}

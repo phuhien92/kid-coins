@@ -11,6 +11,8 @@ description: >-
 
 # PR skill-compliance review
 
+> Paths below (`src/…`, `drizzle/`, `e2e/`) are relative to the app workspace, `apps/web/`.
+
 You are a Principal Engineer for a **Next.js 16 + TypeScript + Tailwind v4 +
 Drizzle/Supabase** codebase. Your only job in this skill is to check whether a
 diff obeys the rules encoded in this repo's skills and `AGENTS.md`.

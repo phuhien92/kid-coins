@@ -11,6 +11,8 @@ description: >-
 
 # Component authoring
 
+> Paths below (`src/…`, `drizzle/`, `e2e/`) are relative to the app workspace, `apps/web/`.
+
 Act as a Senior Staff Frontend Engineer targeting **WCAG 2.2 AA** and a reusable
 design-system API.
 
@@ -21,7 +23,7 @@ design-system API.
 | Structural page primitive (never hand-roll page layout divs) | `src/components/ui/Page/Page.tsx` |
 | Interactive component built on Base UI (focus trap, ARIA, transitions) | `src/components/ui/Modal/Modal.tsx`, `src/components/ui/Toggle/`, `src/components/ui/Tabs/` |
 | `className` merge helper | `cn()` in `src/lib/utils.ts` |
-| The full token set (colors, radius, shadow, fonts) | `@theme` block in `src/app/globals.css`, catalogued in `DESIGN.md` |
+| The full token set (colors, radius, shadow, type, touch, breakpoints) | `packages/tokens/src/semantic.css` (repo root), catalogued in `design/tokens.md`; screen rules in `design/components.md` |
 | A component test that asserts on user-visible behavior | `src/components/parent/ApprovalCard.test.tsx` |
 
 Full design-system spec (colors, typography, elevation, component inventory):
@@ -37,27 +39,29 @@ Full design-system spec (colors, typography, elevation, component inventory):
 
 ## Headless foundation — Base UI
 
-- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui/react`). Import subpaths: `@base-ui/react/dialog`, `/tabs`, `/switch`, etc. Style Base UI state with ARIA variants (`aria-selected:`, `aria-checked:`) or the attributes the version actually emits (`data-active`, `data-checked`). Check `node_modules/@base-ui/react/<part>/*DataAttributes*` before you guess.
+- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui/react`). Import subpaths: `@base-ui/react/dialog`, `/tabs`, `/switch`, etc. Style Base UI state with ARIA variants (`aria-selected:`, `aria-checked:`) or the attributes the installed version actually emits (`data-active`, `data-checked`). Check `node_modules/@base-ui/react/<part>/*DataAttributes*` before you guess.
 - Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` are already Base UI-backed — use and extend them, don't duplicate.
-- When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
+- When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with the kid-coin design tokens.
 
 ## Tokens & styling
 
-- Use Tailwind utility classes that match token names exactly (`bg-cream`, `text-ink`, `rounded-card`, `font-display`, etc.). Never hardcode hex values or pixel sizes.
-- **Never use arbitrary bracket syntax.** `bg-[#f3f4f6]`, `p-[13px]`, `w-[32vw]` are all forbidden. Every size, color, spacing, and radius value must map to a token in `globals.css` or a Tailwind scale step.
-- Interactive states: gold fills go `hover:bg-gold-lt`, `active:bg-gold-dk`. Every focus ring is `focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2`, for kid and parent alike. Selection must not reuse the focus ring.
+- Use the utility classes generated from the **semantic roles** in `@kid-coin/tokens` (`bg-page`, `text-fg`, `rounded-card`, `font-display`, …). Never hardcode hex values or pixel sizes.
+- **Never use arbitrary bracket syntax.** `bg-[#f3f4f6]`, `p-[13px]`, `w-[32vw]` are all forbidden. Every size, color, spacing, and radius value must map to a token in `packages/tokens` or a Tailwind scale step. If a component needs a value no role covers, add a component token (`packages/tokens/src/components.css`).
+- Interactive states: `bg-action` → `hover:bg-action-hover` → `active:bg-action-pressed`. Every focus ring is `focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2`. Selection never reuses the focus ring.
+- **Touch (iPad-first):** every control is `min-h-tap` / `size-tap` (44pt), with `gap-tap-gap` (8pt) or more between adjacent controls. There are no hover-only affordances. Layouts use `ipad:` / `ipad-landscape:` / `desktop:`. Fixed bars respect the safe-area tokens. See `design/components.md`.
 
 ### Token quick reference
 
-- Backgrounds: `bg-cream`, `bg-cream-card`, `bg-cream-deep`
-- Text: `text-ink` (navy), `text-ink-soft` (slate). Control outlines: `border-edge`
-- Primary action + coins (gold, **fill only**, always navy text on it): `bg-gold`, `hover:bg-gold-lt`, `active:bg-gold-dk`, `bg-gold-tint`, `text-gold-ink`, `shadow-gold`
-- Secondary action: `<Button variant="secondary">` (navy)
-- Step tones (Do · Earn · Save · Choose · Grow): `{gold|earn|save|mint|grow}` + `-tint` (bg) / `-ink` (text). Use `STEP_TONES` from `@/components/ui`, not hand-picked classes.
-- Feedback: `text-danger`, `bg-danger-tint`; success `text-mint-ink`, `bg-mint-tint`
-- Radius: `rounded-control` (14px), `rounded-tile` (20px), `rounded-card` (24px), `rounded-sheet` (32px), `rounded-pill`
-- Shadow: `shadow-card`, `shadow-lift`, `shadow-gold`, `shadow-sheet`. Fonts: `font-display` (Nunito), `font-body` (Nunito Sans)
-- Never rename or delete the legacy `--color-mint/peach/lemon/coral/sky/coin/lav…` CSS variables. They are persisted avatar colours (see `DESIGN.md` §2).
+Full table: `design/tokens.md`.
+
+- Surfaces: `bg-page`, `bg-surface`, `bg-surface-sunken`. Text: `text-fg`, `text-fg-muted`, `text-fg-inverse`. Lines: `border-edge` (controls, ≥3:1), `border-line` (decorative)
+- Actions: `bg-action` + `text-on-action` (gold, **fill only**), `bg-action-secondary` + `text-on-action-secondary` (navy), `shadow-action`
+- Money: `bg-coin`, `from-coin-hi`, `to-coin-lo`. Feedback: `text-success` / `bg-success-tint`, `text-warning` / `bg-warning-tint`, `text-error` / `bg-error-tint`
+- Steps: `bg-step-{do,earn,save,choose,grow}` (fills/art), `-tint` (backgrounds), `-ink` (text). Prefer `STEP_TONES` from `@/components/ui`.
+- Radius: `rounded-control` (14), `rounded-tile` (20), `rounded-card` (24), `rounded-sheet` (32), `rounded-pill`. Shadow: `shadow-card`, `shadow-lift`, `shadow-sheet`, `shadow-action`
+- Touch and layout: `size-tap` / `min-h-tap`, `gap-tap-gap`, `pt-safe-top` … `pb-safe-bottom`, `ipad:`, `ipad-landscape:`, `desktop:`
+- Fonts: `font-display` (Nunito), `font-body` (Nunito Sans)
+- **Persisted names** (`--color-mint`, `--color-coral`, … in `persisted.css`) are DB data for avatar colours. Never rename them, and don't use them in new UI.
 
 ## Tailwind bloat prevention
 
@@ -87,5 +91,6 @@ Full design-system spec (colors, typography, elevation, component inventory):
 
 1. `src/components/ui/` was checked — no existing component was reinvented.
 2. Zero arbitrary bracket values introduced (no `[…]` in class strings).
-3. All colors and sizes trace back to a token in `globals.css`.
-4. Every new component ships with a colocated `*.test.tsx` (see the `testing` skill).
+3. All colors and sizes trace back to a token in `packages/tokens`.
+4. Every control is at least 44pt, and nothing is hover-only.
+5. Every new component ships with a colocated `*.test.tsx` (see the `testing` skill).

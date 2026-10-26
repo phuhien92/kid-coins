@@ -1,14 +1,14 @@
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `apps/web/node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Earnie (kid-coins) — Agent Guide
+# kid-coin (kid-coins repo) — Agent Guide
 
 ## Project overview
 
-Earnie is a gamified financial-literacy web app for families. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The visual brand is **kid-coin** (navy, gold, cream; the Do → Earn → Save → Choose → Grow story), specified in `DESIGN.md`. The older `design_handoff_earnie/` prototypes are still the reference for layout and flows, but not for colour or type.
+kid-coin (repo: kid-coins, formerly Earnie) is a gamified financial-literacy web app for families, **iPad-first and installed as a PWA**. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The brand and design system live in `design/`. The older `design_handoff_earnie/` prototypes are only a reference for layout and flows.
 
 This file is the lean index. Detailed, task-specific rules live in **skills** (`.claude/skills/`) that you load on demand — keep this file short and let the skills carry the depth.
 
@@ -18,7 +18,7 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 
 | When you're about to… | Load skill |
 |---|---|
-| Write or modify any component, page, layout, or styling | `component-authoring` |
+| Write or modify any component, page, layout, or styling | `component-authoring` (+ `design/components.md`) |
 | Touch a coin balance, reward stock, or approve/decline a pending record | `financial-safety` |
 | Add a new component / page / hook / util / lib / route | `testing` |
 | Change the DB schema or write a migration | `db-migrations` |
@@ -29,8 +29,8 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 | Doc | Read when |
 |---|---|
 | `PRODUCT.md` | You need product context or the design principles behind a feature |
-| `DESIGN.md` | Full design-system spec — colors, typography, elevation, component inventory |
-| `design_handoff_earnie/` | Layout/flow prototypes (pre-rebrand visuals) + `README.md` |
+| `design/` | Brand spec, component + screen rules, every token + measured contrast, redesign plan — start at `design/README.md` |
+| `design_handoff_earnie/` | Layout/flow prototypes (pre-rebrand visuals) |
 | `src/lib/schema.ts` | The DB schema, single source of truth for DB types |
 | `src/types/index.ts` | Shared TypeScript types |
 | `docs/` | Feature planning docs (e.g. `docs/PLAN-task-reward-system.md`) |
@@ -39,7 +39,8 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 
 Docs and skills diverge from reality the moment code moves past them. So, in the same change that moves the code:
 
-- **Change component conventions, tokens, or add/rename a design-system primitive** → update the `component-authoring` skill and `DESIGN.md`.
+- **Change a token** → edit `packages/tokens`, run its tests, regenerate `design/tokens.md` (see `design/README.md`).
+- **Change component conventions or add/rename a design-system primitive** → update the `component-authoring` skill and `design/components.md`.
 - **Change money/concurrency handling or add a balance/stock helper** → update the `financial-safety` skill (and its reference-implementation table).
 - **Change the testing contract or DB workflow** → update the `testing` / `db-migrations` skill.
 - **Find a rule that is wrong, missing, or outdated** → fix the skill as part of your PR; a stale rule is worse than none. Small factual corrections: just make them. Structural rewrites of a skill: flag them for human review.
@@ -50,7 +51,7 @@ Docs and skills diverge from reality the moment code moves past them. So, in the
 | Layer | Choice |
 |-------|--------|
 | Framework | Next.js 16 (App Router) + TypeScript |
-| Styling | Tailwind CSS v4 (design tokens in `globals.css`) |
+| Styling | Tailwind CSS v4; design tokens in `packages/tokens` (imported by `apps/web/src/app/globals.css`) |
 | Animations | Framer Motion |
 | State | React Context (`src/context/`) |
 | Database | Supabase (Postgres) via Drizzle ORM |
@@ -61,7 +62,18 @@ Docs and skills diverge from reality the moment code moves past them. So, in the
 
 ## Repository layout
 
+A pnpm + Turborepo monorepo. The Next app is the `web` workspace in `apps/web/`;
+**app paths in this file and in the skills (`src/…`, `drizzle/`, `e2e/`, `globals.css`) are relative to `apps/web/`.**
+
 ```
+apps/web/               # the Next.js app (workspace "web")
+packages/tokens/        # @kid-coin/tokens — design tokens (Tailwind v4 theme): primitives → semantic → component
+packages/config/        # @kid-coin/config — shared tsconfig base
+design/                 # brand spec, redesign plan, token table + measured contrast
+turbo.json              # task graph: build, dev, lint, typecheck, test
+pnpm-workspace.yaml     # workspace globs + pnpm build-script allowlist
+
+apps/web/
 src/
 ├── app/
 │   ├── (auth)/         # login + profile picker
@@ -87,11 +99,13 @@ src/
 └── test/               # setup.ts (Testing Library config)
 drizzle/                # Generated SQL migration files
 drizzle.config.ts       # Drizzle Kit config
+supabase/               # Supabase CLI config (run `supabase` from apps/web)
+vercel.json             # Vercel crons — the Vercel project's Root Directory is apps/web
 ```
 
 ## Environment variables
 
-Copy `.env.example` → `.env.local` and fill in:
+Copy `apps/web/.env.example` → `apps/web/.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` (from Supabase dashboard)
 - `SUPABASE_SERVICE_ROLE_KEY` (server-side only — never expose client-side)
 - `DATABASE_URL` — use the **transaction pooler** connection string from Supabase for serverless
@@ -118,10 +132,16 @@ Coins are real value to kids; the failure mode is silent balance corruption. **N
 
 ## Common commands
 
+Run from the repo root; each script is `turbo run <task>` across workspaces.
+Target one workspace with `pnpm --filter web <script>`.
+
 ```bash
 pnpm dev           # start dev server (localhost:3000)
 pnpm build         # production build
-pnpm test:run      # run all tests
+pnpm lint          # ESLint (eslint-config-next)
+pnpm typecheck     # tsc --noEmit
+pnpm test          # run all tests (alias: pnpm test:run)
+pnpm check         # lint + typecheck + test + build — what CI runs
 pnpm db:generate   # generate Drizzle migration from schema changes
 pnpm db:migrate    # apply pending migrations
 pnpm db:studio     # open Drizzle Studio (DB GUI)
@@ -139,12 +159,12 @@ feature/*  →  develop  →  main
 
 Before merging to `main`:
 - PR must have 1 approval
-- All CI checks must pass (`pnpm build`, `pnpm test:run`)
+- All CI checks must pass (`pnpm check`: lint, typecheck, test, build)
 - Branch must be up to date with `main`
 
 ## Reference
 
 - Skills: `.claude/skills/` — component-authoring, financial-safety, testing, db-migrations, pr-skill-compliance
-- Design spec: `design_handoff_earnie/README.md` · Full design system: `DESIGN.md`
+- Design: `design/README.md` (brand, components, tokens, plan) · Old layout prototypes: `design_handoff_earnie/`
 - Product context & design principles: `PRODUCT.md`
 - DB schema: `src/lib/schema.ts` · Type definitions: `src/types/index.ts`

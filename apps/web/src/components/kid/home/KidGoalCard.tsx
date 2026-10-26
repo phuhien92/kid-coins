@@ -1,0 +1,77 @@
+import { Card, CoinIcon, GoalEmojiBadge, ProgressBar } from "@/components/ui";
+import { formatCoins } from "@/lib/utils";
+
+type KidGoalCardProps = {
+  emoji: string;
+  name: string;
+  current: number;
+  target: number;
+};
+
+export function KidGoalCard({ emoji, name, current, target }: KidGoalCardProps) {
+  const goalPercent = Math.round((current / target) * 100);
+
+  return (
+    <section aria-label="Goal progress">
+      <Card padding="md" radius="card" className="p-5">
+        <div className="flex items-center gap-3 mb-3.5">
+          <GoalEmojiBadge emoji={emoji} size="md" />
+          <div className="min-w-0">
+            <p className="font-body font-extrabold text-xs uppercase tracking-wider text-step-save-ink">
+              Dream a little bigger
+            </p>
+            <p className="font-display font-black text-xl text-fg leading-tight truncate">
+              {name}
+            </p>
+          </div>
+        </div>
+        <ProgressBar
+          value={goalPercent}
+          color="gold"
+          height="md"
+          aria-label={`Saving for ${name}: ${current} of ${target} coins`}
+        />
+        <div className="flex items-center justify-between mt-2.5 font-body font-extrabold text-sm text-fg-muted">
+          <span>{goalPercent}% there</span>
+          <span className="text-success inline-flex items-center gap-1">
+            <CoinIcon size="sm" />
+            {formatCoins(current)} / {formatCoins(target)}
+          </span>
+        </div>
+      </Card>
+    </section>
+  );
+}
+
+type KidGoalStripProps = KidGoalCardProps;
+
+/** Compact pill goal row — legacy hero layout. */
+export function KidGoalStrip({ emoji, name, current, target }: KidGoalStripProps) {
+  const goalPercent = Math.round((current / target) * 100);
+
+  return (
+    <section aria-label="Goal progress" className="w-full max-w-[480px] mt-10">
+      <Card padding="sm" radius="pill" className="px-4 py-3">
+        <div className="flex items-center gap-3 text-left">
+          <GoalEmojiBadge emoji={emoji} size="sm" />
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-extrabold text-sm text-fg leading-tight truncate">
+              {name}
+            </p>
+            <div className="mt-1.5">
+              <ProgressBar
+                value={goalPercent}
+                color="gold"
+                height="sm"
+                aria-label={`Saving for ${name}: ${current} of ${target} coins`}
+              />
+            </div>
+          </div>
+          <span className="font-body font-bold text-xs text-fg-muted whitespace-nowrap">
+            {current}/{target}
+          </span>
+        </div>
+      </Card>
+    </section>
+  );
+}
