@@ -28,7 +28,7 @@ export const Hidden: Story = {
 
 export const Interactive: Story = {
   name: "Interactive (click to show)",
-  render: () => {
+  render: function Render() {
     const [visible, setVisible] = React.useState(false);
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">

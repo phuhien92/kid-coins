@@ -72,7 +72,7 @@ export default function ProfilePickerPage() {
           Earnie
         </Link>
         <h1 className="font-display font-bold text-[34px] text-ink mt-3 leading-tight tracking-tight">
-          Who's playing?
+          Who&apos;s playing?
         </h1>
         <p className="font-body text-[15px] text-ink-soft mt-1">
           Pick your profile to start earning coins
@@ -92,7 +92,7 @@ export default function ProfilePickerPage() {
       {loadState === "error" && (
         <div className="text-center py-10">
           <p className="font-body font-bold text-[15px] text-ink">
-            Couldn't load profiles.
+            Couldn&apos;t load profiles.
           </p>
           <button
             onClick={loadKids}

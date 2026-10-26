@@ -40,7 +40,7 @@ export const Open: Story = {
 
 export const Interactive: Story = {
   name: "Interactive (open/close)",
-  render: () => {
+  render: function Render() {
     const [open, setOpen] = React.useState(false);
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
