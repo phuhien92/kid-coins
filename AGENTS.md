@@ -29,7 +29,8 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 | Doc | Read when |
 |---|---|
 | `PRODUCT.md` | You need product context or the design principles behind a feature |
-| `DESIGN.md` | Full design-system spec — colors, typography, elevation, component inventory |
+| `design/` | Brand spec, redesign plan, every token + measured contrast — start at `design/README.md` |
+| `DESIGN.md` | Component inventory and visual rules for the current screens |
 | `design_handoff_earnie/` | The living visual spec — HTML prototypes + `README.md` |
 | `src/lib/schema.ts` | The DB schema, single source of truth for DB types |
 | `src/types/index.ts` | Shared TypeScript types |
@@ -39,7 +40,8 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 
 Docs and skills diverge from reality the moment code moves past them. So, in the same change that moves the code:
 
-- **Change component conventions, tokens, or add/rename a design-system primitive** → update the `component-authoring` skill and `DESIGN.md`.
+- **Change a token** → edit `packages/tokens`, run its tests, regenerate `design/tokens.md` (see `design/README.md`).
+- **Change component conventions or add/rename a design-system primitive** → update the `component-authoring` skill and `DESIGN.md`.
 - **Change money/concurrency handling or add a balance/stock helper** → update the `financial-safety` skill (and its reference-implementation table).
 - **Change the testing contract or DB workflow** → update the `testing` / `db-migrations` skill.
 - **Find a rule that is wrong, missing, or outdated** → fix the skill as part of your PR; a stale rule is worse than none. Small factual corrections: just make them. Structural rewrites of a skill: flag them for human review.
@@ -50,7 +52,7 @@ Docs and skills diverge from reality the moment code moves past them. So, in the
 | Layer | Choice |
 |-------|--------|
 | Framework | Next.js 16 (App Router) + TypeScript |
-| Styling | Tailwind CSS v4 (design tokens in `globals.css`) |
+| Styling | Tailwind CSS v4; design tokens in `packages/tokens` (imported by `apps/web/src/app/globals.css`) |
 | Animations | Framer Motion |
 | State | React Context (`src/context/`) |
 | Database | Supabase (Postgres) via Drizzle ORM |
@@ -66,7 +68,9 @@ A pnpm + Turborepo monorepo. The Next app is the `web` workspace in `apps/web/`;
 
 ```
 apps/web/               # the Next.js app (workspace "web")
-packages/               # shared workspace packages (none yet)
+packages/tokens/        # @kid-coin/tokens — design tokens (Tailwind v4 theme): primitives → semantic → component
+packages/config/        # @kid-coin/config — shared tsconfig base
+design/                 # brand spec, redesign plan, token table + measured contrast
 turbo.json              # task graph: build, dev, lint, typecheck, test
 pnpm-workspace.yaml     # workspace globs + pnpm build-script allowlist
 
@@ -162,6 +166,6 @@ Before merging to `main`:
 ## Reference
 
 - Skills: `.claude/skills/` — component-authoring, financial-safety, testing, db-migrations, pr-skill-compliance
-- Design spec: `design_handoff_earnie/README.md` · Full design system: `DESIGN.md`
+- Design: `design/README.md` (brand, plan, tokens) · Components: `DESIGN.md` · Old prototypes: `design_handoff_earnie/`
 - Product context & design principles: `PRODUCT.md`
 - DB schema: `src/lib/schema.ts` · Type definitions: `src/types/index.ts`

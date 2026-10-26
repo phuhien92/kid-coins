@@ -1,0 +1,10 @@
+{
+  "name": "@kid-coin/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared tooling config for kid-coin workspaces.",
+  "files": ["tsconfig.base.json"],
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json"
+  }
+}

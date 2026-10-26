@@ -1,0 +1,8 @@
+{
+  "extends": "@kid-coin/config/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts", "scripts/**/*.ts"]
+}

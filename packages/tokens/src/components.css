@@ -1,0 +1,22 @@
+/*
+ * Tier 3: component tokens.
+ *
+ * Only where a component needs a value no semantic role covers. Each one
+ * points at a primitive or a semantic role. Add one here before reaching for
+ * a bracket value in a component.
+ */
+@theme static {
+  /* Kid shell: sidebar width and the bottom tab bar's reserved height. */
+  --spacing-sidebar: var(--kc-space-58);
+  --spacing-bottom-nav: var(--kc-space-20);
+}
+
+:root {
+  /* KidCoinMark / coin face SVG paint. */
+  --coin-mark-highlight: var(--kc-gold-300);
+  --coin-mark-body: var(--kc-gold-400);
+  --coin-mark-rim: var(--kc-gold-600);
+  --coin-mark-visor-top: var(--kc-navy-800);
+  --coin-mark-visor: var(--kc-navy-900);
+  --coin-mark-eye: var(--kc-yellow-300);
+}

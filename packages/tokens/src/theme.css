@@ -1,0 +1,12 @@
+/*
+ * @kid-coin/tokens: the kid-coin Tailwind v4 theme.
+ *
+ *   @import "tailwindcss";
+ *   @import "@kid-coin/tokens/theme.css";
+ *
+ * primitives → semantic roles → component tokens (+ legacy aliases).
+ */
+@import "./primitives.css";
+@import "./semantic.css";
+@import "./components.css";
+@import "./legacy.css";

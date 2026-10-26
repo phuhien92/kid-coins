@@ -1,0 +1,37 @@
+/*
+ * Legacy aliases. They are not a tier: these are names the app used before
+ * the token system.
+ *
+ * 1. PERSISTED (keep forever). Kid avatar and character colours are stored in
+ *    the database as `var(--color-mint)`, `var(--color-coral)` and so on (see
+ *    apps/web/src/lib/character.ts). The SVG character art reads them too.
+ *    Retune them through primitives. Never rename or delete one.
+ *
+ * 2. TRANSITIONAL. These are the pre-token utility names (bg-green, text-ink,
+ *    bg-coin…) that the screens still use. They map onto the new primitives so
+ *    the palette is already on-brand. The screen restyle migrates every usage
+ *    to the semantic roles and then deletes this block.
+ */
+@theme static {
+  /* ── 1. Persisted avatar / character palette ── */
+  --color-mint: var(--kc-mint-400);
+  --color-peach: var(--kc-coral-200);
+  --color-lemon: var(--kc-yellow-300);
+  --color-coral: var(--kc-coral-400);
+  --color-sky: var(--kc-blue-200);
+  /* --color-coin is persisted too; it is the semantic money role in semantic.css. */
+  --color-lav: var(--kc-lavender-300);
+  --color-lav-pale: var(--kc-lavender-100);
+
+  /* ── 2. Transitional utility names ── */
+  --color-cream: var(--kc-cream-100);
+  --color-cream-card: var(--kc-cream-50);
+  --color-ink: var(--kc-navy-900);
+  --color-ink-soft: var(--kc-navy-600);
+  --color-green: var(--kc-mint-700);
+  --color-green-dk: var(--kc-mint-800);
+  --color-green-tint: var(--kc-mint-100);
+  --color-purple: var(--kc-lavender-700);
+  --color-purple-dk: var(--kc-navy-900);
+  --color-coin-dk: var(--kc-gold-600);
+}
