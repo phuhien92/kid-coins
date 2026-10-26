@@ -9,16 +9,16 @@ type FantasyGuildCharacterProps = {
   size?: number;
 };
 
-const INK = "var(--color-ink)";
+const INK = "var(--color-fg)";
 const COIN = "var(--color-coin)";
-const COIN_DK = "var(--color-coin-dk)";
-const CREAM = "var(--color-cream-card)";
+const COIN_DK = "var(--color-coin-lo)";
+const CREAM = "var(--color-surface)";
 const LAV = "var(--color-lav-pale)";
-const PURPLE = "var(--color-purple)";
+const PURPLE = "var(--color-step-grow-ink)";
 const MINT = "var(--color-mint)";
 const PEACH = "var(--color-peach)";
 const CORAL = "var(--color-coral)";
-const GREEN = "var(--color-green)";
+const GREEN = "var(--color-success)";
 
 export function FantasyGuildCharacter({
   outfit,

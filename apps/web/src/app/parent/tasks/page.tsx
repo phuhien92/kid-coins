@@ -12,7 +12,7 @@ function TasksSkeleton() {
   return (
     <div className="flex flex-col gap-3 mt-6">
       {[0, 1, 2].map((i) => (
-        <Skeleton.Block key={i} className="h-28 w-full rounded-[20px]" />
+        <Skeleton.Block key={i} className="h-28 w-full rounded-tile" />
       ))}
     </div>
   );
@@ -86,13 +86,13 @@ function ParentTasksContent() {
 
   return (
     <Page>
-      <Page.Content className="max-w-[760px] mx-auto w-full pt-6 pb-10">
+      <Page.Content className="max-w-3xl mx-auto w-full pt-6 pb-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-1">
           <div>
-            <h1 className="font-display font-bold text-[28px] text-ink leading-tight">
+            <h1 className="font-display font-black text-3xl text-fg leading-tight">
               Tasks
             </h1>
-            <p className="font-body font-[800] text-[13px] text-ink-soft mt-1.5">
+            <p className="font-body font-extrabold text-sm text-fg-muted mt-1.5">
               Create chores and set coin rewards for each kid
             </p>
           </div>
@@ -100,7 +100,7 @@ function ParentTasksContent() {
         </div>
 
         {error && (
-          <p className="font-body text-[14px] text-red-600 mt-4" role="alert">
+          <p className="font-body text-sm text-error mt-4" role="alert">
             {error}
           </p>
         )}
@@ -108,7 +108,7 @@ function ParentTasksContent() {
         {loading && <TasksSkeleton />}
 
         {!loading && !error && kids.length === 0 && (
-          <p className="font-body text-[14px] text-ink-soft mt-4">
+          <p className="font-body text-sm text-fg-muted mt-4">
             Add a kid profile before creating tasks.
           </p>
         )}
@@ -134,7 +134,7 @@ function ParentTasksContent() {
 
             <Button
               type="button"
-              variant="purple"
+              variant="primary"
               size="full"
               onClick={openCreateForm}
               className="mt-6"
@@ -144,7 +144,7 @@ function ParentTasksContent() {
 
             <div className="mt-4 flex flex-col gap-3">
               {filteredTasks.length === 0 ? (
-                <p className="font-body text-[14px] text-ink-soft text-center py-8">
+                <p className="font-body text-sm text-fg-muted text-center py-8">
                   No tasks yet for this view.
                 </p>
               ) : (
@@ -188,7 +188,7 @@ export default function ParentTasksPage() {
     <Suspense
       fallback={
         <Page>
-          <Page.Content className="max-w-[760px] mx-auto pt-6">
+          <Page.Content className="max-w-3xl mx-auto pt-6">
             <TasksSkeleton />
           </Page.Content>
         </Page>

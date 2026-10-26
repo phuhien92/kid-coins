@@ -12,7 +12,6 @@ export type ToggleProps = {
   label?: string;
   id?: string;
   className?: string;
-  ring?: "green" | "purple";
 };
 
 /**
@@ -27,7 +26,6 @@ function Toggle({
   label,
   id,
   className,
-  ring = "green",
 }: ToggleProps) {
   const generatedId = React.useId();
   const inputId = id ?? generatedId;
@@ -36,13 +34,13 @@ function Toggle({
     <label
       htmlFor={inputId}
       className={cn(
-        "inline-flex items-center gap-3 cursor-pointer select-none",
+        "inline-flex items-center gap-3 min-h-tap min-w-tap cursor-pointer select-none",
         disabled && "opacity-50 pointer-events-none",
         className
       )}
     >
       {label && (
-        <span className="font-body font-semibold text-[15px] text-ink">
+        <span className="font-body font-semibold text-base text-fg">
           {label}
         </span>
       )}
@@ -54,18 +52,15 @@ function Toggle({
         onCheckedChange={onChange}
         disabled={disabled}
         className={cn(
-          "relative inline-flex w-12 h-7 rounded-pill border-[2.5px] border-ink transition-colors duration-150",
-          "data-[checked]:bg-green bg-white",
-          ring === "purple"
-            ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1"
-            : "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
+          "relative inline-flex w-12 h-7 shrink-0 rounded-pill border-2 transition-colors duration-150",
+          "bg-surface-sunken border-edge data-[checked]:bg-success data-[checked]:border-success",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
         )}
       >
         <Switch.Thumb
           className={cn(
-            "absolute top-[2px] w-5 h-5 rounded-full transition-all duration-150",
-            "data-[checked]:left-[22px] data-[checked]:bg-white",
-            "left-[2px] bg-ink"
+            "absolute top-0.5 left-0.5 size-5 rounded-pill shadow-card transition-transform duration-150",
+            "bg-fg-muted data-[checked]:translate-x-5 data-[checked]:bg-surface"
           )}
         />
       </Switch.Root>

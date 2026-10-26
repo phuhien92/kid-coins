@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { chain, readAll, readTier, references, resolve } from "./css";
 import { CONTRAST_PAIRS, THRESHOLD, contrastRatio } from "./contrast";
-import { breakpoints, colorRoles, radiusRoles, shadowRoles } from "./index";
+import { brandHex, breakpoints, colorRoles, radiusRoles, shadowRoles } from "./index";
 
 const all = readAll();
 const isPrimitive = (name: string) => all.get(name)?.tier === "primitives";
@@ -50,6 +50,12 @@ describe("tier 2: semantic roles", () => {
     expect(parseFloat(resolve("--spacing-tap-gap", all))).toBeGreaterThanOrEqual(8);
   });
 
+  it("brandHex matches the resolved CSS roles", () => {
+    for (const [role, hex] of Object.entries(brandHex)) {
+      expect(resolve(`--color-${role}`, all).toUpperCase(), role).toBe(hex.toUpperCase());
+    }
+  });
+
   it("the typed TS export lists exactly the roles in the CSS", () => {
     const names = (prefix: string) =>
       semantic
@@ -62,11 +68,18 @@ describe("tier 2: semantic roles", () => {
   });
 });
 
-describe("tier 3 + legacy", () => {
-  it("component tokens and legacy aliases also resolve to primitives", () => {
-    for (const d of [...readTier("components"), ...readTier("legacy")]) {
-      const path = chain(d.name, all);
-      expect(isPrimitive(path.at(-1)!), `${d.name} → ${path.join(" → ")}`).toBe(true);
+describe("tier 3 + persisted names", () => {
+  it("component tokens and persisted names also resolve to primitives", () => {
+    for (const d of [...readTier("components"), ...readTier("persisted")]) {
+      if (/^var\(--[a-z0-9-]+\)$/.test(d.value)) {
+        const path = chain(d.name, all);
+        expect(isPrimitive(path.at(-1)!), `${d.name} → ${path.join(" → ")}`).toBe(true);
+      } else {
+        // Composite (calc + env): every token it reads must be a primitive.
+        const refs = references(d.value);
+        expect(refs.length, `${d.name} has no token reference`).toBeGreaterThan(0);
+        for (const r of refs) expect(isPrimitive(r), `${d.name} reads ${r}`).toBe(true);
+      }
     }
   });
 
@@ -75,6 +88,12 @@ describe("tier 3 + legacy", () => {
     for (const n of ["mint", "peach", "lemon", "coral", "sky", "coin", "lav", "lav-pale"]) {
       expect(all.has(`--color-${n}`), n).toBe(true);
     }
+  });
+
+  it("the persisted names generate no utilities (they live in :root, not @theme)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync(new URL("./persisted.css", import.meta.url), "utf8");
+    expect(css).not.toMatch(/@theme/);
   });
 
   it("no token is declared in two tiers", () => {

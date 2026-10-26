@@ -7,13 +7,13 @@ import { Card, CoinIcon, InitialAvatar, Modal, Skeleton } from "@/components/ui"
 import { CoinFaceAvatar } from "@/components/shared/CoinFaceAvatar";
 import { cn } from "@/lib/utils";
 
-/** Shared "stamped" shell for the picker tiles — color tokens are layered on per tile. */
+/** Shared soft shell for the picker tiles — color tokens are layered on per tile. */
 const tileShellBase = cn(
   "group flex flex-col items-center gap-3 p-5 w-full text-left",
-  "border-[3px] rounded-card",
-  "active:translate-y-[5px] active:shadow-none",
-  "transition-[transform,box-shadow] duration-75 ease-out",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+  "border rounded-card shadow-card",
+  "hover:-translate-y-0.5 hover:shadow-lift active:translate-y-px",
+  "transition duration-150 ease-out",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 );
 
 // ── Kid tile ───────────────────────────────────────────────────────────────
@@ -37,18 +37,17 @@ export function ProfilePickerTile({ kid, onClick }: ProfilePickerTileProps) {
       onClick={onClick}
       className={cn(
         tileShellBase,
-        "bg-cream-card border-ink shadow-[0_5px_0_var(--color-ink)]",
-        "focus-visible:ring-green"
+        "bg-surface border-line"
       )}
     >
       <InitialAvatar name={kid.name} avatarColor={kid.avatarColor} size="picker" />
       <div className="text-center">
-        <p className="font-display font-semibold text-[17px] text-ink leading-snug truncate max-w-[120px]">
+        <p className="font-display font-black text-lg text-fg leading-snug truncate max-w-32">
           {kid.name}
         </p>
         <div className="flex items-center justify-center gap-1.5 mt-1">
           <CoinIcon size="sm" />
-          <span className="font-body font-bold text-[13px] text-ink-soft">
+          <span className="font-body font-bold text-sm text-fg-muted">
             {kid.balance}
           </span>
         </div>
@@ -61,9 +60,9 @@ export function ProfilePickerTileSkeleton({ className }: { className?: string })
   return (
     <Card
       padding="md"
-      className={cn("flex flex-col items-center gap-3 border-ink/10 animate-pulse", className)}
+      className={cn("flex flex-col items-center gap-3 animate-pulse", className)}
     >
-      <Skeleton.Circle size="lg" className="w-[76px] h-[76px]" />
+      <Skeleton.Circle size="lg" className="size-20" />
       <div className="flex flex-col items-center gap-2 w-full">
         <Skeleton.Block className="h-4 w-16" />
         <Skeleton.Block className="h-3 w-10" />
@@ -94,11 +93,11 @@ function PinDots({ length, shaking }: { length: number; shaking: boolean }) {
         <motion.div
           key={i}
           className={cn(
-            "w-[13px] h-[13px] rounded-full border-[2.5px] border-ink",
+            "w-[13px] h-[13px] rounded-full border border-line",
             "transition-colors duration-100"
           )}
           animate={{ scale: i < length ? 1.1 : 1 }}
-          style={{ backgroundColor: i < length ? "var(--color-ink)" : "transparent" }}
+          style={{ backgroundColor: i < length ? "var(--color-fg)" : "transparent" }}
         />
       ))}
     </motion.div>
@@ -185,15 +184,15 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
       <div className="flex flex-col items-center gap-2.5 mt-1">
         <CoinFaceAvatar />
         <div className="text-center">
-          <Modal.Title className="text-[22px]">Parent access</Modal.Title>
-          <p className="font-body text-[14px] text-ink-soft mt-0.5">Enter your 4-digit PIN</p>
+          <Modal.Title className="text-xl">Parent access</Modal.Title>
+          <p className="font-body text-sm text-fg-muted mt-0.5">Enter your 4-digit PIN</p>
         </div>
       </div>
 
       <div className="flex flex-col items-center gap-2">
         <PinDots length={pin.length} shaking={shaking} />
         <motion.p
-          className="font-body font-bold text-[13px] text-red-600 h-4"
+          className="font-body font-bold text-sm text-error h-4"
           animate={{ opacity: pinState === "wrong" ? 1 : 0 }}
           transition={{ duration: 0.15 }}
           aria-live="polite"
@@ -214,16 +213,15 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
                   disabled={pinState === "verifying"}
                   aria-label={key === "clear" ? "Clear" : key === "back" ? "Backspace" : key}
                   className={cn(
-                    "flex-1 h-[54px] rounded-[14px] border-[2.5px] border-ink",
-                    "font-display font-semibold text-ink",
-                    "shadow-[0_3px_0_var(--color-ink)]",
-                    "active:translate-y-[3px] active:shadow-none",
-                    "transition-[transform,box-shadow] duration-75 ease-out",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1",
+                    "flex-1 h-14 rounded-control border border-line",
+                    "font-display font-extrabold text-fg",
+                    "hover:bg-surface-sunken active:translate-y-px",
+                    "transition duration-150 ease-out",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-1",
                     "disabled:opacity-40 disabled:cursor-not-allowed",
                     isAction
-                      ? "bg-cream text-[16px] text-ink-soft"
-                      : "bg-cream-card text-[22px]"
+                      ? "bg-page text-base text-fg-muted"
+                      : "bg-surface text-2xl"
                   )}
                 >
                   {key === "clear" ? "✕" : key === "back" ? "⌫" : key}
@@ -235,7 +233,7 @@ function ParentPinModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
       </div>
 
       {pinState === "verifying" && (
-        <p className="font-body text-[13px] text-ink-soft -mt-1">Checking…</p>
+        <p className="font-body text-sm text-fg-muted -mt-1">Checking…</p>
       )}
     </div>
   );
@@ -271,16 +269,15 @@ export function ParentPickerTile({ hasPin }: ParentPickerTileProps) {
         onClick={handleClick}
         className={cn(
           tileShellBase,
-          "bg-purple-tint border-purple-dk shadow-[0_5px_0_var(--color-purple-dk)]",
-          "focus-visible:ring-purple"
+          "bg-step-grow-tint border-step-grow/50"
         )}
       >
         <CoinFaceAvatar />
         <div className="text-center">
-          <p className="font-display font-semibold text-[17px] text-purple-dk leading-snug">
+          <p className="font-display font-black text-lg text-step-grow-ink leading-snug">
             Parent
           </p>
-          <p className="font-body font-bold text-[13px] text-purple mt-0.5">
+          <p className="font-body font-bold text-sm text-step-grow-ink mt-0.5">
             {hasPin ? "🔐 PIN required" : "Dashboard"}
           </p>
         </div>

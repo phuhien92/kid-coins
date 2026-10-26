@@ -8,7 +8,7 @@
  * src/tokens.test.ts enforces that.
  *
  * `static` keeps every variable in the output even when no utility uses it,
- * because other CSS (component tokens, legacy aliases, inline SVG) reads
+ * because other CSS (component tokens, persisted names, inline SVG) reads
  * them with var().
  *
  * There are two deliberate exceptions to "points at a primitive":

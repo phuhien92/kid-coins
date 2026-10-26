@@ -83,7 +83,7 @@ export default function KidCharacterStudioPage() {
     return (
       <Page>
         <Page.Content className="items-center justify-center">
-          <p className="font-body text-ink-soft">Loading studio…</p>
+          <p className="font-body text-fg-muted">Loading studio…</p>
         </Page.Content>
       </Page>
     );
@@ -92,18 +92,18 @@ export default function KidCharacterStudioPage() {
   return (
     <Page>
       <Page.Content className="max-w-5xl mx-auto w-full gap-4 pb-8">
-        <header className="flex items-center gap-3 border-b border-ink/10 pb-4">
+        <header className="flex items-center gap-3 border-b border-fg/10 pb-4">
           <Link
             href="/kid/profile"
-            className="font-body text-sm text-ink-soft hover:text-ink transition-colors"
+            className="inline-flex min-h-tap items-center rounded-control px-2 font-body text-sm text-fg-muted hover:text-fg focus-visible:text-fg transition-colors"
           >
             ← Back to profile
           </Link>
         </header>
 
         <div>
-          <h1 className="font-display font-bold text-3xl text-ink">Guild studio</h1>
-          <p className="font-body text-sm text-ink-soft mt-1">
+          <h1 className="font-display font-black text-3xl text-fg">Guild studio</h1>
+          <p className="font-body text-sm text-fg-muted mt-1">
             Pick your class and coin color, then save when you are happy.
           </p>
         </div>

@@ -13,13 +13,41 @@
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* No grey tap flash on iPad; every control has its own pressed state. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-page);
+  /* Standalone PWA (viewport-fit=cover): keep content out of the notch and
+     home-indicator areas. Fixed bars pad themselves with the same tokens. */
+  padding: var(--spacing-safe-top) var(--spacing-safe-right) var(--spacing-safe-bottom) var(--spacing-safe-left);
 }
 
-/* ── CoinFaceAvatar animations ── */
+/* Celebrations, bobbing coins and hover lifts all calm down on request. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Headings are heavy and tight. */
+.font-display {
+  letter-spacing: -0.015em;
+}
+
+/* Keyboard focus is always visible, even on elements that forget a ring. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ── Coin face animations (CoinFaceAvatar) ── */
 @keyframes coin-bob {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-5px); }
@@ -33,3 +61,7 @@ body {
 .coin-face-bob { animation: coin-bob 2.4s ease-in-out infinite; }
 .coin-eye { transform-origin: center; animation: eye-blink 3.5s ease-in-out infinite; }
 .coin-eye-r { animation-delay: 0.08s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-face-bob, .coin-eye { animation: none; }
+}

@@ -1,4 +1,4 @@
-import { StampedGreenLink } from "@/components/ui";
+import { PromoLink } from "@/components/ui";
 import { PennyMascot } from "@/components/kid/PennyMascot";
 import type { ReactNode } from "react";
 
@@ -14,22 +14,25 @@ export function KidTasksPromoCard({
   taskCopy,
 }: KidTasksPromoCardProps) {
   return (
-    <StampedGreenLink href={href} variant="card">
+    <PromoLink href={href} variant="card">
       <span
-        className="absolute top-4 right-4 font-display font-bold text-[24px] leading-none"
+        className="absolute top-5 right-5 flex size-9 items-center justify-center rounded-pill bg-action-secondary text-on-action-secondary font-display font-black text-xl leading-none"
         aria-hidden
       >
-        ›
+        →
       </span>
-      <p className="font-display font-semibold text-[20px] leading-[1.15] pr-8">
+      <p className="font-body font-extrabold text-xs uppercase tracking-wider text-fg/80">
+        Small tasks. Real progress.
+      </p>
+      <p className="mt-1 font-display font-black text-2xl leading-tight pr-12">
         {pendingTaskCount} {taskCopy} to earn
         <br />
         coins today!
       </p>
-      <div className="flex items-center mt-3.5 -space-x-2" aria-hidden>
-        <PennyMascot className="w-[52px] h-[52px]" />
+      <div className="flex items-center mt-4" aria-hidden>
+        <PennyMascot className="size-14" />
       </div>
-    </StampedGreenLink>
+    </PromoLink>
   );
 }
 
@@ -48,25 +51,25 @@ export function KidTasksBottomCta({
   trailing,
 }: KidTasksBottomCtaProps) {
   return (
-    <StampedGreenLink href={href} variant="bar">
+    <PromoLink href={href} variant="bar">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-body font-bold text-[12px] uppercase tracking-wider opacity-85">
+          <p className="font-body font-extrabold text-xs uppercase tracking-wider text-fg/80">
             Today
           </p>
-          <p className="font-display font-semibold text-[22px] leading-tight">
+          <p className="font-display font-black text-2xl leading-tight">
             {pendingTaskCount} {taskCopy} to earn coins
           </p>
         </div>
         {trailing ?? (
           <div
-            className="w-14 h-14 rounded-pill border-[2.5px] border-ink bg-white text-ink flex items-center justify-center font-display font-bold text-[24px] flex-shrink-0"
+            className="size-14 rounded-pill bg-action-secondary text-on-action-secondary flex items-center justify-center font-display font-black text-2xl flex-shrink-0"
             aria-hidden
           >
             →
           </div>
         )}
       </div>
-    </StampedGreenLink>
+    </PromoLink>
   );
 }

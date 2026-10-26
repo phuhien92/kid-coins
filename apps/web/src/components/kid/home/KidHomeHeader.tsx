@@ -19,11 +19,11 @@ export function KidHomeHeader({
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <InitialAvatar name={kidName} avatarColor={avatarColor} size="header" />
         <div className="min-w-0">
-          <h1 className="font-display font-semibold text-[23px] text-ink leading-tight truncate">
+          <h1 className="font-display font-black text-3xl text-fg leading-tight truncate">
             Hi, {kidName}!
           </h1>
-          <p className="font-body font-[800] text-[13px] text-ink-soft mt-0.5">
-            Let&apos;s earn some coins ✨
+          <p className="font-body font-semibold text-sm text-fg-muted mt-0.5">
+            Every little step counts ✨
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ const meta: Meta<typeof Card> = {
   component: Card,
   argTypes: {
     padding: { control: "select", options: ["none", "sm", "md", "lg"] },
-    compact: { control: "boolean" },
+    radius: { control: "select", options: ["card", "tile", "control", "sheet", "pill"] },
     children: { control: false },
   },
 };
@@ -18,8 +18,8 @@ export const Default: Story = {
   args: {
     children: (
       <div>
-        <p className="font-display font-semibold text-[19px] text-ink">Card title</p>
-        <p className="font-body text-[14px] text-ink-soft mt-1">Some content goes here.</p>
+        <p className="font-display font-extrabold text-lg text-fg">Card title</p>
+        <p className="font-body text-sm text-fg-muted mt-1">Some content goes here.</p>
       </div>
     ),
   },
@@ -27,11 +27,12 @@ export const Default: Story = {
 
 export const Compact: Story = {
   args: {
-    compact: true,
+    padding: "sm",
+    radius: "tile",
     children: (
       <div>
-        <p className="font-display font-semibold text-[15px] text-ink">Compact card</p>
-        <p className="font-body text-[13px] text-ink-soft mt-0.5">2.5px border variant.</p>
+        <p className="font-display font-extrabold text-base text-fg">Compact card</p>
+        <p className="font-body text-sm text-fg-muted mt-0.5">Tighter padding, tile radius.</p>
       </div>
     ),
   },
@@ -42,8 +43,8 @@ export const NoPadding: Story = {
   args: {
     padding: "none",
     children: (
-      <div className="p-5 border-b-[2.5px] border-ink">
-        <p className="font-display font-semibold text-[15px]">Header</p>
+      <div className="p-5 border-b border-line">
+        <p className="font-display font-extrabold text-base">Header</p>
       </div>
     ),
   },

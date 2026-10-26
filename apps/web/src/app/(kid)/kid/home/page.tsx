@@ -29,8 +29,8 @@ export default function KidHomePage() {
 
   return (
     <Page>
-      <Page.Content className="w-full max-w-[960px] mx-auto pt-3 md:pt-5 pb-8 gap-5">
-        <div className="md:hidden flex justify-end">
+      <Page.Content className="w-full max-w-5xl mx-auto pt-3 ipad:pt-5 pb-8 gap-5">
+        <div className="ipad-landscape:hidden flex justify-end">
           <SwitchProfileButton />
         </div>
 
@@ -40,7 +40,7 @@ export default function KidHomePage() {
           streak={streak}
         />
 
-        <div className="grid gap-4 md:grid-cols-[1.3fr_1fr] md:items-start">
+        <div className="grid gap-4 ipad:grid-cols-[1.3fr_1fr] ipad:items-start">
           <KidBalanceCard balance={balance} todayEarned={todayEarned} />
 
           <div className="flex flex-col gap-4">

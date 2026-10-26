@@ -45,13 +45,13 @@ export default function ForgotPasswordPage() {
     <div className="w-full max-w-sm">
       <AuthBrand />
 
-      <div className="bg-cream-card rounded-card shadow-card border border-line p-7">
+      <div className="bg-surface rounded-card shadow-card border border-line p-7">
         {state === "idle" ? (
           <>
-            <h2 className="font-display font-semibold text-xl text-ink mb-1">
+            <h2 className="font-display font-extrabold text-xl text-fg mb-1">
               Reset password
             </h2>
-            <p className="font-body text-sm text-ink-soft mb-6">
+            <p className="font-body text-sm text-fg-muted mb-6">
               Enter your email and we&apos;ll send a reset link right away.
             </p>
 
@@ -67,12 +67,12 @@ export default function ForgotPasswordPage() {
               />
 
               {error && (
-                <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
+                <p role="alert" className="font-body text-sm text-error font-semibold -mt-1">
                   {error}
                 </p>
               )}
 
-              <Button type="submit" variant="purple" size="full" disabled={loading} className="mt-1">
+              <Button type="submit" variant="primary" size="full" disabled={loading} className="mt-1">
                 {loading ? "Sending…" : "Send reset link"}
               </Button>
             </form>
@@ -81,13 +81,13 @@ export default function ForgotPasswordPage() {
           <div className="flex flex-col items-center text-center gap-4">
             <span className="text-4xl">✉️</span>
             <div>
-              <h2 className="font-display font-semibold text-xl text-ink mb-1">
+              <h2 className="font-display font-extrabold text-xl text-fg mb-1">
                 Check your inbox
               </h2>
-              <p className="font-body text-sm text-ink-soft">
+              <p className="font-body text-sm text-fg-muted">
                 We sent a password reset link to
               </p>
-              <p className="font-display font-semibold text-[15px] text-ink mt-1 bg-lav-pale px-3 py-1.5 rounded-control inline-block">
+              <p className="font-display font-extrabold text-base text-fg mt-1 bg-step-grow-tint px-3 py-1.5 rounded-control inline-block">
                 {email}
               </p>
             </div>
@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
       <div className="flex justify-center mt-5">
         <Link
           href="/login"
-          className="font-body text-sm text-ink-soft hover:text-ink transition-colors"
+          className="inline-flex min-h-tap items-center rounded-control px-2 font-body text-sm text-fg-muted hover:text-fg focus-visible:text-fg transition-colors"
         >
           ← Back to sign in
         </Link>

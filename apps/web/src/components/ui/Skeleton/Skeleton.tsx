@@ -8,7 +8,7 @@ function SkeletonBlock({
 }: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div
-      className={cn("rounded-pill bg-ink/8 animate-pulse", className)}
+      className={cn("rounded-pill bg-fg/8 animate-pulse", className)}
       aria-hidden
       {...props}
     />

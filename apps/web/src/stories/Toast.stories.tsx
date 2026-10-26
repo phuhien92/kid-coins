@@ -31,9 +31,9 @@ export const Interactive: Story = {
   render: function Render() {
     const [visible, setVisible] = React.useState(false);
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen bg-page flex items-center justify-center">
         <Button
-          variant="green"
+          variant="primary"
           onClick={() => setVisible(true)}
         >
           Show toast

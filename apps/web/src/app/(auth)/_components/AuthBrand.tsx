@@ -1,11 +1,14 @@
-/** Earnie brand lockup shown above every auth card (login, signup, etc.). */
+import { KidCoinLogo } from "@/components/ui";
+import { TAGLINE } from "@/lib/brand";
+
+/** kid-coin brand lockup shown above every auth card (login, signup, etc.). */
 export function AuthBrand() {
   return (
-    <div className="flex flex-col items-center mb-8">
-      <span className="text-5xl mb-3">🪙</span>
-      <h1 className="font-display font-bold text-3xl text-ink tracking-tight">
-        Earnie
+    <div className="flex flex-col items-center gap-3 mb-8 text-center">
+      <h1>
+        <KidCoinLogo size="md" />
       </h1>
+      <p className="font-body font-semibold text-base text-fg-muted">{TAGLINE}</p>
     </div>
   );
 }

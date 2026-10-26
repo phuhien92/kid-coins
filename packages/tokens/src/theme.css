@@ -4,9 +4,9 @@
  *   @import "tailwindcss";
  *   @import "@kid-coin/tokens/theme.css";
  *
- * primitives → semantic roles → component tokens (+ legacy aliases).
+ * primitives → semantic roles → component tokens (+ persisted avatar colour names).
  */
 @import "./primitives.css";
 @import "./semantic.css";
 @import "./components.css";
-@import "./legacy.css";
+@import "./persisted.css";

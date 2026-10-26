@@ -10,9 +10,9 @@ export function KidLayoutShell({ children }: { children: React.ReactNode }) {
 
   return (
     <KidProvider>
-      <div className="min-h-screen bg-cream flex">
+      <div className="min-h-screen bg-page flex">
         <KidSidebar />
-        <main className="flex-1 min-w-0 min-h-screen flex flex-col pb-[calc(80px+env(safe-area-inset-bottom,0px))] md:pb-0">
+        <main className="flex-1 min-w-0 min-h-screen flex flex-col pb-bottom-nav ipad-landscape:pb-0">
           {!hideMobileSwitch && <KidMobileHeader />}
           {children}
         </main>

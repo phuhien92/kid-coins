@@ -54,8 +54,8 @@ These are the touch rules from [brand.md](brand.md#platform-and-touch-rules-ipad
 
 | Risk | Mitigation |
 |---|---|
-| **Persisted colour names.** Kid avatar colours are stored as `var(--color-mint)` etc. Renaming a token breaks existing kids. | They are kept as permanent aliases in `legacy.css`, and a test asserts they exist. |
-| **Palette shift before the restyle.** PR 2 re-points the old utility names onto brand primitives, so screens change colour, but not layout, before PR 3 lands. | It is intentional and reviewable. The legacy pairs are in the contrast test, so nothing drops below AA. |
+| **Persisted colour names.** Kid avatar colours are stored as `var(--color-mint)` etc. Renaming a token breaks existing kids. | They are kept permanently in `persisted.css`, and a test asserts they exist. |
+| **Palette shift before the restyle.** PR 2 re-pointed the old utility names onto brand primitives, so screens changed colour, but not layout, before PR 3. | PR 3 moved every screen onto the semantic roles and deleted the transitional aliases. Only the persisted names remain. |
 | **Breakpoints can't use `var()`** inside `@media`. | They are literals, and a test checks them against the `--kc-viewport-*` primitives. |
 | **Stale Turbopack dev cache** after token edits. | The fix (delete `apps/web/.next/dev`) is documented in [README](README.md). |
 | **Vercel Root Directory** must become `apps/web`. | Called out in PR 1 as an owner action. |

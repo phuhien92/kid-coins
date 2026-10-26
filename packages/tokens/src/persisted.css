@@ -1,0 +1,22 @@
+/*
+ * Persisted colour names. Not a tier: these are DATA.
+ *
+ * Kid avatar and character colours are stored in the database as
+ * `var(--color-mint)`, `var(--color-coral)` and so on (see
+ * apps/web/src/lib/character.ts), and the SVG character art reads them too.
+ * Retune them through primitives. Never rename or delete one: that would
+ * silently break every kid who picked it. (`--color-coin` is persisted too;
+ * it is the semantic money role in semantic.css.)
+ *
+ * They are plain variables, not theme entries, so no `bg-mint`-style
+ * utilities exist. New UI uses the semantic roles.
+ */
+:root {
+  --color-mint: var(--kc-mint-400);
+  --color-peach: var(--kc-coral-200);
+  --color-lemon: var(--kc-yellow-300);
+  --color-coral: var(--kc-coral-400);
+  --color-sky: var(--kc-blue-200);
+  --color-lav: var(--kc-lavender-300);
+  --color-lav-pale: var(--kc-lavender-100);
+}

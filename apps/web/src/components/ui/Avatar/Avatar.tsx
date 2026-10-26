@@ -18,18 +18,18 @@ export type AvatarProps = React.ComponentPropsWithoutRef<"div"> & {
 };
 
 const sizeClasses: Record<AvatarSize, string> = {
-  sm: "w-[34px] h-[34px] text-[17px] border-[2px]",
-  md: "w-10 h-10 text-[20px] border-[2.5px]",
-  lg: "w-12 h-12 text-[23px] border-[2.5px]",
+  sm: "size-9 text-lg",
+  md: "size-10 text-xl",
+  lg: "size-12 text-2xl",
 };
 
 const colorClasses: Record<AvatarColor, string> = {
-  mint: "bg-mint",
-  lemon: "bg-lemon",
-  peach: "bg-peach",
-  coral: "bg-coral",
-  sky: "bg-sky",
-  lav: "bg-lav",
+  mint: "bg-success-tint",
+  lemon: "bg-step-do-tint",
+  peach: "bg-step-save-tint",
+  coral: "bg-step-save",
+  sky: "bg-step-earn-tint",
+  lav: "bg-step-grow",
   coin: "bg-coin",
 };
 
@@ -38,7 +38,7 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-pill border-ink flex items-center justify-center flex-shrink-0",
+        "rounded-pill ring-2 ring-surface shadow-card flex items-center justify-center flex-shrink-0",
         "overflow-hidden",
         sizeClasses[size],
         colorClasses[color],

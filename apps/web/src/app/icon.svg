@@ -1,15 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Coin body -->
-  <circle cx="16" cy="16" r="15" fill="#F4D34E"/>
-  <!-- Inner coin ring -->
-  <circle cx="16" cy="16" r="12" fill="none" stroke="#E3BE34" stroke-width="1.5"/>
-  <!-- Coin shine highlight -->
-  <ellipse cx="12" cy="10" rx="3" ry="1.5" fill="#FBF8EF" opacity="0.5" transform="rotate(-30 12 10)"/>
-  <!-- Stylised "E" for Earnie -->
-  <text x="16" y="21.5" text-anchor="middle" font-size="14" font-weight="700" font-family="Arial Rounded MT Bold, Arial, sans-serif" fill="#1C1B17" letter-spacing="-0.5">E</text>
-  <!-- Sparkle top-right -->
-  <g transform="translate(25,7)">
-    <line x1="0" y1="-2.5" x2="0" y2="2.5" stroke="#2F7A55" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="-2.5" y1="0" x2="2.5" y2="0" stroke="#2F7A55" stroke-width="1.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- kid-coin mark: static asset for icons. Colours mirror packages/tokens
+       (gold-300/400/500/600, navy-800/900, yellow-300, gold-100). Keep in
+       sync with src/components/ui/KidCoinLogo/KidCoinMark.tsx. -->
+  <defs>
+    <radialGradient id="coin" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#FFE38A"/>
+      <stop offset="45%" stop-color="#FFC93C"/>
+      <stop offset="80%" stop-color="#F5B800"/>
+      <stop offset="100%" stop-color="#E5A800"/>
+    </radialGradient>
+    <linearGradient id="visor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1B2D57"/>
+      <stop offset="100%" stop-color="#0B1A3A"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="31" cy="31" r="28" fill="url(#coin)"/>
+  <circle cx="31" cy="31" r="27" stroke="#E5A800" stroke-width="2"/>
+  <circle cx="31" cy="31" r="22.5" stroke="#FFF4D1" stroke-opacity="0.6" stroke-width="1.25"/>
+  <rect x="12" y="18" width="38" height="25" rx="12.5" fill="url(#visor)"/>
+  <path d="M17 23.5 Q31 19 45 23.5" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round"/>
+  <g filter="url(#glow)" stroke="#FFE27A" stroke-width="3.2" stroke-linecap="round">
+    <path d="M19.5 32.5 Q23.5 26.5 27.5 32.5"/>
+    <path d="M34.5 32.5 Q38.5 26.5 42.5 32.5"/>
+  </g>
+  <path d="M28 37.2 Q31 39.6 34 37.2" stroke="#FFE27A" stroke-width="1.8" stroke-linecap="round"/>
+  <ellipse cx="21" cy="11.5" rx="8" ry="3.2" fill="#FFFFFF" fill-opacity="0.55" transform="rotate(-24 21 11.5)"/>
+  <g transform="translate(51 51) rotate(12)">
+    <polygon points="0.00,-7.00 1.82,-2.51 6.66,-2.16 2.95,0.96 4.11,5.66 0.00,3.10 -4.11,5.66 -2.95,0.96 -6.66,-2.16 -1.82,-2.51" fill="#FFC93C" stroke="#E5A800" stroke-width="1.4" stroke-linejoin="round"/>
+    <circle cx="-1.6" cy="-1.8" r="1.1" fill="#FFFFFF" fill-opacity="0.8"/>
   </g>
 </svg>

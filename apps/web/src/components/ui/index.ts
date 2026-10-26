@@ -1,6 +1,6 @@
 export * from "./InitialAvatar";
 export * from "./GoalEmojiBadge";
-export * from "./StampedGreenLink";
+export * from "./PromoLink";
 export * from "./StampedChip";
 export * from "./DashedActionCard";
 export * from "./Skeleton";
@@ -16,3 +16,6 @@ export * from "./Toggle";
 export * from "./Toast";
 export * from "./Input";
 export * from "./Modal";
+export * from "./KidCoinLogo";
+export * from "./StepBadge";
+export * from "./MascotSlot";

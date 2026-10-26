@@ -102,13 +102,13 @@ export function TaskForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6">
-      <h2 className="font-display font-bold text-[22px] text-ink">
+      <h2 className="font-display font-black text-xl text-fg">
         {isEdit ? "Edit task" : "New task"}
       </h2>
 
       {!isEdit && (
         <div className="flex flex-col gap-1.5">
-          <span className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+          <span className="font-display font-extrabold text-sm text-fg uppercase tracking-wide">
             Assign to
           </span>
           <div className="flex flex-wrap gap-2">
@@ -118,10 +118,10 @@ export function TaskForm({
                 type="button"
                 onClick={() => update("kidId", kid.id)}
                 className={cn(
-                  "font-display font-semibold text-[14px] border-2 border-ink rounded-pill px-4 py-2 transition-colors",
+                  "min-h-tap font-display font-extrabold text-sm border border-line rounded-pill px-4 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
                   values.kidId === kid.id
-                    ? "bg-purple text-white"
-                    : "bg-white text-ink hover:bg-black/5"
+                    ? "bg-action-secondary text-on-action-secondary"
+                    : "bg-surface text-fg hover:bg-surface-sunken"
                 )}
               >
                 {kid.name}
@@ -132,7 +132,7 @@ export function TaskForm({
       )}
 
       <div className="flex flex-col gap-1.5">
-        <span className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+        <span className="font-display font-extrabold text-sm text-fg uppercase tracking-wide">
           Emoji
         </span>
         <div className="grid grid-cols-5 gap-2">
@@ -143,8 +143,8 @@ export function TaskForm({
               aria-label={`Choose ${emoji}`}
               onClick={() => update("emoji", emoji)}
               className={cn(
-                "h-11 rounded-control border-2 border-ink text-[22px] transition-colors",
-                values.emoji === emoji ? "bg-lav-pale" : "bg-white hover:bg-black/5"
+                "h-tap rounded-control border border-line text-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
+                values.emoji === emoji ? "bg-step-grow-tint" : "bg-surface hover:bg-surface-sunken"
               )}
             >
               {emoji}
@@ -162,7 +162,7 @@ export function TaskForm({
       />
 
       <div className="flex flex-col gap-1.5">
-        <span className="font-display font-semibold text-[13px] text-ink uppercase tracking-wide">
+        <span className="font-display font-extrabold text-sm text-fg uppercase tracking-wide">
           Type
         </span>
         <Tabs.Root
@@ -218,12 +218,11 @@ export function TaskForm({
           checked={values.isActive}
           onChange={(isActive) => update("isActive", isActive)}
           label="Task active"
-          ring="purple"
         />
       )}
 
       {error && (
-        <p role="alert" className="font-body text-[13px] text-red-600 font-semibold">
+        <p role="alert" className="font-body text-sm text-error font-semibold">
           {error}
         </p>
       )}
@@ -234,7 +233,7 @@ export function TaskForm({
         </Button>
         <Button
           type="submit"
-          variant="purple"
+          variant="primary"
           size="md"
           disabled={loading}
           className="flex-[2]"

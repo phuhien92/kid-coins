@@ -23,7 +23,7 @@ type TabProps = {
   value: string | number;
   children: React.ReactNode;
   className?: string;
-  /** "kid" uses green active style; "parent" uses purple. Defaults to "kid". */
+  /** "kid" selects in gold; "parent" selects in navy. Defaults to "kid". */
   variant?: TabsVariant;
 };
 
@@ -63,20 +63,15 @@ function TabsRoot({ defaultValue, value, onValueChange, children, className }: T
 
 function TabsList({ children, className }: TabsListProps) {
   return (
-    <BaseTabs.List className={cn("flex gap-2.5", className)}>
+    <BaseTabs.List className={cn("flex gap-tap-gap", className)}>
       {children}
     </BaseTabs.List>
   );
 }
 
 const variantActive: Record<TabsVariant, string> = {
-  kid:    "data-[selected]:bg-ink data-[selected]:text-cream",
-  parent: "data-[selected]:bg-purple data-[selected]:text-white",
-};
-
-const variantFocus: Record<TabsVariant, string> = {
-  kid:    "focus-visible:ring-green",
-  parent: "focus-visible:ring-purple",
+  kid:    "aria-selected:bg-action aria-selected:text-on-action aria-selected:border-action aria-selected:shadow-action",
+  parent: "aria-selected:bg-action-secondary aria-selected:text-on-action-secondary aria-selected:border-fg",
 };
 
 function Tab({ value, children, className, variant = "kid" }: TabProps) {
@@ -84,12 +79,11 @@ function Tab({ value, children, className, variant = "kid" }: TabProps) {
     <BaseTabs.Tab
       value={value}
       className={cn(
-        "flex-1 font-display font-semibold text-[15px] py-[11px] rounded-[14px]",
-        "border-[2.5px] border-ink transition-colors duration-100",
-        "bg-white text-ink hover:bg-black/5 active:bg-black/10",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
+        "flex-1 min-h-tap font-display font-extrabold text-base py-2.5 rounded-pill",
+        "border border-line transition-colors duration-150",
+        "bg-surface text-fg-muted hover:bg-surface-sunken hover:text-fg",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
         variantActive[variant],
-        variantFocus[variant],
         className
       )}
     >

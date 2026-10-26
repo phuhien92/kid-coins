@@ -42,7 +42,7 @@ function Modal({
         {/* Backdrop */}
         <Dialog.Backdrop
           className={cn(
-            "fixed inset-0 z-40 bg-[rgba(28,27,23,0.45)] backdrop-blur-sm",
+            "fixed inset-0 z-40 bg-fg/45 backdrop-blur-sm",
             "transition-opacity duration-200",
             "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0"
           )}
@@ -54,9 +54,9 @@ function Modal({
           aria-labelledby={ariaLabelledby}
           className={cn(
             "fixed z-50 inset-x-4 top-1/2 -translate-y-1/2 mx-auto",
-            "bg-cream-card border-[3px] border-ink",
-            "rounded-[26px]",
-            "shadow-[0_30px_60px_-20px_rgba(28,27,23,0.5)]",
+            "bg-surface border border-line",
+            "rounded-card",
+            "shadow-sheet",
             "max-h-[94vh] overflow-y-auto",
             "transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.2,1.2,0.4,1)]",
             "data-[starting-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:translate-y-[-44%]",
@@ -85,10 +85,10 @@ function ModalClose({
   return (
     <Dialog.Close
       className={cn(
-        "absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center",
-        "font-display font-bold text-[16px] text-ink-soft",
-        "hover:bg-black/8 active:bg-black/12 transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1",
+        "absolute top-3 right-3 size-tap rounded-full flex items-center justify-center",
+        "font-display font-black text-base text-fg-muted",
+        "hover:bg-surface-sunken active:bg-surface-sunken transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-1",
         className
       )}
       aria-label="Close"
@@ -111,7 +111,7 @@ function ModalTitle({
   return (
     <Dialog.Title
       className={cn(
-        "font-display font-bold text-[20px] text-ink leading-tight",
+        "font-display font-black text-xl text-fg leading-tight",
         className
       )}
     >

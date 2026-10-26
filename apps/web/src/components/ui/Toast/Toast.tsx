@@ -29,9 +29,9 @@ function Toast({ message, visible, onDismiss, className }: ToastProps) {
           exit={{ opacity: 0, y: 20, x: "-50%" }}
           transition={{ duration: 0.3 }}
           className={cn(
-            "fixed bottom-[30px] left-1/2 z-50",
-            "bg-ink text-cream rounded-pill",
-            "font-display font-semibold text-[14px]",
+            "fixed bottom-toast-offset left-1/2 z-50",
+            "bg-action-secondary text-on-action-secondary rounded-pill",
+            "font-display font-extrabold text-sm",
             "px-5 py-3",
             "pointer-events-none select-none whitespace-nowrap",
             className

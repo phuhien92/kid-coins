@@ -20,7 +20,7 @@ function PasswordStrength({ password }: { password: string }) {
     (/[^A-Za-z0-9]/.test(password) ? 1 : 0);
 
   const labels = ["", "Weak", "Fair", "Good", "Strong"];
-  const colors = ["", "bg-red-400", "bg-coin", "bg-green-tint", "bg-green"];
+  const colors = ["", "bg-error", "bg-coin", "bg-success-tint", "bg-coin"];
 
   return (
     <div className="flex items-center gap-2 mt-1">
@@ -34,7 +34,7 @@ function PasswordStrength({ password }: { password: string }) {
           />
         ))}
       </div>
-      <span className="font-body text-[11px] text-ink-soft font-semibold w-10 text-right">
+      <span className="font-body text-xs text-fg-muted font-semibold w-10 text-right">
         {labels[score]}
       </span>
     </div>
@@ -137,18 +137,18 @@ export default function SignupPage() {
       <AuthBrand />
 
       {/* Card */}
-      <div className="bg-cream-card rounded-card shadow-card border border-line p-7">
+      <div className="bg-surface rounded-card shadow-card border border-line p-7">
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-5">
           {(["credentials", "family"] as Step[]).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center font-display font-semibold text-[12px] border-2 border-ink transition-colors ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center font-display font-extrabold text-xs border border-line transition-colors ${
                   step === s
-                    ? "bg-purple text-white"
+                    ? "bg-action-secondary text-on-action-secondary"
                     : i < (step === "family" ? 1 : 0)
-                    ? "bg-green text-white"
-                    : "bg-white text-ink-soft"
+                    ? "bg-coin text-fg"
+                    : "bg-surface text-fg-muted"
                 }`}
               >
                 {i < (step === "family" ? 1 : 0) ? "✓" : i + 1}
@@ -160,10 +160,10 @@ export default function SignupPage() {
 
         {step === "credentials" ? (
           <>
-            <h2 className="font-display font-semibold text-xl text-ink mb-1">
+            <h2 className="font-display font-extrabold text-xl text-fg mb-1">
               Create your account
             </h2>
-            <p className="font-body text-sm text-ink-soft mb-6">
+            <p className="font-body text-sm text-fg-muted mb-6">
               Start your family&apos;s coin adventure
             </p>
 
@@ -202,22 +202,22 @@ export default function SignupPage() {
 
               {/* Error */}
               {error && (
-                <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
+                <p role="alert" className="font-body text-sm text-error font-semibold -mt-1">
                   {error}
                 </p>
               )}
 
-              <Button type="submit" variant="purple" size="full" className="mt-1">
+              <Button type="submit" variant="primary" size="full" className="mt-1">
                 Continue
               </Button>
             </form>
           </>
         ) : (
           <>
-            <h2 className="font-display font-semibold text-xl text-ink mb-1">
+            <h2 className="font-display font-extrabold text-xl text-fg mb-1">
               About your family
             </h2>
-            <p className="font-body text-sm text-ink-soft mb-6">
+            <p className="font-body text-sm text-fg-muted mb-6">
               Almost there — just one more step
             </p>
 
@@ -227,7 +227,7 @@ export default function SignupPage() {
                 label={
                   <>
                     Family name{" "}
-                    <span className="normal-case text-ink-soft font-semibold tracking-normal">
+                    <span className="normal-case text-fg-muted font-semibold tracking-normal">
                       · optional
                     </span>
                   </>
@@ -238,14 +238,14 @@ export default function SignupPage() {
                 value={familyName}
                 onChange={setFamilyName}
               >
-                <p className="font-body text-[12px] text-ink-soft">
+                <p className="font-body text-xs text-fg-muted">
                   Shown to your kids on the app. You can change it later.
                 </p>
               </AuthField>
 
               {/* Error */}
               {error && (
-                <p role="alert" className="font-body text-[13px] text-red-600 font-semibold">
+                <p role="alert" className="font-body text-sm text-error font-semibold">
                   {error}
                 </p>
               )}
@@ -262,7 +262,7 @@ export default function SignupPage() {
                 </Button>
                 <Button
                   type="submit"
-                  variant="purple"
+                  variant="primary"
                   size="md"
                   disabled={loading}
                   className="flex-[2]"
@@ -276,9 +276,9 @@ export default function SignupPage() {
       </div>
 
       {/* Footer */}
-      <p className="font-body text-sm text-ink-soft text-center mt-5">
+      <p className="font-body text-sm text-fg-muted text-center mt-5">
         Already have an account?{" "}
-        <Link href="/login" className="text-purple font-semibold hover:underline">
+        <Link href="/login" className="text-step-grow-ink font-semibold underline underline-offset-2 hover:decoration-2">
           Sign in
         </Link>
       </p>

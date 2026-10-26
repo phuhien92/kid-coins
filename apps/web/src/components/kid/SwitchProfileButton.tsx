@@ -29,7 +29,6 @@ export function SwitchProfileButton({
   return (
     <StampedChip
       onClick={handleClick}
-      ring="green"
       aria-label={`Switch profile (signed in as ${kid.name})`}
       className={cn(
         "gap-2.5",
