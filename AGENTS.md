@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Project overview
 
-Earnie is a gamified financial-literacy web app for families. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The design handoff lives in `design_handoff_earnie/` — treat those HTML prototypes as the living spec.
+Earnie is a gamified financial-literacy web app for families. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The visual brand is **kid-coin** (navy, gold, cream; the Do → Earn → Save → Choose → Grow story), specified in `DESIGN.md`. The older `design_handoff_earnie/` prototypes are still the reference for layout and flows, but not for colour or type.
 
 This file is the lean index. Detailed, task-specific rules live in **skills** (`.claude/skills/`) that you load on demand — keep this file short and let the skills carry the depth.
 
@@ -30,7 +30,7 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 |---|---|
 | `PRODUCT.md` | You need product context or the design principles behind a feature |
 | `DESIGN.md` | Full design-system spec — colors, typography, elevation, component inventory |
-| `design_handoff_earnie/` | The living visual spec — HTML prototypes + `README.md` |
+| `design_handoff_earnie/` | Layout/flow prototypes (pre-rebrand visuals) + `README.md` |
 | `src/lib/schema.ts` | The DB schema, single source of truth for DB types |
 | `src/types/index.ts` | Shared TypeScript types |
 | `docs/` | Feature planning docs (e.g. `docs/PLAN-task-reward-system.md`) |

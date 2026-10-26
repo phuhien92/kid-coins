@@ -4,10 +4,10 @@ import { useState } from "react";
 
 /** Shared styling for the labeled text/password inputs used across auth forms. */
 const FIELD_INPUT_CLASS =
-  "w-full border-2 border-ink rounded-control px-4 py-3 font-body text-[14px] text-ink placeholder:text-ink-soft bg-white outline-none focus:border-purple transition-colors";
+  "w-full border-2 border-edge rounded-control px-4 py-3 font-body text-base text-ink placeholder:text-ink-soft bg-cream-card outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30";
 
 const FIELD_LABEL_CLASS =
-  "font-display font-semibold text-[13px] text-ink uppercase tracking-wide";
+  "font-display font-extrabold text-sm text-ink";
 
 type AuthFieldProps = {
   id: string;
@@ -72,7 +72,7 @@ export function AuthField({
           <button
             type="button"
             onClick={() => setReveal((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-lg leading-none"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-control p-1.5 text-lg leading-none hover:bg-cream-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             aria-label={reveal ? "Hide password" : "Show password"}
           >
             {reveal ? "🙈" : "👁️"}

@@ -14,9 +14,8 @@ import { cn } from "@/lib/utils";
 function ParentKidCardSkeleton({ className }: { className?: string }) {
   return (
     <Card
-      compact
       padding="none"
-      radius="parent"
+      radius="tile"
       className={cn("p-[18px] animate-pulse", className)}
     >
       <div className="flex items-center gap-3 mb-4">
@@ -67,13 +66,13 @@ function ParentKidsContent() {
 
   return (
     <Page>
-      <Page.Content className="max-w-[760px] mx-auto w-full pt-6 pb-10">
+      <Page.Content className="max-w-3xl mx-auto w-full pt-6 pb-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-1">
           <div>
-            <h1 className="font-display font-bold text-[28px] text-ink leading-tight">
+            <h1 className="font-display font-black text-3xl text-ink leading-tight">
               Your kids
             </h1>
-            <p className="font-body font-[800] text-[13px] text-ink-soft mt-1.5">
+            <p className="font-body font-extrabold text-sm text-ink-soft mt-1.5">
               Manage children, goals and tasks
             </p>
           </div>
@@ -81,13 +80,13 @@ function ParentKidsContent() {
         </div>
 
         {kids.length === 0 && !loading && !error && (
-          <p className="font-body text-[14px] text-ink-soft mt-4 mb-2">
+          <p className="font-body text-sm text-ink-soft mt-4 mb-2">
             Add your first kid profile so they can start earning coins.
           </p>
         )}
 
         {error && (
-          <p className="font-body text-[14px] text-red-600 mt-4" role="alert">
+          <p className="font-body text-sm text-danger mt-4" role="alert">
             {error}
           </p>
         )}
@@ -118,7 +117,7 @@ export default function ParentKidsPage() {
     <Suspense
       fallback={
         <Page>
-          <Page.Content className="max-w-[760px] mx-auto pt-6">
+          <Page.Content className="max-w-3xl mx-auto pt-6">
             <ParentKidsSkeleton />
           </Page.Content>
         </Page>

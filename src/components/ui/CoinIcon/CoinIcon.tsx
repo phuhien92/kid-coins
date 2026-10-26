@@ -20,8 +20,8 @@ function CoinIcon({ size = "sm", className }: CoinIconProps) {
       aria-label="coin"
       role="img"
       className={cn(
-        "inline-block rounded-pill bg-coin border-[1.6px] border-ink",
-        "shadow-[inset_-0.12em_-0.12em_0_rgba(28,27,23,0.12)]",
+        "inline-block rounded-pill bg-linear-to-br from-gold-lt to-gold-dk",
+        "ring-1 ring-gold-dk",
         "flex-shrink-0",
         sizeClasses[size],
         className

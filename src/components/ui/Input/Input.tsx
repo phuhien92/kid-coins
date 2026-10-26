@@ -42,7 +42,7 @@ function Input({
   }
 
   return (
-    <div className={cn("flex items-center gap-[9px]", className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <input
         type="text"
         value={inputValue}
@@ -52,12 +52,12 @@ function Input({
         disabled={disabled}
         className={cn(
           "flex-1 min-w-0",
-          "border-[2px] border-ink rounded-pill",
-          "px-4 py-[11px]",
-          "font-body font-[700] text-[13.5px] text-ink",
+          "border-2 border-edge rounded-pill",
+          "px-4 py-2.5",
+          "font-body font-semibold text-sm text-ink",
           "placeholder:text-ink-soft",
-          "bg-white outline-none",
-          "focus:border-purple transition-colors duration-150",
+          "bg-cream-card outline-none",
+          "focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30 transition-colors duration-150",
           "disabled:opacity-50"
         )}
       />
@@ -67,12 +67,12 @@ function Input({
         disabled={disabled || !inputValue.trim()}
         aria-label="Send"
         className={cn(
-          "w-[42px] h-[42px] flex-shrink-0",
-          "rounded-pill border-[2.5px] border-ink",
-          "bg-green text-white",
+          "size-11 flex-shrink-0",
+          "rounded-pill bg-gold text-ink shadow-gold hover:bg-gold-lt",
           "flex items-center justify-center",
-          "text-[18px] font-bold",
-          "transition-opacity duration-150",
+          "text-lg font-bold",
+          "transition duration-150",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
           "disabled:opacity-40"
         )}
       >

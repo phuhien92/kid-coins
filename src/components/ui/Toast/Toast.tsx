@@ -31,7 +31,7 @@ function Toast({ message, visible, onDismiss, className }: ToastProps) {
           className={cn(
             "fixed bottom-[30px] left-1/2 z-50",
             "bg-ink text-cream rounded-pill",
-            "font-display font-semibold text-[14px]",
+            "font-display font-extrabold text-sm",
             "px-5 py-3",
             "pointer-events-none select-none whitespace-nowrap",
             className

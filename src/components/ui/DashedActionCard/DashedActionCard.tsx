@@ -14,12 +14,12 @@ export type DashedActionCardProps = {
 
 const variantClasses: Record<DashedActionCardVariant, string> = {
   parent: cn(
-    "bg-lav-pale border-[2.5px] border-dashed border-purple rounded-[20px]",
-    "hover:bg-lav-pale/80 focus-visible:ring-purple"
+    "bg-grow-tint border-2 border-dashed border-grow-ink/40 rounded-tile",
+    "hover:border-grow-ink/70"
   ),
   picker: cn(
-    "bg-cream border-[3px] border-dashed border-ink/25 rounded-card",
-    "hover:border-ink/40 hover:bg-cream-card focus-visible:ring-green"
+    "bg-cream border-2 border-dashed border-edge rounded-card",
+    "hover:border-ink-soft hover:bg-cream-card"
   ),
 };
 
@@ -37,7 +37,7 @@ function DashedActionCard({
       className={cn(
         "flex flex-col items-center justify-center gap-2 text-center p-[18px]",
         "transition-colors duration-150",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
         variant === "parent" ? "min-h-[150px]" : "min-h-[156px] gap-3 p-5",
         variantClasses[variant],
         className
@@ -45,10 +45,10 @@ function DashedActionCard({
     >
       <span
         className={cn(
-          "rounded-pill border-[2.5px] border-ink bg-white flex items-center justify-center font-display font-semibold text-ink",
+          "rounded-pill bg-cream-card shadow-card flex items-center justify-center font-display font-extrabold text-ink",
           variant === "parent"
-            ? "w-[46px] h-[46px] text-[26px]"
-            : "w-[52px] h-[52px] text-[24px] text-ink-soft border-ink/30"
+            ? "size-12 text-2xl"
+            : "size-12 text-2xl text-ink-soft"
         )}
         aria-hidden
       >
@@ -56,14 +56,14 @@ function DashedActionCard({
       </span>
       <span
         className={cn(
-          "font-display font-semibold text-ink",
-          variant === "parent" ? "text-[15px]" : "text-[14px] text-ink-soft leading-tight"
+          "font-display font-extrabold text-ink",
+          variant === "parent" ? "text-base" : "text-sm text-ink-soft leading-tight"
         )}
       >
         {title}
       </span>
       {description && (
-        <span className="font-body font-[800] text-[12px] text-ink-soft max-w-[200px]">
+        <span className="font-body font-extrabold text-xs text-ink-soft max-w-[200px]">
           {description}
         </span>
       )}

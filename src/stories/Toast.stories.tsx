@@ -33,7 +33,7 @@ export const Interactive: Story = {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <Button
-          variant="green"
+          variant="primary"
           onClick={() => setVisible(true)}
         >
           Show toast

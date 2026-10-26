@@ -12,7 +12,6 @@ export type ToggleProps = {
   label?: string;
   id?: string;
   className?: string;
-  ring?: "green" | "purple";
 };
 
 /**
@@ -27,7 +26,6 @@ function Toggle({
   label,
   id,
   className,
-  ring = "green",
 }: ToggleProps) {
   const inputId = id ?? React.useId();
 
@@ -41,7 +39,7 @@ function Toggle({
       )}
     >
       {label && (
-        <span className="font-body font-semibold text-[15px] text-ink">
+        <span className="font-body font-semibold text-base text-ink">
           {label}
         </span>
       )}
@@ -53,18 +51,15 @@ function Toggle({
         onCheckedChange={onChange}
         disabled={disabled}
         className={cn(
-          "relative inline-flex w-12 h-7 rounded-pill border-[2.5px] border-ink transition-colors duration-150",
-          "data-[checked]:bg-green bg-white",
-          ring === "purple"
-            ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1"
-            : "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1"
+          "relative inline-flex w-12 h-7 shrink-0 rounded-pill border-2 transition-colors duration-150",
+          "bg-cream-deep border-edge data-[checked]:bg-mint-ink data-[checked]:border-mint-ink",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
         )}
       >
         <Switch.Thumb
           className={cn(
-            "absolute top-[2px] w-5 h-5 rounded-full transition-all duration-150",
-            "data-[checked]:left-[22px] data-[checked]:bg-white",
-            "left-[2px] bg-ink"
+            "absolute top-0.5 left-0.5 size-5 rounded-pill shadow-card transition-transform duration-150",
+            "bg-ink-soft data-[checked]:translate-x-5 data-[checked]:bg-cream-card"
           )}
         />
       </Switch.Root>

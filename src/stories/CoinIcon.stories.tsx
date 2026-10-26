@@ -15,7 +15,7 @@ type Story = StoryObj<typeof CoinIcon>;
 export const Small: Story = {
   name: "Small (inline)",
   render: () => (
-    <p className="font-display font-bold text-[32px] text-ink flex items-center gap-2">
+    <p className="font-display font-black text-4xl text-ink flex items-center gap-2">
       <CoinIcon size="sm" /> 450 coins
     </p>
   ),

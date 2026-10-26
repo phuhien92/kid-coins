@@ -16,9 +16,9 @@ export type JarCardProps = {
 };
 
 const accentClasses: Record<JarAccent, string> = {
-  spend: "bg-coin",
-  save: "bg-green-tint",
-  give: "bg-lav-pale",
+  spend: "bg-gold",
+  save: "bg-mint-tint",
+  give: "bg-grow-tint",
 };
 
 /**
@@ -36,24 +36,23 @@ function JarCard({
 }: JarCardProps) {
   return (
     <Card
-      compact
       padding="sm"
       className={cn("flex items-center gap-3", className)}
     >
       <span
         aria-hidden
         className={cn(
-          "flex items-center justify-center w-12 h-12 rounded-pill border-2 border-ink text-2xl shrink-0",
+          "flex items-center justify-center w-12 h-12 rounded-pill border border-line text-2xl shrink-0",
           accentClasses[accent]
         )}
       >
         {emoji}
       </span>
       <div className="min-w-0">
-        <p className="font-display font-semibold text-sm text-ink-soft">{label}</p>
+        <p className="font-display font-extrabold text-sm text-ink-soft">{label}</p>
         <p
           role="status"
-          className="flex items-center gap-1.5 font-display font-bold text-lg text-ink"
+          className="flex items-center gap-1.5 font-display font-black text-lg text-ink"
         >
           <CoinIcon size="md" />
           {balance}

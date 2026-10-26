@@ -91,7 +91,7 @@ function JarAllocator({
   return (
     <Modal open={open} onClose={onClose} width="sm" aria-label="Move coins between jars">
       <div className="flex flex-col gap-5">
-        <h2 className="font-display font-bold text-xl text-ink">Move coins</h2>
+        <h2 className="font-display font-black text-xl text-ink">Move coins</h2>
 
         <div role="group" aria-label="Where to move coins" className="flex flex-wrap gap-2">
           {MODES.map((m) => (
@@ -101,7 +101,7 @@ function JarAllocator({
               variant="chip"
               aria-pressed={mode === m.id}
               onClick={() => pickMode(m.id)}
-              className={cn(mode === m.id && "bg-green text-white")}
+              className={cn(mode === m.id && "bg-gold text-ink")}
             >
               {m.label}
             </Button>
@@ -129,7 +129,7 @@ function JarAllocator({
           </Button>
           <span
             aria-live="polite"
-            className="min-w-16 text-center font-display font-bold text-2xl text-ink inline-flex items-center justify-center gap-1.5"
+            className="min-w-16 text-center font-display font-black text-2xl text-ink inline-flex items-center justify-center gap-1.5"
           >
             <CoinIcon size="md" />
             {clampedAmount}
@@ -174,7 +174,7 @@ function JarAllocator({
         </div>
 
         {error ? (
-          <p role="alert" className="font-body text-sm text-coral text-center">
+          <p role="alert" className="font-body text-sm text-save-ink text-center">
             {error}
           </p>
         ) : null}
@@ -185,7 +185,7 @@ function JarAllocator({
           </Button>
           <Button
             type="button"
-            variant="green"
+            variant="primary"
             size="full"
             disabled={!canSubmit}
             onClick={handleConfirm}

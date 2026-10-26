@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export type ButtonVariant =
-  | "green"
-  | "purple"
+  | "primary"
+  | "secondary"
   | "ghost"
   | "chip"
   | "mini-yes"
@@ -18,61 +19,55 @@ export type ButtonProps = React.ComponentPropsWithoutRef<"button"> & {
   size?: ButtonSize;
 };
 
+const base = [
+  "inline-flex items-center justify-center gap-2 font-display font-extrabold",
+  "transition duration-150 active:translate-y-px",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
+  "disabled:opacity-50 disabled:pointer-events-none",
+].join(" ");
+
 const variantClasses: Record<ButtonVariant, string> = {
-  green: [
-    "bg-green text-white border-[3px] border-ink font-display font-semibold text-[17px]",
-    "rounded-[18px] shadow-[0_5px_0_var(--color-green-dk)]",
-    "active:translate-y-1 active:shadow-[0_1px_0_var(--color-green-dk)]",
-    "transition-all duration-[80ms] disabled:opacity-50 disabled:pointer-events-none",
-  ].join(" "),
-  purple: [
-    "bg-purple text-white border-[2.5px] border-ink font-display font-semibold text-[15px]",
-    "rounded-[14px] shadow-[0_4px_0_var(--color-purple-dk)]",
-    "active:translate-y-[3px] active:shadow-[0_1px_0_var(--color-purple-dk)]",
-    "transition-all duration-[80ms] disabled:opacity-50 disabled:pointer-events-none",
-  ].join(" "),
-  ghost: [
-    "bg-white text-ink border-[2px] border-ink font-display font-semibold text-[15px]",
-    "rounded-[14px]",
-    "hover:bg-black/5 active:bg-black/10",
-    "transition-colors duration-[80ms] disabled:opacity-50 disabled:pointer-events-none",
-  ].join(" "),
-  chip: [
-    "bg-white text-ink border-[2.5px] border-ink font-display font-semibold text-[14px]",
-    "rounded-pill",
-    "hover:bg-black/5 active:bg-black/10",
-    "transition-colors duration-[80ms] disabled:opacity-50 disabled:pointer-events-none",
-  ].join(" "),
-  "mini-yes": [
-    "bg-green text-white border-[2px] border-ink font-display font-semibold text-[13px]",
-    "rounded-control shadow-[0_3px_0_var(--color-green-dk)]",
-    "active:translate-y-[3px] active:shadow-[0_0px_0_var(--color-green-dk)]",
-    "transition-all duration-[80ms] disabled:opacity-50 disabled:pointer-events-none",
-  ].join(" "),
-  "mini-no": [
-    "bg-white text-ink-soft border-[2px] border-ink font-display font-semibold text-[13px]",
-    "rounded-control",
-    "hover:bg-black/5",
-    "transition-colors duration-[80ms] disabled:opacity-50 disabled:pointer-events-none",
-  ].join(" "),
+  // Gold — the primary action everywhere (kid and parent).
+  primary: "bg-gold text-ink text-lg rounded-pill shadow-gold hover:bg-gold-lt active:bg-gold-dk",
+  // Navy — confident secondary / parent action.
+  secondary: "bg-ink text-white text-base rounded-pill shadow-card hover:bg-ink/90",
+  ghost: "bg-cream-card text-ink text-base rounded-pill border border-line hover:bg-cream-deep",
+  chip: "bg-cream-card text-ink text-sm rounded-pill border border-line hover:bg-cream-deep",
+  "mini-yes": "bg-gold text-ink text-sm rounded-control shadow-gold hover:bg-gold-lt active:bg-gold-dk",
+  "mini-no": "bg-cream-card text-ink-soft text-sm rounded-control border border-line hover:bg-cream-deep hover:text-ink",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-[9px] py-[8px]",
-  md: "px-[18px] py-[11px]",
-  full: "w-full px-[18px] py-[15px]",
+  sm: "px-3 py-2",
+  md: "px-5 py-2.5",
+  full: "w-full px-5 py-3.5",
 };
 
+/** Class string for a button look — shared by <Button> and <ButtonLink>. */
+function buttonClasses(variant: ButtonVariant = "primary", size: ButtonSize = "md", className?: string) {
+  return cn(base, variantClasses[variant], sizeClasses[size], className);
+}
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "green", size = "md", className, ...props }, ref) => (
-    <button
-      ref={ref}
-      className={cn(variantClasses[variant], sizeClasses[size], className)}
-      {...props}
-    />
+  ({ variant = "primary", size = "md", className, ...props }, ref) => (
+    <button ref={ref} className={buttonClasses(variant, size, className)} {...props} />
   )
 );
 
 Button.displayName = "Button";
 
-export { Button };
+export type ButtonLinkProps = React.ComponentPropsWithoutRef<typeof Link> & {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+};
+
+/** A navigation link that looks like a button. */
+const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ variant = "primary", size = "md", className, ...props }, ref) => (
+    <Link ref={ref} className={buttonClasses(variant, size, className)} {...props} />
+  )
+);
+
+ButtonLink.displayName = "ButtonLink";
+
+export { Button, ButtonLink, buttonClasses };

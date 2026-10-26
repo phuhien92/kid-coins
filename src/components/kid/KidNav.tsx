@@ -5,11 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { SwitchProfileButton } from "@/components/kid/SwitchProfileButton";
+import { KidCoinLogo, STEP_TONES } from "@/components/ui";
+import type { StepId } from "@/lib/brand";
 
 type NavItem = {
   href: string;
   label: string;
   icon: React.ReactNode;
+  /** Brand step this area belongs to — tints its active state. */
+  step: StepId;
 };
 
 // Heroicons-style stroke icons, 24×24, stroke-width 2.2.
@@ -48,10 +52,10 @@ function ProfileIcon() {
 }
 
 const items: NavItem[] = [
-  { href: "/kid/home", label: "Home", icon: <HomeIcon /> },
-  { href: "/kid/tasks", label: "Tasks", icon: <TasksIcon /> },
-  { href: "/kid/rewards", label: "Rewards", icon: <RewardsIcon /> },
-  { href: "/kid/profile", label: "Profile", icon: <ProfileIcon /> },
+  { href: "/kid/home", label: "Home", icon: <HomeIcon />, step: "earn" },
+  { href: "/kid/tasks", label: "Tasks", icon: <TasksIcon />, step: "do" },
+  { href: "/kid/rewards", label: "Rewards", icon: <RewardsIcon />, step: "choose" },
+  { href: "/kid/profile", label: "Profile", icon: <ProfileIcon />, step: "grow" },
 ];
 
 function isActive(pathname: string | null, href: string): boolean {
@@ -60,6 +64,9 @@ function isActive(pathname: string | null, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-cream";
+
 /** Desktop sidebar, 230px sticky. Visible md+. */
 export function KidSidebar() {
   const pathname = usePathname();
@@ -67,10 +74,10 @@ export function KidSidebar() {
   return (
     <aside
       aria-label="Primary navigation"
-      className="hidden md:flex sticky top-0 self-start h-screen w-[230px] flex-col gap-6 px-5 py-6 bg-cream border-r-[2px] border-line"
+      className="hidden md:flex sticky top-0 self-start h-screen w-[230px] flex-col gap-8 px-5 py-6 bg-cream-card border-r border-line"
     >
-      <Link href="/kid/home" className="font-display font-semibold text-[22px] text-ink leading-none">
-        Earnie
+      <Link href="/kid/home" className={cn("self-start rounded-control", focusRing)}>
+        <KidCoinLogo size="sm" />
       </Link>
 
       <nav className="flex flex-col gap-1.5">
@@ -82,13 +89,18 @@ export function KidSidebar() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "inline-flex items-center gap-3 px-3 py-2.5 rounded-control transition-colors duration-150",
-                "font-display font-semibold text-[15px] text-ink",
+                "relative inline-flex items-center gap-3 px-3 py-2.5 rounded-control transition-colors duration-150",
+                "font-display text-base",
+                focusRing,
                 active
-                  ? "bg-green-tint border-[2px] border-ink"
-                  : "border-[2px] border-transparent hover:bg-black/5"
+                  ? cn(STEP_TONES[item.step].tint, "font-black text-ink")
+                  : "font-bold text-ink-soft hover:bg-cream-deep hover:text-ink"
               )}
             >
+              {/* Active marker — a shape cue, so state never relies on colour alone. */}
+              {active && (
+                <span aria-hidden className={cn("absolute left-0 inset-y-2 w-1 rounded-pill", STEP_TONES[item.step].fill)} />
+              )}
               <span className="w-6 h-6 flex items-center justify-center" aria-hidden>
                 {item.icon}
               </span>
@@ -120,7 +132,7 @@ export function KidBottomTabs() {
   return (
     <nav
       aria-label="Primary navigation"
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-cream border-t-[2px] border-line"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-cream-card border-t border-line shadow-lift"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <ul className="flex items-stretch justify-around px-2 pt-2 pb-2">
@@ -131,14 +143,12 @@ export function KidBottomTabs() {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className="flex flex-col items-center gap-1 py-1"
+                className={cn("flex flex-col items-center gap-1 py-1 rounded-control", focusRing)}
               >
                 <span
                   className={cn(
-                    "inline-flex items-center justify-center w-[46px] h-[38px] rounded-[14px] transition-colors duration-150",
-                    active
-                      ? "bg-green-tint border-[2px] border-ink text-ink"
-                      : "text-ink-soft"
+                    "inline-flex items-center justify-center w-12 h-9 rounded-pill transition-colors duration-150",
+                    active ? cn(STEP_TONES[item.step].tint, "text-ink") : "text-ink-soft"
                   )}
                   aria-hidden
                 >
@@ -146,8 +156,8 @@ export function KidBottomTabs() {
                 </span>
                 <span
                   className={cn(
-                    "font-body font-bold text-[11px]",
-                    active ? "text-ink" : "text-ink-soft"
+                    "font-body text-xs",
+                    active ? "font-extrabold text-ink underline decoration-2 underline-offset-4" : "font-semibold text-ink-soft"
                   )}
                 >
                   {item.label}

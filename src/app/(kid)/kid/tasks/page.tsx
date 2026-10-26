@@ -2,30 +2,30 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Badge, CoinIcon, Page, Tabs, Modal } from "@/components/ui";
+import { Badge, Button, CoinIcon, Page, Tabs, Modal } from "@/components/ui";
 import { PennyMascot } from "@/components/kid/PennyMascot";
 import { cn } from "@/lib/utils";
 import { useKidTasksData } from "@/context/KidContext";
 import type { Task } from "@/types";
 
+// Step tints — Do · Earn · Save · Choose · Grow.
 const CARD_COLORS = [
-  "bg-lav-pale",
-  "bg-mint",
-  "bg-coin",
-  "bg-peach",
-  "bg-lemon",
-  "bg-sky",
+  "bg-gold-tint",
+  "bg-earn-tint",
+  "bg-save-tint",
+  "bg-mint-tint",
+  "bg-grow-tint",
 ];
 
 const TASK_EMOJIS = ["🦷", "🛏️", "📚", "🍽️", "🧹", "🐕", "🎨", "💧"];
 
 const CONFETTI_COLORS = [
-  "#2F7A55", // green
-  "#F4D34E", // coin
-  "#7B6BE6", // purple
-  "#DEE0FA", // lav-pale
-  "#F8D3B2", // peach
-  "#C7E9D4", // mint
+  "var(--color-gold)",
+  "var(--color-earn)",
+  "var(--color-save)",
+  "var(--color-mint)",
+  "var(--color-grow)",
+  "var(--color-gold-lt)",
 ];
 
 export default function KidTasksPage() {
@@ -59,9 +59,12 @@ export default function KidTasksPage() {
       </Page.Header>
 
       <Page.Content>
-        <h1 className="font-display font-bold text-[26px] text-ink mb-4">
+        <h1 className="font-display font-black text-3xl text-ink">
           My tasks
         </h1>
+        <p className="font-body font-semibold text-base text-ink-soft mt-1 mb-5">
+          Small tasks. Real progress.
+        </p>
 
         <Tabs.Root defaultValue="daily">
           <Tabs.List className="mb-5">
@@ -76,7 +79,7 @@ export default function KidTasksPage() {
                 {filtered.length === 0 ? (
                   <EmptyState tab={tab} />
                 ) : (
-                  <ul className="flex flex-col gap-[13px]">
+                  <ul className="flex flex-col gap-3">
                     {filtered.map((task, i) => (
                       <li key={task.id}>
                         <TaskCard
@@ -112,11 +115,11 @@ function EmptyState({ tab }: { tab: "daily" | "once" }) {
       className="my-auto py-16 text-center"
       aria-label={tab === "daily" ? "No daily tasks" : "No one-time tasks"}
     >
-      <div className="text-[48px] mb-3" aria-hidden>📋</div>
-      <p className="font-display font-semibold text-[18px] text-ink">
+      <div className="text-5xl mb-3" aria-hidden>📋</div>
+      <p className="font-display font-extrabold text-lg text-ink">
         No {tab === "daily" ? "daily" : "one-time"} tasks yet
       </p>
-      <p className="font-body font-bold text-[14px] text-ink-soft mt-1">
+      <p className="font-body font-bold text-sm text-ink-soft mt-1">
         Ask a parent to add some!
       </p>
     </section>
@@ -141,18 +144,18 @@ function TaskCard({
       disabled={done}
       aria-label={`${task.title}, ${task.coinReward} coins${done ? ", completed" : ""}`}
       className={cn(
-        "w-full flex items-center gap-[14px] border-[3px] border-ink rounded-[20px] p-[15px] text-left",
-        "shadow-[0_4px_0_rgba(28,27,23,0.07)] transition-transform duration-[80ms]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-1",
+        "w-full flex items-center gap-3.5 border border-line rounded-tile p-4 text-left",
+        "shadow-card transition duration-150",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
         done
-          ? "bg-green-tint cursor-default"
-          : "bg-white hover:translate-x-[3px] active:translate-x-[3px] cursor-pointer"
+          ? "bg-mint-tint cursor-default"
+          : "bg-cream-card hover:-translate-y-0.5 hover:shadow-lift active:translate-y-px cursor-pointer"
       )}
     >
       {/* Color icon box */}
       <div
         className={cn(
-          "w-[52px] h-[52px] rounded-[15px] border-[2.5px] border-ink flex items-center justify-center text-[27px] flex-shrink-0",
+          "size-13 rounded-control flex items-center justify-center text-3xl flex-shrink-0",
           CARD_COLORS[index % CARD_COLORS.length]
         )}
         aria-hidden
@@ -162,12 +165,12 @@ function TaskCard({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className={cn("font-display font-semibold text-[17px] leading-tight", done && "line-through opacity-50")}>
+        <p className={cn("font-display font-extrabold text-lg leading-tight", done && "line-through text-ink-soft")}>
           {task.title}
         </p>
-        <div className="flex items-center gap-[5px] mt-[3px]">
+        <div className="flex items-center gap-1.5 mt-1">
           <CoinIcon size="sm" />
-          <span className="font-body font-bold text-[13px] text-green">
+          <span className="font-body font-bold text-sm text-mint-ink">
             {done ? `+${task.coinReward} · done!` : `+${task.coinReward} coins`}
           </span>
         </div>
@@ -176,12 +179,12 @@ function TaskCard({
       {/* Check circle */}
       <div
         className={cn(
-          "w-[34px] h-[34px] rounded-full border-[3px] border-ink flex items-center justify-center flex-shrink-0 transition-colors duration-150",
-          done ? "bg-green" : "bg-white"
+          "size-9 rounded-pill border-2 flex items-center justify-center flex-shrink-0 transition-colors duration-150",
+          done ? "bg-mint-ink border-mint-ink" : "bg-cream-card border-edge"
         )}
         aria-hidden
       >
-        {done && <span className="text-white font-black text-[17px] leading-none">✓</span>}
+        {done && <span className="text-white font-black text-lg leading-none">✓</span>}
       </div>
     </button>
   );
@@ -236,26 +239,23 @@ function CelebrationModal({
         )}
       </AnimatePresence>
 
-      <PennyMascot float className="w-[160px] h-[160px]" />
+      <PennyMascot float className="size-40" />
 
-      <div className="font-display font-bold text-[34px] text-green border-[3px] border-ink bg-coin rounded-pill px-6 py-[9px] shadow-[4px_4px_0_var(--color-ink)] inline-flex items-center gap-[9px]">
+      <div className="font-display font-black text-4xl text-ink bg-gold rounded-pill px-6 py-2 shadow-gold inline-flex items-center gap-2">
         <CoinIcon size="lg" />
         +{task.coinReward}
       </div>
 
-      <h2 className="font-display font-bold text-[28px] text-ink">Well done!</h2>
-      <p className="font-body font-bold text-[15px] text-ink-soft max-w-[280px]">
+      <p className="font-body font-extrabold text-sm uppercase tracking-wider text-earn-ink">Celebrate the effort</p>
+      <h2 className="font-display font-black text-3xl text-ink">Well done!</h2>
+      <p className="font-body font-semibold text-base text-ink-soft max-w-xs">
         You finished &ldquo;{task.title}&rdquo; and earned {task.coinReward}{" "}
         {task.coinReward === 1 ? "coin" : "coins"}.
       </p>
 
-      <button
-        onClick={onDismiss}
-        autoFocus
-        className="mt-2 bg-green text-white border-[3px] border-ink font-display font-semibold text-[17px] rounded-[18px] shadow-[0_5px_0_var(--color-green-dk)] hover:bg-green-dk active:translate-y-1 active:shadow-[0_1px_0_var(--color-green-dk)] transition-all duration-[80ms] px-8 py-[14px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
-      >
+      <Button onClick={onDismiss} autoFocus className="mt-2 px-8 py-3.5">
         Collect 🎉
-      </button>
+      </Button>
     </Modal>
   );
 }

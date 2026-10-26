@@ -1,4 +1,4 @@
-import { Card, CoinIcon } from "@/components/ui";
+import { Card, CoinIcon, MascotSlot, StepBadge } from "@/components/ui";
 import { formatCoins } from "@/lib/utils";
 
 type KidBalanceCardProps = {
@@ -9,22 +9,26 @@ type KidBalanceCardProps = {
 export function KidBalanceCard({ balance, todayEarned }: KidBalanceCardProps) {
   return (
     <section aria-label="Coin balance">
-      <Card padding="md" radius="xl" className="p-5">
-        <p className="font-body font-[800] text-[13px] text-ink-soft uppercase tracking-[0.07em]">
-          All my coins
-        </p>
-        <div className="mt-1 flex items-baseline gap-2">
-          <span
-            className="font-display font-bold text-[clamp(2.75rem,12vw,3.375rem)] text-ink leading-none tracking-tight"
-            aria-label={`${balance} coins`}
-          >
-            {formatCoins(balance)}
-          </span>
-          <CoinIcon size="lg" className="relative top-0.5" />
+      <Card padding="lg" radius="sheet" className="flex items-center gap-4 overflow-hidden">
+        <div className="flex-1 min-w-0">
+          <StepBadge step="earn" numbered={false} />
+          <p className="mt-4 font-body font-extrabold text-sm text-ink-soft uppercase tracking-wider">
+            All my coins
+          </p>
+          <div className="mt-1 flex items-center gap-2">
+            <span
+              className="font-display font-black text-6xl text-ink leading-none tracking-tight"
+              aria-label={`${balance} coins`}
+            >
+              {formatCoins(balance)}
+            </span>
+            <CoinIcon size="lg" />
+          </div>
+          <p className="mt-4 inline-flex items-center gap-1.5 rounded-pill bg-mint-tint px-3 py-1 font-body font-extrabold text-sm text-mint-ink">
+            <span className="text-ink-soft">Today</span>+{todayEarned} earned
+          </p>
         </div>
-        <p className="font-body font-[800] text-[13px] text-green-dk mt-3 flex items-center gap-1.5">
-          <span className="text-ink-soft">Today</span>+{todayEarned} earned
-        </p>
+        <MascotSlot slot="earn" decorative className="hidden sm:flex w-36 shrink-0" />
       </Card>
     </section>
   );

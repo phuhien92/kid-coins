@@ -8,5 +8,9 @@ export type ToggleProps = {
     id?: string;
     className?: string;
 };
+/**
+ * Accessible toggle switch built on Base UI Switch.
+ * Handles all keyboard/ARIA automatically; styling maps to design tokens.
+ */
 declare function Toggle({ checked, defaultChecked, onChange, disabled, label, id, className, }: ToggleProps): React.JSX.Element;
 export { Toggle };

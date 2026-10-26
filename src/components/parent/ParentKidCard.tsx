@@ -21,9 +21,8 @@ type ParentKidCardProps = {
 export function ParentKidCard({ kid, className }: ParentKidCardProps) {
   return (
     <Card
-      compact
       padding="none"
-      radius="parent"
+      radius="tile"
       className={cn(
         "p-[18px] transition-transform duration-150 hover:-translate-y-0.5",
         className
@@ -36,18 +35,18 @@ export function ParentKidCard({ kid, className }: ParentKidCardProps) {
           size="lg"
         />
         <div className="min-w-0 flex-1">
-          <p className="font-display font-semibold text-[18px] text-ink leading-tight truncate">
+          <p className="font-display font-extrabold text-lg text-ink leading-tight truncate">
             {kid.name}
           </p>
-          <p className="font-body font-[800] text-[12px] text-ink-soft mt-0.5">
+          <p className="font-body font-extrabold text-xs text-ink-soft mt-0.5">
             Kid profile
           </p>
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-1 font-body font-[800] text-[12.5px] text-ink-soft">
+      <div className="flex items-center justify-between mt-1 font-body font-extrabold text-xs text-ink-soft">
         <span>Coin balance</span>
-        <span className="text-green-dk inline-flex items-center gap-1">
+        <span className="text-mint-ink inline-flex items-center gap-1">
           <CoinIcon size="sm" />
           {formatCoins(kid.balance)}
         </span>

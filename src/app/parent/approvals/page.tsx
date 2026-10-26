@@ -22,7 +22,7 @@ function ApprovalsSkeleton() {
   return (
     <div className="flex flex-col gap-3 mt-6">
       {[0, 1, 2].map((i) => (
-        <Skeleton.Block key={i} className="h-28 w-full rounded-[20px]" />
+        <Skeleton.Block key={i} className="h-28 w-full rounded-tile" />
       ))}
     </div>
   );
@@ -45,7 +45,7 @@ function errorMessage(err: unknown, fallback: string) {
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
     <p
-      className="font-body font-[800] text-[14px] text-ink-soft text-center py-10 leading-relaxed"
+      className="font-body font-extrabold text-sm text-ink-soft text-center py-10 leading-relaxed"
       role="status"
     >
       {children}
@@ -184,13 +184,13 @@ export default function ParentApprovalsPage() {
 
   return (
     <Page>
-      <Page.Content className="max-w-[760px] mx-auto w-full pt-6 pb-10">
+      <Page.Content className="max-w-3xl mx-auto w-full pt-6 pb-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-1">
           <div>
-            <h1 className="font-display font-bold text-[28px] text-ink leading-tight">
+            <h1 className="font-display font-black text-3xl text-ink leading-tight">
               Approvals
             </h1>
-            <p className="font-body font-[800] text-[13px] text-ink-soft mt-1.5">
+            <p className="font-body font-extrabold text-sm text-ink-soft mt-1.5">
               Review what your kids have submitted — approve to send coins, or
               decline to keep them saved
             </p>
@@ -200,10 +200,10 @@ export default function ParentApprovalsPage() {
 
         {error && (
           <div className="flex flex-col items-start gap-3 mt-4">
-            <p className="font-body text-[14px] text-red-600" role="alert">
+            <p className="font-body text-sm text-danger" role="alert">
               {error}
             </p>
-            <Button type="button" variant="purple" size="sm" onClick={refresh}>
+            <Button type="button" variant="primary" size="sm" onClick={refresh}>
               Try again
             </Button>
           </div>
@@ -225,7 +225,7 @@ export default function ParentApprovalsPage() {
             {(activeCount > 3 || approvingAll) && (
               <Button
                 type="button"
-                variant="purple"
+                variant="primary"
                 size="full"
                 disabled={approvingId !== null}
                 onClick={handleApproveAll}
@@ -315,15 +315,15 @@ export default function ParentApprovalsPage() {
         <div className="p-6">
           <Modal.Close />
           <Modal.Title className="mb-1">Decline this?</Modal.Title>
-          <p className="font-body font-[700] text-[13.5px] text-ink-soft">
+          <p className="font-body font-bold text-sm text-ink-soft">
             {declineTarget?.label}
           </p>
 
           <label
             htmlFor="decline-reason"
-            className="block font-display font-semibold text-[14px] text-ink mt-5 mb-2"
+            className="block font-display font-extrabold text-sm text-ink mt-5 mb-2"
           >
-            Reason <span className="text-ink-soft font-body font-[700]">(optional)</span>
+            Reason <span className="text-ink-soft font-body font-bold">(optional)</span>
           </label>
           <textarea
             id="decline-reason"
@@ -331,7 +331,7 @@ export default function ParentApprovalsPage() {
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             placeholder="Let them know why…"
-            className="w-full border-[2px] border-ink rounded-control px-4 py-3 font-body font-[700] text-[13.5px] text-ink placeholder:text-ink-soft bg-white outline-none focus:border-purple transition-colors resize-none"
+            className="w-full border border-line rounded-control px-4 py-3 font-body font-bold text-sm text-ink placeholder:text-ink-soft bg-cream-card outline-none focus:border-grow transition-colors resize-none"
           />
 
           <div className="flex gap-2 mt-5">
@@ -346,7 +346,7 @@ export default function ParentApprovalsPage() {
             </Button>
             <Button
               type="button"
-              variant="purple"
+              variant="primary"
               size="full"
               disabled={submitting}
               onClick={confirmDecline}

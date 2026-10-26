@@ -44,10 +44,10 @@ export function ParentSignOutButton({
       onClick={handleSignOut}
       disabled={signingOut}
       className={cn(
-        "font-body font-bold text-[13px] transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-1 disabled:opacity-50",
+        "font-body font-bold text-sm transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-1 disabled:opacity-50",
         variant === "text"
           ? "text-ink-soft hover:text-ink active:text-ink"
-          : "text-ink border-[2px] border-line px-3 py-1.5 hover:bg-black/5 active:bg-black/10",
+          : "text-ink border-2 border-line px-3 py-1.5 hover:bg-cream-deep active:bg-cream-deep",
         className
       )}
     >

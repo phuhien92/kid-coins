@@ -17,7 +17,7 @@ export function AccessoryChips({
       {items.map((item) => (
         <span
           key={`${item.slot}-${item.name}`}
-          className="rounded-pill border-2 border-ink bg-green-tint px-3 py-1 font-body text-xs font-bold text-ink"
+          className="rounded-pill border border-line bg-mint-tint px-3 py-1 font-body text-xs font-bold text-ink"
         >
           {item.slot}: {item.name}
         </span>
@@ -37,7 +37,7 @@ export function AccessoryImage({
   const key = name.toLowerCase();
 
   return (
-    <span className="mb-3 flex h-20 w-full items-center justify-center rounded-control border-2 border-ink bg-cream-card">
+    <span className="mb-3 flex h-20 w-full items-center justify-center rounded-control border border-line bg-cream-card">
       <svg
         width="72"
         height="72"
@@ -443,11 +443,11 @@ export function UpgradeRail({
       {upgrades.map((upgrade) => (
         <div
           key={`${upgrade.slot}-${upgrade.name}`}
-          className="rounded-control border-2 border-ink bg-lav-pale p-2"
+          className="rounded-control border border-line bg-grow-tint p-2"
         >
           <AccessoryImage slot={upgrade.slot} name={upgrade.name} />
-          <p className="font-body text-xs font-bold text-purple-dk">{upgrade.slot}</p>
-          <p className="font-display font-bold text-sm text-ink leading-tight">
+          <p className="font-body text-xs font-bold text-grow-ink">{upgrade.slot}</p>
+          <p className="font-display font-black text-sm text-ink leading-tight">
             {upgrade.name}
           </p>
           <p className="font-body text-xs text-ink-soft mt-1">

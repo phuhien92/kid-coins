@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Nunito, Nunito_Sans } from "next/font/google";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import "./globals.css";
 
-const fredoka = Fredoka({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-fredoka",
-});
-
+// Display: heavy, tight, rounded headings (Nunito ExtraBold/Black).
 const nunito = Nunito({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800", "900"],
+  weight: ["700", "800", "900"],
   variable: "--font-nunito",
 });
 
+// Body: friendly humanist sans.
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  variable: "--font-nunito-sans",
+});
+
 export const metadata: Metadata = {
-  title: "Earnie",
-  description: "Earn coins. Save up. Dream big.",
+  title: "kid-coin",
+  description: "Little wins. Big money habits.",
 };
 
 export default function RootLayout({
@@ -26,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${nunito.variable} ${nunitoSans.variable}`}>
       <body>
         <PostHogProvider>{children}</PostHogProvider>
       </body>

@@ -49,14 +49,14 @@ function VerifyEmailContent() {
         <div className="text-5xl">✉️</div>
 
         <div>
-          <h2 className="font-display font-semibold text-xl text-ink mb-1">
+          <h2 className="font-display font-extrabold text-xl text-ink mb-1">
             Check your inbox
           </h2>
           <p className="font-body text-sm text-ink-soft">
             We sent a confirmation link to
           </p>
           {email && (
-            <p className="font-display font-semibold text-[15px] text-ink mt-1 bg-lav-pale px-3 py-1.5 rounded-control inline-block">
+            <p className="font-display font-extrabold text-base text-ink mt-1 bg-grow-tint px-3 py-1.5 rounded-control inline-block">
               {email}
             </p>
           )}
@@ -69,31 +69,31 @@ function VerifyEmailContent() {
             "You're in — set up your first kid!",
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-purple text-white font-display font-semibold text-[12px] flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-ink text-white font-display font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                 {i + 1}
               </span>
-              <span className="font-body text-[14px] text-ink">{step}</span>
+              <span className="font-body text-sm text-ink">{step}</span>
             </li>
           ))}
         </ol>
 
         {resent && (
-          <p className="font-body text-[13px] text-green font-semibold">
+          <p className="font-body text-sm text-mint-ink font-semibold">
             Email resent!
           </p>
         )}
         {resendError && (
-          <p role="alert" className="font-body text-[13px] text-red-600 font-semibold">
+          <p role="alert" className="font-body text-sm text-danger font-semibold">
             {resendError}
           </p>
         )}
 
-        <div className="font-body text-[13px] text-ink-soft">
+        <div className="font-body text-sm text-ink-soft">
           Didn&apos;t get it?{" "}
           <button
             onClick={handleResend}
             disabled={cooldown > 0 || resending}
-            className="text-purple font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-grow-ink font-semibold underline underline-offset-2 hover:decoration-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {resending ? "Sending…" : "Resend email"}
           </button>

@@ -77,7 +77,7 @@ export function CharacterStudio({
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 320, damping: 22 }}
       className={cn(
-        "flex items-center justify-center rounded-card border-2 border-ink bg-cream",
+        "flex items-center justify-center rounded-card border border-line bg-cream",
         isPage ? "py-8" : "py-6"
       )}
     >
@@ -104,7 +104,7 @@ export function CharacterStudio({
           onClick={() => setTab(item.id)}
           aria-pressed={tab === item.id}
           className={cn(
-            "flex-1 px-3 py-2 rounded-control border-2 border-ink font-display font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green",
+            "flex-1 px-3 py-2 rounded-control border border-line font-display font-extrabold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
             tab === item.id ? "bg-ink text-cream" : "bg-cream-card text-ink"
           )}
         >
@@ -141,11 +141,13 @@ export function CharacterStudio({
                 aria-pressed={selected}
                 aria-label={locked ? `${opt.label} — locked (${xp} XP)` : opt.label}
                 className={cn(
-                  "w-full min-h-36 flex flex-col items-center rounded-card border-2 border-ink p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green",
-                  selected && "ring-2 ring-green ring-offset-2",
+                  "w-full min-h-36 flex flex-col items-center rounded-card border border-line p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
+                  selected && "ring-2 ring-gold-dk ring-offset-2",
                   locked
-                    ? "bg-cream-card opacity-60 cursor-not-allowed"
-                    : "bg-cream-card hover:bg-lav-pale"
+                    ? "border-dashed border-edge bg-cream-deep grayscale cursor-not-allowed"
+                    : selected
+                      ? "bg-gold-tint"
+                      : "bg-cream-card hover:bg-grow-tint"
                 )}
               >
                 <FantasyGuildCharacter
@@ -154,23 +156,23 @@ export function CharacterStudio({
                   skinColor={skinColor(char)}
                   size={72}
                 />
-                <span className="font-display font-bold text-sm text-ink mt-1">
+                <span className="font-display font-black text-sm text-ink mt-1">
                   {opt.label}
                 </span>
                 {xp === null ? (
-                  <span className="font-body text-xs text-green-dk font-bold">Free</span>
+                  <span className="font-body text-xs text-mint-ink font-bold">Free</span>
                 ) : locked ? (
                   <span className="font-body text-xs text-ink-soft">{xp} XP</span>
                 ) : (
-                  <span className="font-body text-xs text-green-dk font-bold">Unlocked</span>
+                  <span className="font-body text-xs text-mint-ink font-bold">Unlocked</span>
                 )}
               </button>
             </li>
           );
         })}
       </ul>
-      <div className="rounded-control border-2 border-ink bg-green-tint p-3">
-        <p className="font-display font-bold text-sm text-ink">{selectedLabel} starter kit</p>
+      <div className="rounded-control border border-line bg-mint-tint p-3">
+        <p className="font-display font-black text-sm text-ink">{selectedLabel} starter kit</p>
         <AccessoryChips items={loadout.starter} className="mt-2" />
       </div>
     </div>
@@ -190,12 +192,12 @@ export function CharacterStudio({
             aria-pressed={char.color === sw.key}
             aria-label={sw.label}
             className={cn(
-              "min-h-20 rounded-card border-2 border-ink bg-cream p-2 font-body text-xs font-bold text-ink transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green",
-              char.color === sw.key && "ring-2 ring-green ring-offset-2"
+              "min-h-20 rounded-card border border-line bg-cream p-2 font-body text-xs font-bold text-ink transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
+              char.color === sw.key && "ring-4 ring-ink ring-offset-2"
             )}
           >
             <span
-              className="mx-auto mb-2 block h-9 w-9 rounded-pill border-2 border-ink"
+              className="mx-auto mb-2 block h-9 w-9 rounded-pill border border-line"
               style={{ backgroundColor: sw.value }}
             />
             {sw.label}
@@ -208,7 +210,7 @@ export function CharacterStudio({
   const saveButton = (
     <Button
       type="button"
-      variant="green"
+      variant="primary"
       size="full"
       onClick={onSave}
       disabled={saving}
@@ -221,21 +223,21 @@ export function CharacterStudio({
     return (
       <div className="flex flex-col gap-6 pb-24 lg:pb-6">
         <section className="grid gap-6 lg:grid-cols-[320px_1fr] lg:items-start">
-          <div className="rounded-card border-2 border-ink bg-cream-card p-5 shadow-card lg:sticky lg:top-6">
-            <p className="font-display font-bold text-2xl text-ink">Your character</p>
+          <div className="rounded-card border border-line bg-cream-card p-5 shadow-card lg:sticky lg:top-6">
+            <p className="font-display font-black text-2xl text-ink">Your character</p>
             <p className="font-body text-sm text-ink-soft mt-1">
               Class: <span className="font-bold text-ink">{selectedLabel}</span>
             </p>
             <div className="mt-5">{preview}</div>
-            <div className="mt-4 rounded-control border-2 border-ink bg-green-tint p-3">
-              <p className="font-display font-bold text-sm text-ink">Starter kit</p>
+            <div className="mt-4 rounded-control border border-line bg-mint-tint p-3">
+              <p className="font-display font-black text-sm text-ink">Starter kit</p>
               <AccessoryChips items={loadout.starter} className="mt-2" />
             </div>
           </div>
 
           <div className="flex flex-col gap-5">
-            <section className="rounded-card border-2 border-ink bg-cream-card p-5 shadow-card">
-              <h2 className="font-display font-bold text-xl text-ink mb-4">Customize</h2>
+            <section className="rounded-card border border-line bg-cream-card p-5 shadow-card">
+              <h2 className="font-display font-black text-xl text-ink mb-4">Customize</h2>
               {tabs}
               <div className="mt-4">{tab === "class" ? classPanel : skinPanel}</div>
             </section>

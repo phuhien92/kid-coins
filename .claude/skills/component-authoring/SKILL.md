@@ -37,7 +37,7 @@ Full design-system spec (colors, typography, elevation, component inventory):
 
 ## Headless foundation — Base UI
 
-- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui-components/react`). Import subpaths: `@base-ui-components/react/dialog`, `/tabs`, `/switch`, etc.
+- All interactive primitives (dialogs, tabs, toggles, selects, etc.) must be built on **Base UI** (`@base-ui/react`). Import subpaths: `@base-ui/react/dialog`, `/tabs`, `/switch`, etc. Style Base UI state with ARIA variants (`aria-selected:`, `aria-checked:`) or the attributes the version actually emits (`data-active`, `data-checked`). Check `node_modules/@base-ui/react/<part>/*DataAttributes*` before you guess.
 - Never hand-roll focus trapping, keyboard navigation, or ARIA roles for components that Base UI already covers. The existing `Modal`, `Toggle`, and `Tabs` are already Base UI-backed — use and extend them, don't duplicate.
 - When adding a new interactive component type (select, popover, tooltip, etc.), check Base UI first and wrap it with Earnie's design tokens.
 
@@ -45,17 +45,19 @@ Full design-system spec (colors, typography, elevation, component inventory):
 
 - Use Tailwind utility classes that match token names exactly (`bg-cream`, `text-ink`, `rounded-card`, `font-display`, etc.). Never hardcode hex values or pixel sizes.
 - **Never use arbitrary bracket syntax.** `bg-[#f3f4f6]`, `p-[13px]`, `w-[32vw]` are all forbidden. Every size, color, spacing, and radius value must map to a token in `globals.css` or a Tailwind scale step.
-- Dark variants for interactive states: `bg-green` → `hover:bg-green-dk`; focus rings use `focus-visible:ring-purple` (parent) or `focus-visible:ring-green` (kid).
+- Interactive states: gold fills go `hover:bg-gold-lt`, `active:bg-gold-dk`. Every focus ring is `focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2`, for kid and parent alike. Selection must not reuse the focus ring.
 
 ### Token quick reference
 
-- Backgrounds: `bg-cream`, `bg-cream-card`
-- Text: `text-ink`, `text-ink-soft`
-- Kid CTA (green): `bg-green`, `bg-green-dk`, `text-green`, `bg-green-tint`
-- Parent CTA (purple): `bg-purple`, `bg-purple-dk`
-- Coins: `bg-coin`, `text-coin`, `bg-coin-dk`
-- Radius: `rounded-card` (16px), `rounded-control` (10px), `rounded-pill`
-- Shadow: `shadow-card` — Fonts: `font-display` (Fredoka), `font-body` (Nunito)
+- Backgrounds: `bg-cream`, `bg-cream-card`, `bg-cream-deep`
+- Text: `text-ink` (navy), `text-ink-soft` (slate). Control outlines: `border-edge`
+- Primary action + coins (gold, **fill only**, always navy text on it): `bg-gold`, `hover:bg-gold-lt`, `active:bg-gold-dk`, `bg-gold-tint`, `text-gold-ink`, `shadow-gold`
+- Secondary action: `<Button variant="secondary">` (navy)
+- Step tones (Do · Earn · Save · Choose · Grow): `{gold|earn|save|mint|grow}` + `-tint` (bg) / `-ink` (text). Use `STEP_TONES` from `@/components/ui`, not hand-picked classes.
+- Feedback: `text-danger`, `bg-danger-tint`; success `text-mint-ink`, `bg-mint-tint`
+- Radius: `rounded-control` (14px), `rounded-tile` (20px), `rounded-card` (24px), `rounded-sheet` (32px), `rounded-pill`
+- Shadow: `shadow-card`, `shadow-lift`, `shadow-gold`, `shadow-sheet`. Fonts: `font-display` (Nunito), `font-body` (Nunito Sans)
+- Never rename or delete the legacy `--color-mint/peach/lemon/coral/sky/coin/lav…` CSS variables. They are persisted avatar colours (see `DESIGN.md` §2).
 
 ## Tailwind bloat prevention
 

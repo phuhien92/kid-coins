@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export type ProgressBarColor = "coin" | "green" | "purple";
+export type ProgressBarColor = "gold" | "mint" | "grow";
 export type ProgressBarHeight = "sm" | "md";
 
 export type ProgressBarProps = {
@@ -13,19 +13,19 @@ export type ProgressBarProps = {
 };
 
 const fillClasses: Record<ProgressBarColor, string> = {
-  coin: "bg-coin",
-  green: "bg-green",
-  purple: "bg-purple",
+  gold: "bg-gold",
+  mint: "bg-mint",
+  grow: "bg-grow",
 };
 
 const heightClasses: Record<ProgressBarHeight, string> = {
-  sm: "h-[13px]",
+  sm: "h-3",
   md: "h-4",
 };
 
 function ProgressBar({
   value,
-  color = "coin",
+  color = "gold",
   height = "md",
   className,
   "aria-label": ariaLabel = "Progress",
@@ -40,13 +40,13 @@ function ProgressBar({
       aria-valuemax={100}
       aria-label={ariaLabel}
       className={cn(
-        "w-full rounded-pill border-[2.5px] border-ink bg-lav-pale overflow-hidden",
+        "w-full rounded-pill bg-cream-deep overflow-hidden",
         heightClasses[height],
         className
       )}
     >
       <div
-        className={cn("h-full rounded-pill transition-all duration-500", fillClasses[color])}
+        className={cn("h-full rounded-pill transition-[width] duration-500", fillClasses[color])}
         style={{ width: `${clamped}%` }}
       />
     </div>

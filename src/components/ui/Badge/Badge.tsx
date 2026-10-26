@@ -8,38 +8,17 @@ export type BadgeProps = React.ComponentPropsWithoutRef<"span"> & {
 };
 
 const variantClasses: Record<BadgeVariant, string> = {
-  streak: [
-    "bg-coin border-[2.5px] border-ink rounded-pill",
-    "font-display font-semibold text-[16px] text-ink",
-    "px-[14px] py-[7px]",
-    "shadow-[0_3px_0_var(--color-coin-dk)]",
-    "inline-flex items-center gap-1",
-  ].join(" "),
-  count: [
-    "bg-coin border-[2px] border-ink rounded-pill",
-    "font-body font-[800] text-[11px] text-ink",
-    "px-[8px] py-[2px]",
-    "inline-flex items-center",
-  ].join(" "),
-  "goal-chip": [
-    "bg-green-tint border-[2px] border-ink rounded-pill",
-    "font-display font-semibold text-[12.5px] text-ink",
-    "px-[12px] py-[5px]",
-    "inline-flex items-center gap-1",
-  ].join(" "),
-  lav: [
-    "bg-lav-pale border-[2px] border-ink rounded-pill",
-    "font-display font-semibold text-[12.5px] text-ink",
-    "px-[12px] py-[5px]",
-    "inline-flex items-center",
-  ].join(" "),
+  streak: "bg-gold text-ink shadow-gold font-display font-extrabold text-base px-3.5 py-1.5 gap-1",
+  count: "bg-gold text-ink font-body font-extrabold text-xs px-2 py-0.5",
+  "goal-chip": "bg-mint-tint text-mint-ink font-display font-extrabold text-xs px-3 py-1 gap-1",
+  lav: "bg-grow-tint text-grow-ink font-display font-extrabold text-xs px-3 py-1",
 };
 
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
   ({ variant = "streak", className, ...props }, ref) => (
     <span
       ref={ref}
-      className={cn(variantClasses[variant], className)}
+      className={cn("inline-flex items-center rounded-pill", variantClasses[variant], className)}
       {...props}
     />
   )

@@ -60,10 +60,10 @@ export function TaskCard({ task, onEdit, onUpdated, onDeleted }: TaskCardProps) 
   }
 
   return (
-    <Card compact padding="none" radius="parent" className="p-4">
+    <Card padding="none" radius="tile" className="p-4">
       <div className="flex items-start gap-3">
         <div
-          className="w-12 h-12 rounded-control border-2 border-ink bg-lav-pale flex items-center justify-center text-2xl flex-shrink-0"
+          className="w-12 h-12 rounded-control border border-line bg-grow-tint flex items-center justify-center text-2xl flex-shrink-0"
           aria-hidden
         >
           {task.emoji}
@@ -72,11 +72,11 @@ export function TaskCard({ task, onEdit, onUpdated, onDeleted }: TaskCardProps) 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="font-display font-semibold text-[17px] text-ink leading-tight truncate">
+              <p className="font-display font-extrabold text-lg text-ink leading-tight truncate">
                 {task.title}
               </p>
               {task.kidName && (
-                <p className="font-body font-bold text-[12px] text-ink-soft mt-0.5">
+                <p className="font-body font-bold text-xs text-ink-soft mt-0.5">
                   {task.kidName}
                 </p>
               )}
@@ -86,15 +86,15 @@ export function TaskCard({ task, onEdit, onUpdated, onDeleted }: TaskCardProps) 
             </Badge>
           </div>
 
-          <div className="flex items-center gap-1 mt-2 text-green-dk">
+          <div className="flex items-center gap-1 mt-2 text-mint-ink">
             <CoinIcon size="sm" />
-            <span className="font-body font-bold text-[13px]">
+            <span className="font-body font-bold text-sm">
               {task.coinReward} coins
             </span>
           </div>
 
           {schedule && (
-            <p className="font-body font-bold text-[12px] text-ink-soft mt-2">
+            <p className="font-body font-bold text-xs text-ink-soft mt-2">
               {schedule}
             </p>
           )}
@@ -107,7 +107,6 @@ export function TaskCard({ task, onEdit, onUpdated, onDeleted }: TaskCardProps) 
           onChange={handleToggle}
           disabled={toggling}
           label={task.isActive ? "Active" : "Paused"}
-          ring="purple"
         />
 
         <div className="flex gap-2">

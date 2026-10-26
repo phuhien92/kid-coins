@@ -64,7 +64,7 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="bg-cream-card rounded-card shadow-card border border-line p-7">
-        <h2 className="font-display font-semibold text-xl text-ink mb-1">
+        <h2 className="font-display font-extrabold text-xl text-ink mb-1">
           Welcome back
         </h2>
         <p className="font-body text-sm text-ink-soft mb-6">
@@ -93,7 +93,7 @@ export default function LoginPage() {
             labelRight={
               <Link
                 href="/forgot-password"
-                className="font-body text-[13px] text-purple font-semibold hover:underline"
+                className="font-body text-sm text-earn-ink font-semibold underline underline-offset-2 hover:decoration-2"
               >
                 Forgot password?
               </Link>
@@ -102,14 +102,14 @@ export default function LoginPage() {
 
           {/* Error */}
           {error && (
-            <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
+            <p role="alert" className="font-body text-sm text-danger font-semibold -mt-1">
               {error}
             </p>
           )}
 
           <Button
             type="submit"
-            variant="purple"
+            variant="primary"
             size="full"
             disabled={loading}
             className="mt-1"
@@ -121,10 +121,10 @@ export default function LoginPage() {
 
       {/* Footer */}
       <p className="font-body text-sm text-ink-soft text-center mt-5">
-        New to Earnie?{" "}
+        New to kid-coin?{" "}
         <Link
           href="/signup"
-          className="text-purple font-semibold hover:underline"
+          className="text-earn-ink font-semibold underline underline-offset-2 hover:decoration-2"
         >
           Create a family account
         </Link>

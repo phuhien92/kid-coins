@@ -6,7 +6,7 @@ const meta: Meta<typeof ProgressBar> = {
   component: ProgressBar,
   argTypes: {
     value: { control: { type: "range", min: 0, max: 100 } },
-    color: { control: "select", options: ["coin", "green", "purple"] },
+    color: { control: "select", options: ["gold", "mint", "grow"] },
     height: { control: "select", options: ["sm", "md"] },
   },
   decorators: [
@@ -29,9 +29,9 @@ export const AllColors: Story = {
   name: "All colors",
   render: () => (
     <div className="w-64 flex flex-col gap-3">
-      <ProgressBar value={65} color="coin" aria-label="Coin progress" />
-      <ProgressBar value={45} color="green" aria-label="Green progress" />
-      <ProgressBar value={80} color="purple" aria-label="Purple progress" />
+      <ProgressBar value={65} color="gold" aria-label="Gold progress" />
+      <ProgressBar value={45} color="mint" aria-label="Mint progress" />
+      <ProgressBar value={80} color="grow" aria-label="Grow progress" />
     </div>
   ),
 };

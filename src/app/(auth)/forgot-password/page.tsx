@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
       <div className="bg-cream-card rounded-card shadow-card border border-line p-7">
         {state === "idle" ? (
           <>
-            <h2 className="font-display font-semibold text-xl text-ink mb-1">
+            <h2 className="font-display font-extrabold text-xl text-ink mb-1">
               Reset password
             </h2>
             <p className="font-body text-sm text-ink-soft mb-6">
@@ -67,12 +67,12 @@ export default function ForgotPasswordPage() {
               />
 
               {error && (
-                <p role="alert" className="font-body text-[13px] text-red-600 font-semibold -mt-1">
+                <p role="alert" className="font-body text-sm text-danger font-semibold -mt-1">
                   {error}
                 </p>
               )}
 
-              <Button type="submit" variant="purple" size="full" disabled={loading} className="mt-1">
+              <Button type="submit" variant="primary" size="full" disabled={loading} className="mt-1">
                 {loading ? "Sending…" : "Send reset link"}
               </Button>
             </form>
@@ -81,13 +81,13 @@ export default function ForgotPasswordPage() {
           <div className="flex flex-col items-center text-center gap-4">
             <span className="text-4xl">✉️</span>
             <div>
-              <h2 className="font-display font-semibold text-xl text-ink mb-1">
+              <h2 className="font-display font-extrabold text-xl text-ink mb-1">
                 Check your inbox
               </h2>
               <p className="font-body text-sm text-ink-soft">
                 We sent a password reset link to
               </p>
-              <p className="font-display font-semibold text-[15px] text-ink mt-1 bg-lav-pale px-3 py-1.5 rounded-control inline-block">
+              <p className="font-display font-extrabold text-base text-ink mt-1 bg-grow-tint px-3 py-1.5 rounded-control inline-block">
                 {email}
               </p>
             </div>

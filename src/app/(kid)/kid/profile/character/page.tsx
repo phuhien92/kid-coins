@@ -102,7 +102,7 @@ export default function KidCharacterStudioPage() {
         </header>
 
         <div>
-          <h1 className="font-display font-bold text-3xl text-ink">Guild studio</h1>
+          <h1 className="font-display font-black text-3xl text-ink">Guild studio</h1>
           <p className="font-body text-sm text-ink-soft mt-1">
             Pick your class and coin color, then save when you are happy.
           </p>
