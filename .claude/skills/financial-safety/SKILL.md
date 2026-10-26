@@ -12,6 +12,8 @@ description: >-
 
 # Financial safety (concurrency & money handling)
 
+> Paths below (`src/…`, `drizzle/`, `e2e/`) are relative to the app workspace, `apps/web/`.
+
 These rules exist because coins are real value to kids. The failure mode is a
 lost-update or double-spend race that corrupts a balance silently — no error, no
 stack trace, just wrong numbers.

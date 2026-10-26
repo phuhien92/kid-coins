@@ -9,8 +9,10 @@ description: >-
 
 # Testing
 
-Stack: **Vitest + Testing Library**. Commands: `pnpm test` (watch),
-`pnpm test:run` (single run / CI), `pnpm test:coverage`.
+> Paths below (`src/…`, `drizzle/`, `e2e/`) are relative to the app workspace, `apps/web/`.
+
+Stack: **Vitest + Testing Library**. Commands: `pnpm test` (single run via turbo, what CI runs),
+`pnpm --filter web test:watch` (watch), `pnpm --filter web test:coverage`.
 
 ## Reference implementations — copy these shapes
 

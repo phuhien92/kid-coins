@@ -11,6 +11,8 @@ description: >-
 
 # Component authoring
 
+> Paths below (`src/…`, `drizzle/`, `e2e/`) are relative to the app workspace, `apps/web/`.
+
 Act as a Senior Staff Frontend Engineer targeting **WCAG 2.2 AA** and a reusable
 design-system API.
 

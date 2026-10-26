@@ -1,7 +1,7 @@
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `apps/web/node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
 # Earnie (kid-coins) — Agent Guide
@@ -61,7 +61,16 @@ Docs and skills diverge from reality the moment code moves past them. So, in the
 
 ## Repository layout
 
+A pnpm + Turborepo monorepo. The Next app is the `web` workspace in `apps/web/`;
+**app paths in this file and in the skills (`src/…`, `drizzle/`, `e2e/`, `globals.css`) are relative to `apps/web/`.**
+
 ```
+apps/web/               # the Next.js app (workspace "web")
+packages/               # shared workspace packages (none yet)
+turbo.json              # task graph: build, dev, lint, typecheck, test
+pnpm-workspace.yaml     # workspace globs + pnpm build-script allowlist
+
+apps/web/
 src/
 ├── app/
 │   ├── (auth)/         # login + profile picker
@@ -87,11 +96,13 @@ src/
 └── test/               # setup.ts (Testing Library config)
 drizzle/                # Generated SQL migration files
 drizzle.config.ts       # Drizzle Kit config
+supabase/               # Supabase CLI config (run `supabase` from apps/web)
+vercel.json             # Vercel crons — the Vercel project's Root Directory is apps/web
 ```
 
 ## Environment variables
 
-Copy `.env.example` → `.env.local` and fill in:
+Copy `apps/web/.env.example` → `apps/web/.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` (from Supabase dashboard)
 - `SUPABASE_SERVICE_ROLE_KEY` (server-side only — never expose client-side)
 - `DATABASE_URL` — use the **transaction pooler** connection string from Supabase for serverless
@@ -118,10 +129,16 @@ Coins are real value to kids; the failure mode is silent balance corruption. **N
 
 ## Common commands
 
+Run from the repo root; each script is `turbo run <task>` across workspaces.
+Target one workspace with `pnpm --filter web <script>`.
+
 ```bash
 pnpm dev           # start dev server (localhost:3000)
 pnpm build         # production build
-pnpm test:run      # run all tests
+pnpm lint          # ESLint (eslint-config-next)
+pnpm typecheck     # tsc --noEmit
+pnpm test          # run all tests (alias: pnpm test:run)
+pnpm check         # lint + typecheck + test + build — what CI runs
 pnpm db:generate   # generate Drizzle migration from schema changes
 pnpm db:migrate    # apply pending migrations
 pnpm db:studio     # open Drizzle Studio (DB GUI)
@@ -139,7 +156,7 @@ feature/*  →  develop  →  main
 
 Before merging to `main`:
 - PR must have 1 approval
-- All CI checks must pass (`pnpm build`, `pnpm test:run`)
+- All CI checks must pass (`pnpm check`: lint, typecheck, test, build)
 - Branch must be up to date with `main`
 
 ## Reference

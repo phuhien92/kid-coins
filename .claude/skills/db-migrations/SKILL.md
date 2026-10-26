@@ -9,6 +9,8 @@ description: >-
 
 # Database migrations
 
+> Paths below (`src/…`, `drizzle/`, `e2e/`) are relative to the app workspace, `apps/web/`.
+
 Database is **Supabase (Postgres)** via **Drizzle ORM** (postgres-js driver).
 
 ## Reference files
