@@ -34,25 +34,49 @@ Families should also decide which activities earn coins. Helping at home and car
 
 **Assign a task → submit completion → parent approves → earn coins → request a reward → parent approves and delivers it.**
 
-| Step | What the family needs |
-| --- | --- |
-| Set up | A parent account, child profiles, and a profile picker for a shared device |
-| Assign | Tasks with a title, coin value, and daily or one-time schedule |
-| Complete | A child can see today's tasks and submit completed work |
-| Approve | A parent can approve a task or return it for another try |
-| Earn | Clear balances and a simple history of coins earned and spent |
-| Redeem | Rewards with fixed coin prices, parent approval, and clear fulfillment tracking |
+A box is checked only when the feature works in the app on `develop`: the screen exists and calls the real API. Server routes that no screen uses yet are noted but stay unchecked. Nothing here has been verified in a family pilot yet.
 
-Trust is part of the MVP. The release target includes awarding coins only after approval, accounting for pending reward requests, preventing duplicate awards and overspending, and making every balance change understandable.
+### Set up
+- [x] Parent signup, login, and password reset
+- [x] Create child profiles
+- [x] Profile picker for a shared device, with an optional parent PIN
 
-### Target plan
+### Assign
+- [x] Parent creates, edits, and removes tasks with a title and coin value
+- [x] Daily or one-time schedule
+
+### Complete
+- [ ] Child sees today's real tasks (the kid screens still use sample data)
+- [ ] Child submits completed work (API route exists; the kid screen doesn't call it yet)
+
+### Approve
+- [x] Parent approval queue
+- [x] Approve a task, or decline it with a reason so the child can try again
+
+### Earn
+- [ ] Child sees their real coin balance (the kid home screen still uses sample data)
+- [ ] Simple history of coins earned and spent (transactions are recorded, but there's no screen for them)
+
+### Redeem
+- [ ] Parent manages rewards with fixed coin prices (API route exists; no parent screen yet)
+- [ ] Child browses rewards and requests one (the shop is a "coming soon" placeholder; the API route exists)
+- [x] Parent approves or declines reward requests
+- [ ] Fulfillment tracking: mark a reward as delivered
+
+### Trust
+- [x] Coins awarded only after parent approval (on by default; a stored family setting can turn it off, but there is no screen for it yet)
+- [x] Pending reward requests are held against the balance
+- [x] Duplicate awards and overspending are blocked on the server
+- [ ] Every balance change is understandable to parent and child (needs the coin history)
+
+## Target plan
 
 These are release goals, not claims of completed validation.
 
-1. **Finish and verify the core journey.** Walk through setup, daily tasks, approvals, coin history, redemption, and fulfillment as both parent and child. Resolve gaps before expanding the experience.
-2. **Make the first five minutes easy.** Target: a parent creates a child profile, three tasks, and one reward within five minutes. A child understands the next action without a tutorial.
-3. **Try it with 3–5 families for two weeks.** Look for repeated task completion, at least one completed reward cycle per family, and parents finding approvals easy enough to maintain.
-4. **Improve from family feedback.** Prioritize confusing steps, repeated reminders, accessibility, and reliability before adding more features.
+- [ ] **Finish and verify the core journey.** Walk through setup, daily tasks, approvals, coin history, redemption, and fulfillment as both parent and child. Resolve gaps before expanding the experience.
+- [ ] **Make the first five minutes easy.** Target: a parent creates a child profile, three tasks, and one reward within five minutes. A child understands the next action without a tutorial.
+- [ ] **Try it with 3–5 families for two weeks.** Look for repeated task completion, at least one completed reward cycle per family, and parents finding approvals easy enough to maintain.
+- [ ] **Improve from family feedback.** Prioritize confusing steps, repeated reminders, accessibility, and reliability before adding more features.
 
 Success means a routine needs fewer reminders, a child feels proud of a reward they earned, and a parent wants to keep using the app. Time spent in the app can stay low.
 
@@ -60,16 +84,17 @@ Success means a routine needs fewer reminders, a child feels proud of a reward t
 
 **MVP in active development · package version 0.1.0**
 
-The repository has substantial implementation beyond the original concept. The immediate priority is to verify and simplify the core family journey for a small pilot.
+The immediate priority is connecting the kid screens to the real data so the core family journey works end to end, then simplifying it for a small pilot.
 
-| Area | Current repository state |
-| --- | --- |
-| Family access | Signup, login, profile selection, child sessions, and parent PIN routes are present |
-| Tasks and approvals | Parent task management, kid task screens, completion submission, and approval/decline routes are present |
-| Coins and rewards | Balance helpers, reward management, redemption requests, and approval/decline routes are present |
-| Beyond the MVP | Savings-jar allocation, withdrawal, interest accrual, and character customization code are present; these do not expand the first-release commitment |
-| Design and testing | Design-system components, Storybook stories, Vitest tests, and Playwright specs are included; GitHub Actions is configured to build and run unit tests |
-| Pilot readiness | End-to-end release verification, fulfillment tracking, onboarding usability, and family-pilot results remain release targets |
+### Foundations
+- [x] Design-system components with Storybook stories
+- [x] Vitest unit tests and Playwright end-to-end specs
+- [x] GitHub Actions builds the app and runs unit tests
+
+### Already built beyond the MVP
+These exist in code but don't expand the first-release commitment.
+- [x] Savings and giving jars: allocate, withdraw, and interest accrual
+- [x] Character customization
 
 This status describes source code and configuration. It does not assert that a production deployment, current CI run, or family pilot has been verified.
 
@@ -79,14 +104,12 @@ This status describes source code and configuration. It does not assert that a p
 
 Once the core loop earns families' trust, Kid Coin can grow with the child. These are future directions rather than promised release dates.
 
-| Direction | What it could unlock |
-| --- | --- |
-| Savings goals and jars | Let children choose a goal and practice setting coins aside; refine the existing jar implementation through family feedback |
-| Better routines | Add flexible schedules, responsibility-only tasks, and gentle reminders without requiring coins for every activity |
-| A growing companion | Build on character customization with milestone celebrations that recognize effort and welcome kids back after a break |
-| Parent planning assistance | Help parents turn “make mornings easier” into an age-appropriate routine; parents review suggestions and control rewards |
-| Family reflection | Offer a short weekly review of accomplishments, choices, and what to adjust together |
-| Everyday money lessons | Introduce saving, spending, giving, and tradeoffs when a child's own decisions make them relevant |
+- [ ] **Savings goals and jars:** let children choose a goal and practice setting coins aside; refine the existing jar implementation through family feedback
+- [ ] **Better routines:** add flexible schedules, responsibility-only tasks, and gentle reminders without requiring coins for every activity
+- [ ] **A growing companion:** build on character customization with milestone celebrations that recognize effort and welcome kids back after a break
+- [ ] **Parent planning assistance:** help parents turn "make mornings easier" into an age-appropriate routine; parents review suggestions and control rewards
+- [ ] **Family reflection:** offer a short weekly review of accomplishments, choices, and what to adjust together
+- [ ] **Everyday money lessons:** introduce saving, spending, giving, and tradeoffs when a child's own decisions make them relevant
 
 AI coaching, elaborate character progression, advanced analytics, and real-money integrations are outside the MVP. Some supporting code already exists; the release scope stays focused on tasks, coins, and parent-approved rewards.
 
