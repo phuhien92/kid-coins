@@ -1,0 +1,126 @@
+/*
+ * Tier 2: semantic roles.
+ *
+ * These are Tailwind v4 theme entries, so each one becomes a utility
+ * (`--color-page` → `bg-page`, `--radius-card` → `rounded-card`,
+ * `--spacing-tap` → `size-tap`, `--breakpoint-ipad` → `ipad:`).
+ * Every role points at a primitive (`var(--kc-…)`). The test in
+ * src/tokens.test.ts enforces that.
+ *
+ * `static` keeps every variable in the output even when no utility uses it,
+ * because other CSS (component tokens, legacy aliases, inline SVG) reads
+ * them with var().
+ *
+ * There are two deliberate exceptions to "points at a primitive":
+ *   - breakpoints compile into @media queries, where var() is invalid, so they
+ *     are literals that the test checks against the --kc-viewport-* primitives;
+ *   - safe-area insets come from the device via env().
+ */
+@theme static {
+  /* ── Surfaces ── */
+  --color-page: var(--kc-cream-100);
+  --color-surface: var(--kc-cream-50);
+  --color-surface-sunken: var(--kc-cream-200);
+
+  /* ── Text ── */
+  --color-fg: var(--kc-navy-900);
+  --color-fg-muted: var(--kc-navy-600);
+  --color-fg-inverse: var(--kc-white);
+
+  /* ── Lines ── */
+  --color-edge: var(--kc-navy-500);   /* control outlines: needs ≥3:1 */
+  --color-line: var(--kc-navy-alpha-10); /* decorative dividers only */
+
+  /* ── Actions ── */
+  --color-action: var(--kc-gold-500);
+  --color-action-hover: var(--kc-gold-400);
+  --color-action-pressed: var(--kc-gold-600);
+  --color-on-action: var(--kc-navy-900);
+  --color-action-secondary: var(--kc-navy-900);
+  --color-action-secondary-hover: var(--kc-navy-800);
+  --color-on-action-secondary: var(--kc-white);
+
+  /* ── Focus ── */
+  --color-focus: var(--kc-blue-700);
+
+  /* ── Feedback ── */
+  --color-success: var(--kc-mint-700);
+  --color-success-tint: var(--kc-mint-100);
+  --color-warning: var(--kc-amber-700);
+  --color-warning-tint: var(--kc-amber-100);
+  --color-error: var(--kc-red-700);
+  --color-error-tint: var(--kc-red-100);
+
+  /* ── Money ── */
+  --color-coin: var(--kc-gold-500);
+  --color-coin-hi: var(--kc-gold-400);
+  --color-coin-lo: var(--kc-gold-600);
+
+  /* ── The five steps: base (illustration/fill), tint (bg), ink (text) ── */
+  --color-step-do: var(--kc-yellow-400);
+  --color-step-do-tint: var(--kc-yellow-100);
+  --color-step-do-ink: var(--kc-yellow-700);
+  --color-step-earn: var(--kc-blue-400);
+  --color-step-earn-tint: var(--kc-blue-100);
+  --color-step-earn-ink: var(--kc-blue-700);
+  --color-step-save: var(--kc-coral-400);
+  --color-step-save-tint: var(--kc-coral-100);
+  --color-step-save-ink: var(--kc-coral-700);
+  --color-step-choose: var(--kc-mint-400);
+  --color-step-choose-tint: var(--kc-mint-100);
+  --color-step-choose-ink: var(--kc-mint-700);
+  --color-step-grow: var(--kc-lavender-400);
+  --color-step-grow-tint: var(--kc-lavender-100);
+  --color-step-grow-ink: var(--kc-lavender-700);
+
+  /* ── Radius ── */
+  --radius-control: var(--kc-radius-md);
+  --radius-tile: var(--kc-radius-lg);
+  --radius-card: var(--kc-radius-xl);
+  --radius-sheet: var(--kc-radius-2xl);
+  --radius-pill: var(--kc-radius-full);
+
+  /* ── Elevation ── */
+  --shadow-card: var(--kc-shadow-1);
+  --shadow-lift: var(--kc-shadow-2);
+  --shadow-sheet: var(--kc-shadow-3);
+  --shadow-action: var(--kc-shadow-gold);
+
+  /* ── Type ── */
+  --font-display: var(--kc-font-display);
+  --font-body: var(--kc-font-body);
+  --text-display: var(--kc-font-size-48);
+  --text-display--line-height: var(--kc-leading-tight);
+  --text-title: var(--kc-font-size-24);
+  --text-title--line-height: var(--kc-leading-snug);
+  --text-body: var(--kc-font-size-16);
+  --text-body--line-height: var(--kc-leading-normal);
+  --text-label: var(--kc-font-size-14);
+  --text-label--line-height: var(--kc-leading-snug);
+  --text-caption: var(--kc-font-size-12);
+  --text-caption--line-height: var(--kc-leading-snug);
+
+  /* ── Touch (iPad-first) ── */
+  --spacing-tap: var(--kc-space-11);      /* min tap target: size-tap, min-h-tap */
+  --spacing-tap-gap: var(--kc-space-2);   /* min gap between targets: gap-tap-gap */
+  --spacing-safe-top: env(safe-area-inset-top, 0px);
+  --spacing-safe-right: env(safe-area-inset-right, 0px);
+  --spacing-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --spacing-safe-left: env(safe-area-inset-left, 0px);
+
+  /* ── Layout breakpoints, named for the primary devices ── */
+  --breakpoint-ipad: 48rem;            /* iPad portrait (768–834px) */
+  --breakpoint-ipad-landscape: 64rem;  /* iPad landscape (1024–1194px) */
+  --breakpoint-desktop: 80rem;         /* desktop fallback */
+
+  /* ── Motion ── */
+  --ease-out-soft: var(--kc-ease-out);
+  --ease-spring: var(--kc-ease-spring);
+}
+
+/* Motion durations have no Tailwind namespace; read with var(). */
+:root {
+  --duration-fast: var(--kc-duration-fast);
+  --duration-base: var(--kc-duration-base);
+  --duration-slow: var(--kc-duration-slow);
+}

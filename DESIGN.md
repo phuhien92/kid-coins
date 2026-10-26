@@ -183,6 +183,8 @@ components:
 
 # Design System: Earnie
 
+> **Tokens moved.** Colour, radius, shadow, type and motion values now come from [`packages/tokens`](packages/tokens), catalogued in [`design/tokens.md`](design/tokens.md), and the brand is now kid-coin ([`design/brand.md`](design/brand.md)). The hex values and the component styling below describe the current screens. The palette names they use (`green`, `purple`, `coin`, …) are now aliases onto brand primitives, and the screen restyle replaces this file.
+
 ## 1. Overview
 
 **Creative North Star: "The Picture-Book Ledger."**

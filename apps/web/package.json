@@ -23,6 +23,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",
     "@base-ui/react": "1.6.0",
+    "@kid-coin/tokens": "workspace:*",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "bcryptjs": "^3.0.3",
@@ -37,6 +38,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@kid-coin/config": "workspace:*",
     "@playwright/test": "^1.61.1",
     "@storybook/addon-a11y": "^10.4.6",
     "@storybook/react": "^10.4.6",

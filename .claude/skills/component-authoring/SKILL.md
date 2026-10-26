@@ -23,7 +23,7 @@ design-system API.
 | Structural page primitive (never hand-roll page layout divs) | `src/components/ui/Page/Page.tsx` |
 | Interactive component built on Base UI (focus trap, ARIA, transitions) | `src/components/ui/Modal/Modal.tsx`, `src/components/ui/Toggle/`, `src/components/ui/Tabs/` |
 | `className` merge helper | `cn()` in `src/lib/utils.ts` |
-| The full token set (colors, radius, shadow, fonts) | `@theme` block in `src/app/globals.css`, catalogued in `DESIGN.md` |
+| The full token set (colors, radius, shadow, type, touch, breakpoints) | `packages/tokens/src/semantic.css` (repo root), catalogued in `design/tokens.md` |
 | A component test that asserts on user-visible behavior | `src/components/parent/ApprovalCard.test.tsx` |
 
 Full design-system spec (colors, typography, elevation, component inventory):
@@ -50,6 +50,9 @@ Full design-system spec (colors, typography, elevation, component inventory):
 - Dark variants for interactive states: `bg-green` → `hover:bg-green-dk`; focus rings use `focus-visible:ring-purple` (parent) or `focus-visible:ring-green` (kid).
 
 ### Token quick reference
+
+New code uses the **semantic roles** from `@kid-coin/tokens` (`bg-page`, `bg-surface`, `text-fg`, `text-fg-muted`, `bg-action` + `text-on-action`, `ring-focus`, `bg-step-earn-tint` + `text-step-earn-ink`, `size-tap`, `ipad:` / `ipad-landscape:`; see `design/tokens.md`). The names below are **legacy aliases** that the current screens still use. Don't add new uses of them.
+
 
 - Backgrounds: `bg-cream`, `bg-cream-card`
 - Text: `text-ink`, `text-ink-soft`
