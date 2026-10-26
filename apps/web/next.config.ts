@@ -7,6 +7,8 @@ import type { NextConfig } from "next";
 const monorepoRoot = path.join(__dirname, "../..");
 
 const nextConfig: NextConfig = {
+  // Workspace packages ship TypeScript source (e.g. brandHex for the manifest).
+  transpilePackages: ["@kid-coin/tokens"],
   outputFileTracingRoot: monorepoRoot,
   turbopack: {
     root: monorepoRoot,

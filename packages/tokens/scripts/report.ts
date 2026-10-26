@@ -78,7 +78,7 @@ function role(name: string, tier: Tier): string {
   if (/^--text-[a-z]+$/.test(name)) return `Type role: ${name.slice(7)} size`;
   if (/^--text-.+--line-height$/.test(name)) return "Line height for the size above";
   if (name.startsWith("--coin-mark-")) return `KidCoinMark paint: ${name.slice(12)}`;
-  if (tier === "legacy") return "Legacy alias (see legacy.css)";
+  if (tier === "persisted") return "Persisted avatar/character colour (stored in the DB; never rename)";
   if (tier === "primitives") return name.replace(/^--kc-/, "").replace(/-/g, " ");
   return "";
 }
@@ -89,11 +89,11 @@ const TITLES: Record<Tier, string> = {
   primitives: "Tier 1: primitives",
   semantic: "Tier 2: semantic roles",
   components: "Tier 3: component tokens",
-  legacy: "Legacy aliases",
+  persisted: "Persisted colour names",
 };
 
 const out: string[] = [];
-for (const tier of ["semantic", "components", "primitives", "legacy"] as Tier[]) {
+for (const tier of ["semantic", "components", "primitives", "persisted"] as Tier[]) {
   out.push(`### ${TITLES[tier]}`, "", "| Token | Role | Light value | Resolves via |", "|---|---|---|---|");
   for (const d of all.values()) {
     if (d.tier !== tier) continue;

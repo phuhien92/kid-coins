@@ -9,8 +9,8 @@ export type GoalEmojiBadgeProps = React.ComponentPropsWithoutRef<"span"> & {
 };
 
 const sizeClasses: Record<GoalEmojiBadgeSize, string> = {
-  sm: "w-9 h-9 rounded-pill text-[18px] bg-lav-pale border-2",
-  md: "w-[50px] h-[50px] rounded-[15px] text-[27px] bg-peach border-[2.5px]",
+  sm: "size-9 rounded-pill text-lg bg-step-grow-tint",
+  md: "size-12 rounded-control text-3xl bg-step-save-tint",
 };
 
 const GoalEmojiBadge = React.forwardRef<HTMLSpanElement, GoalEmojiBadgeProps>(
@@ -18,7 +18,7 @@ const GoalEmojiBadge = React.forwardRef<HTMLSpanElement, GoalEmojiBadgeProps>(
     <span
       ref={ref}
       className={cn(
-        "border-ink flex items-center justify-center flex-shrink-0",
+        "flex items-center justify-center flex-shrink-0",
         sizeClasses[size],
         className
       )}

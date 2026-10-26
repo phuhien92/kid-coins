@@ -4,11 +4,11 @@ import "../src/app/globals.css";
 const preview: Preview = {
   parameters: {
     backgrounds: {
-      default: "cream",
+      default: "page",
       values: [
-        { name: "cream", value: "var(--color-cream)" },
+        { name: "page", value: "var(--color-page)" },
         { name: "white", value: "#ffffff" },
-        { name: "ink", value: "var(--color-ink)" },
+        { name: "navy", value: "var(--color-fg)" },
       ],
     },
     viewport: {

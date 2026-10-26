@@ -1,5 +1,5 @@
 import * as React from "react";
-export type ProgressBarColor = "coin" | "green" | "purple";
+export type ProgressBarColor = "gold" | "mint" | "grow";
 export type ProgressBarHeight = "sm" | "md";
 export type ProgressBarProps = {
     value: number;

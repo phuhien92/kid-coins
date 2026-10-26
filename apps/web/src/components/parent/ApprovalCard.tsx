@@ -51,24 +51,24 @@ export function ApprovalCard({
       transition={{ duration: 0.2 }}
       className="list-none"
     >
-      <Card compact padding="none" radius="parent" className={cn("p-4", className)}>
+      <Card padding="none" radius="tile" className={cn("p-4", className)}>
         <div className="flex items-start gap-3">
           <InitialAvatar name={kidName} avatarColor={avatarColor} size="lg" />
 
           <div className="min-w-0 flex-1">
-            <p className="font-display font-semibold text-[16px] text-ink leading-tight truncate">
+            <p className="font-display font-extrabold text-base text-fg leading-tight truncate">
               <span>{kidName}</span>
-              <span className="text-ink-soft"> · </span>
+              <span className="text-fg-muted"> · </span>
               <span>{title}</span>
             </p>
-            <p className="font-body font-[800] text-[12px] text-ink-soft mt-0.5">
+            <p className="font-body font-extrabold text-xs text-fg-muted mt-0.5">
               {subtitle} · {timeLabel}
             </p>
           </div>
 
-          <div className="flex items-center gap-1 text-green-dk flex-shrink-0">
+          <div className="flex items-center gap-1 text-success flex-shrink-0">
             <CoinIcon size="sm" />
-            <span className="font-body font-bold text-[13px]">{formatCoins(coins)}</span>
+            <span className="font-body font-bold text-sm">{formatCoins(coins)}</span>
           </div>
         </div>
 

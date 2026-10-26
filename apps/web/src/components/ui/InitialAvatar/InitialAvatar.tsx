@@ -16,12 +16,12 @@ export type InitialAvatarProps = React.ComponentPropsWithoutRef<"span"> & {
 };
 
 const sizeClasses: Record<InitialAvatarSize, string> = {
-  sm: "w-7 h-7 text-[12px] border-2",
-  md: "w-9 h-9 text-[15px] border-2",
-  lg: "w-[46px] h-[46px] text-[23px] border-[2.5px]",
-  header: "w-12 h-12 text-[20px] border-[3px]",
-  profile: "w-[60px] h-[60px] text-[26px] border-[2.5px]",
-  picker: "w-[76px] h-[76px] text-[32px] border-[3px]",
+  sm: "size-7 text-xs",
+  md: "size-9 text-base",
+  lg: "size-12 text-2xl",
+  header: "size-12 text-xl",
+  profile: "size-16 text-3xl",
+  picker: "size-20 text-4xl",
 };
 
 const InitialAvatar = React.forwardRef<HTMLSpanElement, InitialAvatarProps>(
@@ -29,7 +29,7 @@ const InitialAvatar = React.forwardRef<HTMLSpanElement, InitialAvatarProps>(
     <span
       ref={ref}
       className={cn(
-        "rounded-pill border-ink flex items-center justify-center font-display font-bold text-ink flex-shrink-0",
+        "rounded-pill ring-2 ring-surface shadow-card flex items-center justify-center font-display font-black text-fg flex-shrink-0",
         sizeClasses[size],
         className
       )}

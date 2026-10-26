@@ -41,3 +41,14 @@ export type Step = (typeof steps)[number];
 export function colorVar(role: ColorRole): `var(--color-${ColorRole})` {
   return `var(--color-${role})`;
 }
+
+/**
+ * Resolved hex values for places that can't read CSS variables: the web app
+ * manifest, <meta name="theme-color">, generated icons. tokens.test.ts checks
+ * them against the CSS, so they can't drift.
+ */
+export const brandHex = {
+  page: "#FBF8F2",
+  fg: "#0B1A3A",
+  coin: "#F5B800",
+} as const;

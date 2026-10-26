@@ -4,11 +4,11 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `apps/web/node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Earnie (kid-coins) — Agent Guide
+# kid-coin (kid-coins repo) — Agent Guide
 
 ## Project overview
 
-Earnie is a gamified financial-literacy web app for families. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The design handoff lives in `design_handoff_earnie/` — treat those HTML prototypes as the living spec.
+kid-coin (repo: kid-coins, formerly Earnie) is a gamified financial-literacy web app for families, **iPad-first and installed as a PWA**. Children complete chores to earn virtual coins; parents manage tasks and approve reward redemptions. The brand and design system live in `design/`. The older `design_handoff_earnie/` prototypes are only a reference for layout and flows.
 
 This file is the lean index. Detailed, task-specific rules live in **skills** (`.claude/skills/`) that you load on demand — keep this file short and let the skills carry the depth.
 
@@ -18,7 +18,7 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 
 | When you're about to… | Load skill |
 |---|---|
-| Write or modify any component, page, layout, or styling | `component-authoring` |
+| Write or modify any component, page, layout, or styling | `component-authoring` (+ `design/components.md`) |
 | Touch a coin balance, reward stock, or approve/decline a pending record | `financial-safety` |
 | Add a new component / page / hook / util / lib / route | `testing` |
 | Change the DB schema or write a migration | `db-migrations` |
@@ -29,9 +29,8 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 | Doc | Read when |
 |---|---|
 | `PRODUCT.md` | You need product context or the design principles behind a feature |
-| `design/` | Brand spec, redesign plan, every token + measured contrast — start at `design/README.md` |
-| `DESIGN.md` | Component inventory and visual rules for the current screens |
-| `design_handoff_earnie/` | The living visual spec — HTML prototypes + `README.md` |
+| `design/` | Brand spec, component + screen rules, every token + measured contrast, redesign plan — start at `design/README.md` |
+| `design_handoff_earnie/` | Layout/flow prototypes (pre-rebrand visuals) |
 | `src/lib/schema.ts` | The DB schema, single source of truth for DB types |
 | `src/types/index.ts` | Shared TypeScript types |
 | `docs/` | Feature planning docs (e.g. `docs/PLAN-task-reward-system.md`) |
@@ -41,7 +40,7 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 Docs and skills diverge from reality the moment code moves past them. So, in the same change that moves the code:
 
 - **Change a token** → edit `packages/tokens`, run its tests, regenerate `design/tokens.md` (see `design/README.md`).
-- **Change component conventions or add/rename a design-system primitive** → update the `component-authoring` skill and `DESIGN.md`.
+- **Change component conventions or add/rename a design-system primitive** → update the `component-authoring` skill and `design/components.md`.
 - **Change money/concurrency handling or add a balance/stock helper** → update the `financial-safety` skill (and its reference-implementation table).
 - **Change the testing contract or DB workflow** → update the `testing` / `db-migrations` skill.
 - **Find a rule that is wrong, missing, or outdated** → fix the skill as part of your PR; a stale rule is worse than none. Small factual corrections: just make them. Structural rewrites of a skill: flag them for human review.
@@ -166,6 +165,6 @@ Before merging to `main`:
 ## Reference
 
 - Skills: `.claude/skills/` — component-authoring, financial-safety, testing, db-migrations, pr-skill-compliance
-- Design: `design/README.md` (brand, plan, tokens) · Components: `DESIGN.md` · Old prototypes: `design_handoff_earnie/`
+- Design: `design/README.md` (brand, components, tokens, plan) · Old layout prototypes: `design_handoff_earnie/`
 - Product context & design principles: `PRODUCT.md`
 - DB schema: `src/lib/schema.ts` · Type definitions: `src/types/index.ts`

@@ -9,7 +9,7 @@ export const TIER_FILES = {
   primitives: "primitives.css",
   semantic: "semantic.css",
   components: "components.css",
-  legacy: "legacy.css",
+  persisted: "persisted.css",
 } as const;
 
 export type Tier = keyof typeof TIER_FILES;

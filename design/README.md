@@ -6,6 +6,7 @@ every design token with its measured contrast. Code lives in the
 
 | File | What it holds |
 |---|---|
+| [components.md](components.md) | How the UI primitives and screens use the tokens: layouts, touch, safe areas, motion, focus |
 | [brand.md](brand.md) | The brand spec: name and logo, taglines, palette, type, mascot, the five steps, the feel, and the touch/iPad rules every screen follows |
 | [plan.md](plan.md) | The redesign plan: PR order, screens in order, components touched, risks, and what's deferred |
 | [tokens.md](tokens.md) | Every token with its role and light value, plus the measured WCAG contrast of every promised pairing |
@@ -17,7 +18,7 @@ packages/tokens/src/
   primitives.css   tier 1: raw ramps, radii, spacing, shadows, type scale, motion (--kc-*, no utilities)
   semantic.css     tier 2: roles that point at primitives (Tailwind @theme → bg-page, text-fg, bg-action, bg-step-earn-tint…)
   components.css   tier 3: component-specific values, only where no role fits
-  legacy.css       aliases: persisted avatar colours (permanent) + pre-token names (removed by the restyle)
+  persisted.css    avatar/character colour names stored in the DB (permanent, no utilities)
   theme.css        entry point the app imports
 ```
 
@@ -40,6 +41,6 @@ The app imports it once, in `apps/web/src/app/globals.css`:
    ```
 5. Paste the report output into [tokens.md](tokens.md) between the `GENERATED` markers, so the recorded ratios stay true.
 
-Never rename or delete a legacy avatar colour (`--color-mint`, `--color-coral`, …). Those strings are stored in the database.
+Never rename or delete a persisted colour (`--color-mint`, `--color-coral`, …). Those strings are stored in the database.
 
 > Dev tip: if a token change doesn't show up in `pnpm dev`, the Turbopack dev cache is stale. Delete `apps/web/.next/dev` and restart.

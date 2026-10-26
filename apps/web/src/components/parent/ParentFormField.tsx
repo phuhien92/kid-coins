@@ -1,10 +1,10 @@
 "use client";
 
 const FIELD_INPUT_CLASS =
-  "w-full border-2 border-ink rounded-control px-4 py-3 font-body text-[14px] text-ink placeholder:text-ink-soft bg-white outline-none focus:border-purple transition-colors";
+  "w-full border-2 border-edge rounded-control px-4 py-3 font-body text-sm text-fg placeholder:text-fg-muted bg-surface outline-none focus-visible:border-focus transition-colors";
 
 const FIELD_LABEL_CLASS =
-  "font-display font-semibold text-[13px] text-ink uppercase tracking-wide";
+  "font-display font-extrabold text-sm text-fg uppercase tracking-wide";
 
 type ParentFormFieldProps = {
   id: string;
@@ -45,7 +45,7 @@ export function ParentFormField({
         className={FIELD_INPUT_CLASS}
       />
       {hint && (
-        <p className="font-body text-[12px] text-ink-soft font-bold">{hint}</p>
+        <p className="font-body text-xs text-fg-muted font-bold">{hint}</p>
       )}
     </div>
   );

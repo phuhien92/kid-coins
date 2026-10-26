@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DashedActionCard } from "@/components/ui";
+import { DashedActionCard, KidCoinLogo } from "@/components/ui";
 import { ParentSignOutButton } from "@/components/shared/ParentSignOutButton";
 import {
   ParentPickerTile,
@@ -67,15 +67,15 @@ export default function ProfilePickerPage() {
       <div className="text-center mb-8">
         <Link
           href="/"
-          className="font-display font-bold text-[20px] text-ink-soft hover:text-ink transition-colors"
+          className="inline-flex min-h-tap items-center rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
         >
-          Earnie
+          <KidCoinLogo size="sm" />
         </Link>
-        <h1 className="font-display font-bold text-[34px] text-ink mt-3 leading-tight tracking-tight">
+        <h1 className="font-display font-black text-4xl text-fg mt-5 leading-tight tracking-tight">
           Who&apos;s playing?
         </h1>
-        <p className="font-body text-[15px] text-ink-soft mt-1">
-          Pick your profile to start earning coins
+        <p className="font-body text-base text-fg-muted mt-1">
+          Earn. Save. Grow together.
         </p>
       </div>
 
@@ -91,12 +91,12 @@ export default function ProfilePickerPage() {
       {/* Error */}
       {loadState === "error" && (
         <div className="text-center py-10">
-          <p className="font-body font-bold text-[15px] text-ink">
+          <p className="font-body font-bold text-base text-fg">
             Couldn&apos;t load profiles.
           </p>
           <button
             onClick={loadKids}
-            className="mt-3 font-body font-bold text-[14px] text-purple hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple"
+            className="mt-3 inline-flex min-h-tap items-center px-3 rounded-control font-body font-bold text-sm text-step-earn-ink underline underline-offset-2 hover:decoration-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             Try again
           </button>

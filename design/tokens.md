@@ -3,7 +3,7 @@
 Every token in [`@kid-coin/tokens`](../packages/tokens/src), with its role and light value, and the measured WCAG 2.1 contrast of every pairing the system promises.
 There is no dark theme yet.
 
-- **Tiers:** primitives (`--kc-*`, raw values, no utilities) → semantic roles (Tailwind `@theme`, these become utilities) → component tokens. The legacy aliases are listed last.
+- **Tiers:** primitives (`--kc-*`, raw values, no utilities) → semantic roles (Tailwind `@theme`, these become utilities) → component tokens. The persisted avatar colour names are listed last.
 - **Utility names:** `--color-X` → `bg-X` / `text-X` / `border-X`; `--radius-X` → `rounded-X`; `--shadow-X` → `shadow-X`; `--spacing-X` → `size-X`, `p-X`, `gap-X`; `--breakpoint-X` → `X:`; `--text-X` → `text-X`.
 - **Thresholds:** body text needs 4.5:1. Large text (≥24px, or ≥19px bold) and UI components or focus indicators need 3:1.
 
@@ -96,12 +96,17 @@ The tables below are generated: `pnpm --filter @kid-coin/tokens report`. `pnpm -
 |---|---|---|---|
 | `--spacing-sidebar` | Kid sidebar width | `232px` | `--kc-space-58` |
 | `--spacing-bottom-nav` | Space reserved for the phone tab bar | `80px` | `--kc-space-20` |
+| `--spacing-bar-bottom` |  | `calc(var(--kc-space-4) + env(safe-area-inset-bottom, 0px))` | n/a |
+| `--spacing-toast-offset` |  | `calc(var(--kc-space-8) + env(safe-area-inset-bottom, 0px))` | n/a |
+| `--spacing-above-nav` |  | `calc(var(--kc-space-20) + env(safe-area-inset-bottom, 0px))` | n/a |
 | `--coin-mark-highlight` | KidCoinMark paint: highlight | `#FFE38A` | `--kc-gold-300` |
 | `--coin-mark-body` | KidCoinMark paint: body | `#FFC93C` | `--kc-gold-400` |
 | `--coin-mark-rim` | KidCoinMark paint: rim | `#E5A800` | `--kc-gold-600` |
 | `--coin-mark-visor-top` | KidCoinMark paint: visor-top | `#1B2D57` | `--kc-navy-800` |
 | `--coin-mark-visor` | KidCoinMark paint: visor | `#0B1A3A` | `--kc-navy-900` |
 | `--coin-mark-eye` | KidCoinMark paint: eye | `#FFE27A` | `--kc-yellow-300` |
+| `--coin-mark-ring` | KidCoinMark paint: ring | `#FFF4D1` | `--kc-gold-100` |
+| `--coin-mark-gloss` | KidCoinMark paint: gloss | `#FFFFFF` | `--kc-white` |
 
 ### Tier 1: primitives
 
@@ -193,27 +198,17 @@ The tables below are generated: `pnpm --filter @kid-coin/tokens report`. `pnpm -
 | `--kc-viewport-ipad-landscape` | viewport ipad landscape | `64rem` | n/a |
 | `--kc-viewport-desktop` | viewport desktop | `80rem` | n/a |
 
-### Legacy aliases
+### Persisted colour names
 
 | Token | Role | Light value | Resolves via |
 |---|---|---|---|
-| `--color-mint` | Legacy alias (see legacy.css) | `#7DD9B0` | `--kc-mint-400` |
-| `--color-peach` | Legacy alias (see legacy.css) | `#FFD3B8` | `--kc-coral-200` |
-| `--color-lemon` | Legacy alias (see legacy.css) | `#FFE27A` | `--kc-yellow-300` |
-| `--color-coral` | Legacy alias (see legacy.css) | `#FF8A75` | `--kc-coral-400` |
-| `--color-sky` | Legacy alias (see legacy.css) | `#CFE3FF` | `--kc-blue-200` |
-| `--color-lav` | Legacy alias (see legacy.css) | `#D6CBF8` | `--kc-lavender-300` |
-| `--color-lav-pale` | Legacy alias (see legacy.css) | `#EEE8FD` | `--kc-lavender-100` |
-| `--color-cream` | Legacy alias (see legacy.css) | `#FBF8F2` | `--kc-cream-100` |
-| `--color-cream-card` | Legacy alias (see legacy.css) | `#FFFDF9` | `--kc-cream-50` |
-| `--color-ink` | Legacy alias (see legacy.css) | `#0B1A3A` | `--kc-navy-900` |
-| `--color-ink-soft` | Legacy alias (see legacy.css) | `#4A5672` | `--kc-navy-600` |
-| `--color-green` | Legacy alias (see legacy.css) | `#146B4A` | `--kc-mint-700` |
-| `--color-green-dk` | Legacy alias (see legacy.css) | `#0F5239` | `--kc-mint-800` |
-| `--color-green-tint` | Legacy alias (see legacy.css) | `#E2F6EC` | `--kc-mint-100` |
-| `--color-purple` | Legacy alias (see legacy.css) | `#5636B8` | `--kc-lavender-700` |
-| `--color-purple-dk` | Legacy alias (see legacy.css) | `#0B1A3A` | `--kc-navy-900` |
-| `--color-coin-dk` | Legacy alias (see legacy.css) | `#E5A800` | `--kc-gold-600` |
+| `--color-mint` | Persisted avatar/character colour (stored in the DB; never rename) | `#7DD9B0` | `--kc-mint-400` |
+| `--color-peach` | Persisted avatar/character colour (stored in the DB; never rename) | `#FFD3B8` | `--kc-coral-200` |
+| `--color-lemon` | Persisted avatar/character colour (stored in the DB; never rename) | `#FFE27A` | `--kc-yellow-300` |
+| `--color-coral` | Persisted avatar/character colour (stored in the DB; never rename) | `#FF8A75` | `--kc-coral-400` |
+| `--color-sky` | Persisted avatar/character colour (stored in the DB; never rename) | `#CFE3FF` | `--kc-blue-200` |
+| `--color-lav` | Persisted avatar/character colour (stored in the DB; never rename) | `#D6CBF8` | `--kc-lavender-300` |
+| `--color-lav-pale` | Persisted avatar/character colour (stored in the DB; never rename) | `#EEE8FD` | `--kc-lavender-100` |
 
 ### Measured contrast (WCAG 2.1)
 
@@ -257,9 +252,15 @@ The tables below are generated: `pnpm --filter @kid-coin/tokens report`. `pnpm -
 | `--color-edge` | `--color-surface` | Input / toggle outline on cards | 3.60:1 | 3:1 | ✅ pass |
 | `--color-edge` | `--color-page` | Input / toggle outline on the page | 3.45:1 | 3:1 | ✅ pass |
 | `--color-success` | `--color-surface-sunken` | Toggle 'on' track vs off track | 5.62:1 | 3:1 | ✅ pass |
-| `--kc-white` | `--color-green` | Legacy: white on kid CTA (bg-green) | 6.50:1 | 4.5:1 | ✅ pass |
-| `--kc-white` | `--color-purple` | Legacy: white on parent CTA (bg-purple) | 8.03:1 | 4.5:1 | ✅ pass |
-| `--color-ink` | `--color-green-tint` | Legacy: ink on green-tint chips | 15.23:1 | 4.5:1 | ✅ pass |
-| `--color-ink` | `--color-lav-pale` | Legacy: ink on lav-pale tiles | 14.39:1 | 4.5:1 | ✅ pass |
-| `--color-purple` | `--color-lav-pale` | Legacy: purple text on lav-pale | 6.73:1 | 4.5:1 | ✅ pass |
+| `--color-fg-inverse` | `--color-success` | Check mark / thumb on success fill | 6.50:1 | 4.5:1 | ✅ pass |
+| `--color-fg` | `--color-step-do` | Step number on its body colour (StepBadge) | 11.89:1 | 3:1 | ✅ pass |
+| `--color-fg` | `--color-step-earn` | Step number on Earn body colour | 6.09:1 | 3:1 | ✅ pass |
+| `--color-fg` | `--color-step-save` | Step number on Save body colour | 7.48:1 | 3:1 | ✅ pass |
+| `--color-fg` | `--color-step-choose` | Step number on Choose body colour | 10.16:1 | 3:1 | ✅ pass |
+| `--color-fg` | `--color-step-grow` | Step number on Grow body colour | 6.47:1 | 3:1 | ✅ pass |
+| `--color-fg` | `--color-mint` | Avatar initial on persisted Mint | 10.16:1 | 4.5:1 | ✅ pass |
+| `--color-fg` | `--color-peach` | Avatar initial on persisted Peach | 12.48:1 | 4.5:1 | ✅ pass |
+| `--color-fg` | `--color-lemon` | Avatar initial on persisted Lemon | 13.42:1 | 4.5:1 | ✅ pass |
+| `--color-fg` | `--color-coral` | Avatar initial on persisted Coral | 7.48:1 | 4.5:1 | ✅ pass |
+| `--color-fg` | `--color-sky` | Avatar initial on persisted Sky | 13.15:1 | 4.5:1 | ✅ pass |
 <!-- GENERATED:END -->

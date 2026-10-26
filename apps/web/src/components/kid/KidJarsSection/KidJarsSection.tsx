@@ -43,7 +43,7 @@ function KidJarsSection({ kidId }: KidJarsSectionProps) {
   return (
     <section aria-labelledby="jars-heading" className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 id="jars-heading" className="font-display font-semibold text-lg text-ink">
+        <h2 id="jars-heading" className="font-display font-extrabold text-lg text-fg">
           My jars
         </h2>
         {jars ? (
@@ -64,7 +64,7 @@ function KidJarsSection({ kidId }: KidJarsSectionProps) {
           <Skeleton.Block className="h-20" />
         </div>
       ) : error ? (
-        <p role="alert" className="font-body text-sm text-coral">
+        <p role="alert" className="font-body text-sm text-step-save-ink">
           {error}
         </p>
       ) : jars ? (

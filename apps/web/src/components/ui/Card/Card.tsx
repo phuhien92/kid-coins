@@ -2,11 +2,10 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export type CardPadding = "none" | "sm" | "md" | "lg";
-export type CardRadius = "card" | "parent" | "control" | "xl" | "lg" | "pill";
+export type CardRadius = "card" | "tile" | "control" | "sheet" | "pill";
 
 export type CardProps = React.ComponentPropsWithoutRef<"div"> & {
   padding?: CardPadding;
-  compact?: boolean;
   radius?: CardRadius;
 };
 
@@ -19,21 +18,20 @@ const paddingClasses: Record<CardPadding, string> = {
 
 const radiusClasses: Record<CardRadius, string> = {
   card: "rounded-card",
-  parent: "rounded-[20px]",
+  tile: "rounded-tile",
   control: "rounded-control",
-  xl: "rounded-[26px]",
-  lg: "rounded-[24px]",
+  sheet: "rounded-sheet",
   pill: "rounded-pill",
 };
 
+/** Soft cream card — the page's primary container. */
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ padding = "md", compact = false, radius = "card", className, ...props }, ref) => (
+  ({ padding = "md", radius = "card", className, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "bg-cream-card shadow-card",
+        "bg-surface border border-line shadow-card",
         radiusClasses[radius],
-        compact ? "border-[2.5px] border-ink" : "border-[3px] border-ink",
         paddingClasses[padding],
         className
       )}

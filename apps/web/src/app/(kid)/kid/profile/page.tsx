@@ -46,7 +46,7 @@ function LoadingProfile() {
   return (
     <Page>
       <Page.Content className="items-center justify-center">
-        <p className="font-body text-ink-soft">Loading profile…</p>
+        <p className="font-body text-fg-muted">Loading profile…</p>
       </Page.Content>
     </Page>
   );
@@ -97,7 +97,7 @@ function KidProfileContent() {
     return (
       <Page>
         <Page.Content className="items-center justify-center">
-          <p className="font-body text-ink-soft">Loading profile…</p>
+          <p className="font-body text-fg-muted">Loading profile…</p>
         </Page.Content>
       </Page>
     );
@@ -113,8 +113,8 @@ function KidProfileContent() {
       <Page.Content className="gap-6 pb-8">
         <KidJarsSection />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-          <section className="bg-cream-card border-[3px] border-ink rounded-card shadow-card overflow-hidden">
+        <div className="grid gap-6 ipad-landscape:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] ipad-landscape:items-start">
+          <section className="bg-surface border border-line rounded-card shadow-card overflow-hidden">
             <div
               className="relative flex items-center justify-center py-10 px-6 min-h-60"
               style={{ backgroundColor: previewBg }}
@@ -123,7 +123,7 @@ function KidProfileContent() {
                 className="absolute inset-0 opacity-30"
                 style={{
                   backgroundImage:
-                    "radial-gradient(circle, var(--color-ink) 1px, transparent 1px)",
+                    "radial-gradient(circle, var(--color-fg) 1px, transparent 1px)",
                   backgroundSize: "18px 18px",
                 }}
                 aria-hidden
@@ -142,10 +142,10 @@ function KidProfileContent() {
                 />
               </motion.div>
             </div>
-            <div className="p-5 border-t-[2.5px] border-ink">
+            <div className="p-5 border-t border-line">
               <Link
                 href="/kid/profile/character"
-                className="block w-full py-3.5 bg-green hover:bg-green-dk text-cream font-display font-semibold text-base text-center rounded-control border-[2.5px] border-ink shadow-[0_4px_0_var(--color-green-dk)] active:translate-y-1 active:shadow-none transition-[transform,box-shadow] duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
+                className="block w-full py-3.5 bg-action hover:bg-action-hover active:bg-action-pressed text-on-action font-display font-extrabold text-base text-center rounded-control border border-line shadow-card active:translate-y-px active:shadow-none transition-[transform,box-shadow] duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
               >
                 Edit my character ✏️
               </Link>
@@ -153,8 +153,8 @@ function KidProfileContent() {
           </section>
 
           <div className="flex flex-col gap-5">
-            <section className="bg-cream-card border-[3px] border-ink rounded-card p-5 shadow-card">
-              <h2 className="font-display font-semibold text-[17px] text-ink mb-4">
+            <section className="bg-surface border border-line rounded-card p-5 shadow-card">
+              <h2 className="font-display font-extrabold text-lg text-fg mb-4">
                 My badges
               </h2>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
@@ -162,14 +162,19 @@ function KidProfileContent() {
                   <div
                     key={`${badge.label}-${index}`}
                     className={cn(
-                      "flex flex-col items-center gap-2 p-3 rounded-card border-[2px] border-ink bg-cream text-center",
-                      badge.label.startsWith("Locked") && "opacity-40"
+                      "flex flex-col items-center gap-2 p-3 rounded-card border text-center",
+                      badge.label.startsWith("Locked")
+                        ? "border-dashed border-edge bg-surface-sunken"
+                        : "border-line bg-step-do-tint"
                     )}
                   >
-                    <span className="text-[28px]" aria-hidden>
+                    <span
+                      className={cn("text-3xl", badge.label.startsWith("Locked") && "grayscale opacity-50")}
+                      aria-hidden
+                    >
                       {badge.emoji}
                     </span>
-                    <span className="font-body font-bold text-[11px] text-ink-soft leading-tight">
+                    <span className="font-body font-bold text-xs text-fg-muted leading-tight">
                       {badge.label}
                     </span>
                   </div>
@@ -177,8 +182,8 @@ function KidProfileContent() {
               </div>
             </section>
 
-            <section className="bg-cream-card border-[3px] border-ink rounded-card p-5 shadow-card">
-              <h2 className="font-display font-semibold text-[17px] text-ink mb-4">
+            <section className="bg-surface border border-line rounded-card p-5 shadow-card">
+              <h2 className="font-display font-extrabold text-lg text-fg mb-4">
                 My journey
               </h2>
               <div className="flex flex-col gap-4">
@@ -186,21 +191,21 @@ function KidProfileContent() {
                   <div key={milestone.title} className="flex gap-3">
                     <div
                       className={cn(
-                        "w-8 h-8 rounded-pill border-[2px] border-ink flex items-center justify-center flex-shrink-0 font-display font-bold text-[13px]",
+                        "w-8 h-8 rounded-pill border border-line flex items-center justify-center flex-shrink-0 font-display font-black text-sm",
                         milestone.done
-                          ? "bg-green text-cream"
+                          ? "bg-coin text-fg"
                           : milestone.current
-                            ? "bg-coin text-ink"
-                            : "bg-cream text-ink-soft"
+                            ? "bg-coin text-fg"
+                            : "bg-page text-fg-muted"
                       )}
                     >
                       {milestone.done ? "✓" : milestone.current ? "★" : index + 1}
                     </div>
                     <div>
-                      <p className="font-display font-semibold text-[14px] text-ink">
+                      <p className="font-display font-extrabold text-sm text-fg">
                         {milestone.title}
                       </p>
-                      <p className="font-body text-[12px] text-ink-soft">
+                      <p className="font-body text-xs text-fg-muted">
                         {milestone.detail}
                       </p>
                     </div>

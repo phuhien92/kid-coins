@@ -77,7 +77,7 @@ export function CharacterStudio({
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 320, damping: 22 }}
       className={cn(
-        "flex items-center justify-center rounded-card border-2 border-ink bg-cream",
+        "flex items-center justify-center rounded-card border border-line bg-page",
         isPage ? "py-8" : "py-6"
       )}
     >
@@ -104,8 +104,8 @@ export function CharacterStudio({
           onClick={() => setTab(item.id)}
           aria-pressed={tab === item.id}
           className={cn(
-            "flex-1 px-3 py-2 rounded-control border-2 border-ink font-display font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green",
-            tab === item.id ? "bg-ink text-cream" : "bg-cream-card text-ink"
+            "flex-1 min-h-tap px-3 py-2 rounded-control border border-line font-display font-extrabold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
+            tab === item.id ? "bg-action-secondary text-on-action-secondary" : "bg-surface text-fg"
           )}
         >
           {item.label}
@@ -116,14 +116,14 @@ export function CharacterStudio({
 
   const classPanel = (
     <div className="flex flex-col gap-4">
-      <p className="font-body text-sm text-ink-soft">
+      <p className="font-body text-sm text-fg-muted">
         Pick your guild class. Locked classes unlock with earned XP.
       </p>
       <ul
         className={cn(
           "grid gap-3",
           isPage
-            ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3"
+            ? "grid-cols-2 sm:grid-cols-3 ipad-landscape:grid-cols-2 desktop:grid-cols-3"
             : "grid-cols-2 max-h-64 overflow-y-auto pr-1"
         )}
       >
@@ -141,11 +141,13 @@ export function CharacterStudio({
                 aria-pressed={selected}
                 aria-label={locked ? `${opt.label} — locked (${xp} XP)` : opt.label}
                 className={cn(
-                  "w-full min-h-36 flex flex-col items-center rounded-card border-2 border-ink p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green",
-                  selected && "ring-2 ring-green ring-offset-2",
+                  "w-full min-h-36 flex flex-col items-center rounded-card border border-line p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
+                  selected && "ring-2 ring-coin-lo ring-offset-2",
                   locked
-                    ? "bg-cream-card opacity-60 cursor-not-allowed"
-                    : "bg-cream-card hover:bg-lav-pale"
+                    ? "border-dashed border-edge bg-surface-sunken grayscale cursor-not-allowed"
+                    : selected
+                      ? "bg-step-do-tint"
+                      : "bg-surface hover:bg-step-grow-tint"
                 )}
               >
                 <FantasyGuildCharacter
@@ -154,23 +156,23 @@ export function CharacterStudio({
                   skinColor={skinColor(char)}
                   size={72}
                 />
-                <span className="font-display font-bold text-sm text-ink mt-1">
+                <span className="font-display font-black text-sm text-fg mt-1">
                   {opt.label}
                 </span>
                 {xp === null ? (
-                  <span className="font-body text-xs text-green-dk font-bold">Free</span>
+                  <span className="font-body text-xs text-success font-bold">Free</span>
                 ) : locked ? (
-                  <span className="font-body text-xs text-ink-soft">{xp} XP</span>
+                  <span className="font-body text-xs text-fg-muted">{xp} XP</span>
                 ) : (
-                  <span className="font-body text-xs text-green-dk font-bold">Unlocked</span>
+                  <span className="font-body text-xs text-success font-bold">Unlocked</span>
                 )}
               </button>
             </li>
           );
         })}
       </ul>
-      <div className="rounded-control border-2 border-ink bg-green-tint p-3">
-        <p className="font-display font-bold text-sm text-ink">{selectedLabel} starter kit</p>
+      <div className="rounded-control border border-line bg-success-tint p-3">
+        <p className="font-display font-black text-sm text-fg">{selectedLabel} starter kit</p>
         <AccessoryChips items={loadout.starter} className="mt-2" />
       </div>
     </div>
@@ -178,7 +180,7 @@ export function CharacterStudio({
 
   const skinPanel = (
     <div className="flex flex-col gap-3">
-      <p className="font-body text-sm text-ink-soft">
+      <p className="font-body text-sm text-fg-muted">
         Choose a coin body color for your class character.
       </p>
       <div className={cn("grid gap-3", isPage ? "grid-cols-3 sm:grid-cols-6" : "grid-cols-3")}>
@@ -190,12 +192,12 @@ export function CharacterStudio({
             aria-pressed={char.color === sw.key}
             aria-label={sw.label}
             className={cn(
-              "min-h-20 rounded-card border-2 border-ink bg-cream p-2 font-body text-xs font-bold text-ink transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green",
-              char.color === sw.key && "ring-2 ring-green ring-offset-2"
+              "min-h-20 rounded-card border border-line bg-page p-2 font-body text-xs font-bold text-fg transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
+              char.color === sw.key && "ring-4 ring-fg ring-offset-2"
             )}
           >
             <span
-              className="mx-auto mb-2 block h-9 w-9 rounded-pill border-2 border-ink"
+              className="mx-auto mb-2 block h-9 w-9 rounded-pill border border-line"
               style={{ backgroundColor: sw.value }}
             />
             {sw.label}
@@ -208,7 +210,7 @@ export function CharacterStudio({
   const saveButton = (
     <Button
       type="button"
-      variant="green"
+      variant="primary"
       size="full"
       onClick={onSave}
       disabled={saving}
@@ -219,31 +221,31 @@ export function CharacterStudio({
 
   if (isPage) {
     return (
-      <div className="flex flex-col gap-6 pb-24 lg:pb-6">
-        <section className="grid gap-6 lg:grid-cols-[320px_1fr] lg:items-start">
-          <div className="rounded-card border-2 border-ink bg-cream-card p-5 shadow-card lg:sticky lg:top-6">
-            <p className="font-display font-bold text-2xl text-ink">Your character</p>
-            <p className="font-body text-sm text-ink-soft mt-1">
-              Class: <span className="font-bold text-ink">{selectedLabel}</span>
+      <div className="flex flex-col gap-6 pb-24 ipad-landscape:pb-6">
+        <section className="grid gap-6 ipad-landscape:grid-cols-[320px_1fr] ipad-landscape:items-start">
+          <div className="rounded-card border border-line bg-surface p-5 shadow-card ipad-landscape:sticky ipad-landscape:top-6">
+            <p className="font-display font-black text-2xl text-fg">Your character</p>
+            <p className="font-body text-sm text-fg-muted mt-1">
+              Class: <span className="font-bold text-fg">{selectedLabel}</span>
             </p>
             <div className="mt-5">{preview}</div>
-            <div className="mt-4 rounded-control border-2 border-ink bg-green-tint p-3">
-              <p className="font-display font-bold text-sm text-ink">Starter kit</p>
+            <div className="mt-4 rounded-control border border-line bg-success-tint p-3">
+              <p className="font-display font-black text-sm text-fg">Starter kit</p>
               <AccessoryChips items={loadout.starter} className="mt-2" />
             </div>
           </div>
 
           <div className="flex flex-col gap-5">
-            <section className="rounded-card border-2 border-ink bg-cream-card p-5 shadow-card">
-              <h2 className="font-display font-bold text-xl text-ink mb-4">Customize</h2>
+            <section className="rounded-card border border-line bg-surface p-5 shadow-card">
+              <h2 className="font-display font-black text-xl text-fg mb-4">Customize</h2>
               {tabs}
               <div className="mt-4">{tab === "class" ? classPanel : skinPanel}</div>
             </section>
-            <div className="hidden lg:block">{saveButton}</div>
+            <div className="hidden ipad-landscape:block">{saveButton}</div>
           </div>
         </section>
 
-        <div className="fixed bottom-16 left-0 right-0 border-t border-ink/10 bg-cream px-5 py-4 lg:hidden">
+        <div className="fixed bottom-above-nav left-0 right-0 border-t border-fg/10 bg-page px-5 py-4 ipad-landscape:hidden">
           {saveButton}
         </div>
       </div>

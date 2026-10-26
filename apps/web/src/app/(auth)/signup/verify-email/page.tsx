@@ -45,18 +45,18 @@ function VerifyEmailContent() {
     <div className="w-full max-w-sm">
       <AuthBrand />
 
-      <div className="bg-cream-card rounded-card shadow-card border border-line p-7 flex flex-col items-center text-center gap-4">
+      <div className="bg-surface rounded-card shadow-card border border-line p-7 flex flex-col items-center text-center gap-4">
         <div className="text-5xl">✉️</div>
 
         <div>
-          <h2 className="font-display font-semibold text-xl text-ink mb-1">
+          <h2 className="font-display font-extrabold text-xl text-fg mb-1">
             Check your inbox
           </h2>
-          <p className="font-body text-sm text-ink-soft">
+          <p className="font-body text-sm text-fg-muted">
             We sent a confirmation link to
           </p>
           {email && (
-            <p className="font-display font-semibold text-[15px] text-ink mt-1 bg-lav-pale px-3 py-1.5 rounded-control inline-block">
+            <p className="font-display font-extrabold text-base text-fg mt-1 bg-step-grow-tint px-3 py-1.5 rounded-control inline-block">
               {email}
             </p>
           )}
@@ -69,36 +69,36 @@ function VerifyEmailContent() {
             "You're in — set up your first kid!",
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-purple text-white font-display font-semibold text-[12px] flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-action-secondary text-on-action-secondary font-display font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                 {i + 1}
               </span>
-              <span className="font-body text-[14px] text-ink">{step}</span>
+              <span className="font-body text-sm text-fg">{step}</span>
             </li>
           ))}
         </ol>
 
         {resent && (
-          <p className="font-body text-[13px] text-green font-semibold">
+          <p className="font-body text-sm text-success font-semibold">
             Email resent!
           </p>
         )}
         {resendError && (
-          <p role="alert" className="font-body text-[13px] text-red-600 font-semibold">
+          <p role="alert" className="font-body text-sm text-error font-semibold">
             {resendError}
           </p>
         )}
 
-        <div className="font-body text-[13px] text-ink-soft">
+        <div className="font-body text-sm text-fg-muted">
           Didn&apos;t get it?{" "}
           <button
             onClick={handleResend}
             disabled={cooldown > 0 || resending}
-            className="text-purple font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex min-h-tap items-center px-1 text-step-grow-ink font-semibold underline underline-offset-2 hover:decoration-2 focus-visible:decoration-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {resending ? "Sending…" : "Resend email"}
           </button>
           {cooldown > 0 && (
-            <span className="ml-1 text-ink-soft">({cooldown}s)</span>
+            <span className="ml-1 text-fg-muted">({cooldown}s)</span>
           )}
         </div>
       </div>
@@ -106,7 +106,7 @@ function VerifyEmailContent() {
       <div className="flex justify-center mt-5">
         <Link
           href="/login"
-          className="font-body text-sm text-ink-soft hover:text-ink transition-colors"
+          className="inline-flex min-h-tap items-center rounded-control px-2 font-body text-sm text-fg-muted hover:text-fg focus-visible:text-fg transition-colors"
         >
           ← Back to sign in
         </Link>

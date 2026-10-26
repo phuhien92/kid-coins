@@ -7,7 +7,7 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["green", "purple", "ghost", "chip", "mini-yes", "mini-no"],
+      options: ["primary", "secondary", "ghost", "chip", "mini-yes", "mini-no"],
     },
     size: { control: "select", options: ["sm", "md", "full"] },
     disabled: { control: "boolean" },
@@ -21,12 +21,12 @@ type Story = StoryObj<typeof Button>;
 
 export const GreenPrimary: Story = {
   name: "Green (kid CTA)",
-  args: { variant: "green", children: "Complete task ✓" },
+  args: { variant: "primary", children: "Complete task ✓" },
 };
 
 export const Purple: Story = {
   name: "Purple (parent CTA)",
-  args: { variant: "purple", children: "Approve" },
+  args: { variant: "secondary", children: "Approve" },
 };
 
 export const Ghost: Story = {
@@ -48,12 +48,12 @@ export const MiniNo: Story = {
 };
 
 export const Disabled: Story = {
-  args: { variant: "green", disabled: true, children: "Locked" },
+  args: { variant: "primary", disabled: true, children: "Locked" },
 };
 
 export const FullWidth: Story = {
   name: "Full width",
-  args: { variant: "green", size: "full", children: "Collect coins" },
+  args: { variant: "primary", size: "full", children: "Collect coins" },
   parameters: { layout: "padded" },
 };
 
@@ -61,8 +61,8 @@ export const AllVariants: Story = {
   name: "All variants",
   render: () => (
     <div className="flex flex-wrap gap-3 items-center">
-      <Button variant="green" size="sm">Green</Button>
-      <Button variant="purple" size="sm">Purple</Button>
+      <Button variant="primary" size="sm">Green</Button>
+      <Button variant="secondary" size="sm">Purple</Button>
       <Button variant="ghost" size="sm">Ghost</Button>
       <Button variant="chip" size="sm">Chip</Button>
       <Button variant="mini-yes" size="sm">Yes</Button>
