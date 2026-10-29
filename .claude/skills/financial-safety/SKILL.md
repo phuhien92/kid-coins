@@ -26,7 +26,8 @@ live here; match them:
 | Atomic credit / debit / affordability-guarded debit | `src/lib/kid-balance.ts` |
 | Stock claim guarded in SQL | `src/lib/rewards.ts` (`claimRewardStock`) |
 | Full state-transition + transaction + 409 in a route | `src/app/api/parent/approvals/task/[id]/approve/route.ts` |
-| Tests for the money helpers | `src/lib/kid-balance.test.ts`, `src/lib/rewards.test.ts` |
+| Tests for the money helpers (real SQLite) | `src/lib/kid-balance.test.ts`, `src/lib/rewards.test.ts`, `src/lib/jars.test.ts` |
+| Tenant isolation + concurrent approve/spend at the API boundary | `src/app/api/sqlite-boundary.test.ts` |
 
 ## Rule 1 — Never read-then-write a balance
 

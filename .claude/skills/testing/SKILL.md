@@ -54,7 +54,8 @@ design-token updates, and changes that only consume existing tested APIs.
   live DB). Assert on response status codes and body shape for success and error
   paths. For money routes, assert the concurrency guards too (see the
   `financial-safety` skill): the 409-on-already-resolved and 400-on-can't-afford
-  paths.
+  paths. Cross-route tenant isolation and concurrency run on a temporary SQLite
+  database in `src/app/api/sqlite-boundary.test.ts` (only Supabase faked).
 
 ## Quality bar
 
