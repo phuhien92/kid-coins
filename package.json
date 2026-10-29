@@ -16,7 +16,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "db:sqlite:generate": "drizzle-kit generate --config drizzle.sqlite.config.ts",
+    "db:sqlite:migrate": "tsx scripts/migrate-sqlite.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",
@@ -24,6 +26,7 @@
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.41.0",
@@ -36,7 +39,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "better-sqlite3"
     ]
   },
   "devDependencies": {
@@ -48,6 +52,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -60,6 +65,7 @@
     "storybook": "^10.4.6",
     "supabase": "^2.107.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vite": "^8.1.0",
     "vitest": "^4.1.9"

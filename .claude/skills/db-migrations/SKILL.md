@@ -9,7 +9,10 @@ description: >-
 
 # Database migrations
 
-Database is **Supabase (Postgres)** via **Drizzle ORM** (postgres-js driver).
+Runtime database is **Supabase (Postgres)** via **Drizzle ORM** (postgres-js driver).
+The staged SQLite schema is `src/lib/sqlite/schema.ts`: generate with
+`pnpm db:sqlite:generate` into `drizzle-sqlite/`, and initialize an explicit
+absolute `SQLITE_PATH` with `pnpm db:sqlite:migrate`. This does not switch the app.
 
 ## Reference files
 
@@ -32,7 +35,7 @@ Other DB commands: `pnpm db:studio` opens Drizzle Studio (DB GUI).
 
 ## Rules
 
-- **Never** hand-write or hand-edit the SQL in `drizzle/` — it is generated from
+- **Never** hand-write or hand-edit the SQL in `drizzle/` or `drizzle-sqlite/` — it is generated from
   the schema. If the SQL is wrong, fix `schema.ts` and regenerate.
 - `DATABASE_URL` for serverless must be the Supabase **transaction pooler**
   connection string.

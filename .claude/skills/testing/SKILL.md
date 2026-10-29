@@ -48,8 +48,10 @@ design-token updates, and changes that only consume existing tested APIs.
   implementation details like class names or internal state.
 - **Hooks & utils** — pure logic. Cover the happy path, edge cases, and
   error/fallback behavior.
-- **API routes** — mock Supabase and Drizzle at the boundary (**never** hit the
-  real DB). Assert on response status codes and body shape for success and error
+- **SQLite integration** — use isolated temporary files with deterministic fixtures,
+  close connections and remove the temporary directory afterward. Never use family data.
+- **API routes** — mock Supabase and Drizzle at the boundary (**never** hit a
+  live DB). Assert on response status codes and body shape for success and error
   paths. For money routes, assert the concurrency guards too (see the
   `financial-safety` skill): the 409-on-already-resolved and 400-on-can't-afford
   paths.
