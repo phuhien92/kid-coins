@@ -3,7 +3,7 @@ name: db-migrations
 description: >-
   How to change the database schema in Earnie. Load this whenever you add or alter
   a table or column, change a Drizzle type, or need to generate/apply a migration.
-  The Drizzle schema in src/lib/schema.ts is the single source of truth for DB types;
+  The Drizzle schema in src/lib/sqlite/schema.ts is the single source of truth for DB types;
   never hand-edit generated SQL or migrate outside the pnpm scripts.
 ---
 
