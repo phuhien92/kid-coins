@@ -125,7 +125,8 @@ pnpm build         # production build
 pnpm test:run      # run all tests
 pnpm db:sqlite:generate  # generate Drizzle migration from schema changes
 pnpm db:sqlite:migrate   # apply pending migrations to SQLITE_PATH
-pnpm db:studio     # open Drizzle Studio (DB GUI)
+pnpm db:sqlite:studio   # open Drizzle Studio (DB GUI) on SQLITE_PATH
+pnpm db:studio     # legacy Postgres Drizzle Studio (DATABASE_URL)
 ```
 
 ## Branching workflow

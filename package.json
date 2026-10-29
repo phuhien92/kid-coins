@@ -19,6 +19,7 @@
     "build-storybook": "storybook build",
     "db:sqlite:generate": "drizzle-kit generate --config drizzle.sqlite.config.ts",
     "db:sqlite:migrate": "tsx scripts/migrate-sqlite.ts",
+    "db:sqlite:studio": "drizzle-kit studio --config drizzle.sqlite.config.ts",
     "db:export:postgres": "tsx scripts/export-postgres.ts",
     "db:sqlite:import": "tsx scripts/import-sqlite.ts"
   },
