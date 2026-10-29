@@ -49,6 +49,10 @@ all rows in one transaction. It checks row counts, `integrity_check` and
 
 ## Remaining slices (each validated before stacking)
 
+Slice 3a mirrors the Postgres relational-query relations in the SQLite schema (a
+parity test compares them) and adds the `src/test/sqlite.ts` temporary-database
+harness used by the cutover tests.
+
 1. Port money helpers and transaction callbacks coherently to the synchronous driver,
    including savings/interest, pending-state guards and dialect-specific SQL. Switch
    queries and schema relations only with authorization, tenant isolation, duplicate
