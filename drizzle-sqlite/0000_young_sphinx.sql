@@ -128,7 +128,7 @@ CREATE TABLE `rewards` (
 	`is_active` integer DEFAULT true NOT NULL,
 	`created_at` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	FOREIGN KEY (`family_id`) REFERENCES `families`(`id`) ON UPDATE no action ON DELETE cascade,
-	CONSTRAINT "reward_stock_valid" CHECK(typeof("rewards"."quantity_used") = 'integer' and "rewards"."quantity_used" >= 0 and ("rewards"."quantity" is null or (typeof("rewards"."quantity") = 'integer' and "rewards"."quantity" >= "rewards"."quantity_used")))
+	CONSTRAINT "reward_stock_valid" CHECK(typeof("rewards"."quantity_used") = 'integer' and "rewards"."quantity_used" >= 0 and ("rewards"."quantity" is null or (typeof("rewards"."quantity") = 'integer' and "rewards"."quantity" >= 0)))
 );
 --> statement-breakpoint
 CREATE TABLE `streaks` (

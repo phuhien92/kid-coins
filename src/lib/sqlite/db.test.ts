@@ -49,7 +49,7 @@ it("persists IDs, hashes, milliseconds, JSON, booleans and jar interest state ac
   expect(connection.client.pragma("journal_mode", { simple: true })).toBe("wal");
 });
 
-it("enforces foreign keys, unique jars, enum values, nonnegative balances and bounded stock", () => {
+it("enforces foreign keys, unique jars, enum values, nonnegative balances and stock", () => {
   const { db, client } = connection;
   expect(() => db.insert(s.jars).values({ kidId: "missing", type: "give" }).run()).toThrow();
   db.insert(s.jars).values({ kidId, type: "give" }).run();
@@ -65,7 +65,7 @@ it("enforces foreign keys, unique jars, enum values, nonnegative balances and bo
     "update jars set balance = -1",
     "update jars set type = 'spend'",
     "update tasks set type = 'weekly'",
-    "update rewards set quantity_used = 2",
+    "update rewards set quantity = -1",
     "update rewards set quantity_used = -1",
     "update task_completions set status = 'invalid'",
     "update redemption_requests set status = 'invalid'",
@@ -74,6 +74,13 @@ it("enforces foreign keys, unique jars, enum values, nonnegative balances and bo
     "update activity_log set payload = 'invalid json'",
   ]) expect(() => client.exec(query)).toThrow();
   expect(db.select().from(s.kidProfiles).get()?.balance).toBe(100);
+});
+
+it("accepts a reward whose quantity was lowered below quantity already used", () => {
+  const { db } = connection;
+  const reward = db.insert(s.rewards).values({ familyId, title: "Book", coinCost: 5, quantity: 5, quantityUsed: 5 }).returning().get();
+  db.update(s.rewards).set({ quantity: 2 }).where(eq(s.rewards.id, reward.id)).run();
+  expect(db.select().from(s.rewards).get()).toMatchObject({ quantity: 2, quantityUsed: 5 });
 });
 
 it("rolls back failed transactions and preserves cascade/set-null relationships", () => {

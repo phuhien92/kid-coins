@@ -116,7 +116,7 @@ export const rewards = sqliteTable("rewards", {
   isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
   createdAt: date("created_at").default(now).notNull(),
 }, (t) => [
-  check("reward_stock_valid", sql`typeof(${t.quantityUsed}) = 'integer' and ${t.quantityUsed} >= 0 and (${t.quantity} is null or (typeof(${t.quantity}) = 'integer' and ${t.quantity} >= ${t.quantityUsed}))`),
+  check("reward_stock_valid", sql`typeof(${t.quantityUsed}) = 'integer' and ${t.quantityUsed} >= 0 and (${t.quantity} is null or (typeof(${t.quantity}) = 'integer' and ${t.quantity} >= 0))`),
 ]);
 
 export const redemptionRequests = sqliteTable("redemption_requests", {

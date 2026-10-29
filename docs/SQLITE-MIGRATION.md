@@ -24,7 +24,7 @@ foreign keys, WAL, FULL synchronization and a five-second busy timeout.
 UUIDs remain text; new ORM inserts generate UUIDs in Node. Explicit existing IDs
 are preserved. Dates use UTC epoch milliseconds and round-trip as `Date` objects;
 booleans use integers and JSON uses text with Drizzle conversion. SQLite checks
-enforce enums, nonnegative integer balances and stock bounds. Auth UIDs and PIN
+enforce enums, nonnegative integer balances and stock. Auth UIDs and PIN
 hashes retain their text columns. These files contain sensitive family information.
 
 ## Remaining slices (each validated before stacking)

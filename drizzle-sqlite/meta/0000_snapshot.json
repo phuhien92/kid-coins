@@ -910,7 +910,7 @@
       "checkConstraints": {
         "reward_stock_valid": {
           "name": "reward_stock_valid",
-          "value": "typeof(\"rewards\".\"quantity_used\") = 'integer' and \"rewards\".\"quantity_used\" >= 0 and (\"rewards\".\"quantity\" is null or (typeof(\"rewards\".\"quantity\") = 'integer' and \"rewards\".\"quantity\" >= \"rewards\".\"quantity_used\"))"
+          "value": "typeof(\"rewards\".\"quantity_used\") = 'integer' and \"rewards\".\"quantity_used\" >= 0 and (\"rewards\".\"quantity\" is null or (typeof(\"rewards\".\"quantity\") = 'integer' and \"rewards\".\"quantity\" >= 0))"
         }
       }
     },
