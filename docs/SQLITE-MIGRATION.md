@@ -1,9 +1,10 @@
 # SQLite migration — staged delivery
 
-Slice 1 adds a disk-backed schema and initializer for all 14 application tables.
-The running app still uses Postgres, Supabase Auth and its existing refresh behavior.
-No source database is read or changed by SQLite commands. Keep `drizzle/` and
-`drizzle.config.ts` as the reproducible Postgres history throughout the transfer.
+Slice 1 adds a disk-backed schema and initializer for all 14 application tables;
+slice 2 adds an offline Postgres → SQLite data transfer. The running app still uses
+Postgres, Supabase Auth and its existing refresh behavior. The export only reads its
+source; no command writes to Postgres. Keep `drizzle/` and `drizzle.config.ts` as the
+reproducible Postgres history throughout the transfer.
 
 ## Initialize a development database
 
@@ -27,17 +28,33 @@ booleans use integers and JSON uses text with Drizzle conversion. SQLite checks
 enforce enums, nonnegative integer balances and stock. Auth UIDs and PIN
 hashes retain their text columns. These files contain sensitive family information.
 
+## Transfer existing data
+
+Stop app writers first so the snapshot is final. Both paths must be absolute and new:
+
+```sh
+DATABASE_URL=postgres://... pnpm db:export:postgres /secure/dir/family.export.json
+SQLITE_PATH=/persistent/earnie.sqlite pnpm db:sqlite:import /secure/dir/family.export.json
+```
+
+The export reads all 14 tables in one read-only, repeatable-read transaction and
+writes versioned JSON (`earnie-sqlite-transfer` v1, mode 600). It keeps IDs,
+relationships, auth UIDs, PIN hashes, balances, stock and payloads; dates become ISO
+UTC strings at the millisecond precision the app already reads. The import validates
+every table, column and value type, then migrates a private sibling file and inserts
+all rows in one transaction. It checks row counts, `integrity_check` and
+`foreign_key_check` before hard-linking the file into place. An existing target or
+`-wal`/`-shm`/`-journal` sidecar is refused untouched, and any failure leaves nothing at
+`SQLITE_PATH`. The target directory must support hard links. Delete the export once the import is verified.
+
 ## Remaining slices (each validated before stacking)
 
-1. Add an explicit offline export/import format and transfer CLI: preserve every
-   record, ID, relationship, hash, balance and timestamp. Refuse existing targets;
-   validate all input and import atomically. Test invalid-input rollback synthetically.
-2. Port money helpers and transaction callbacks coherently to the synchronous driver,
+1. Port money helpers and transaction callbacks coherently to the synchronous driver,
    including savings/interest, pending-state guards and dialect-specific SQL. Switch
    queries and schema relations only with authorization, tenant isolation, duplicate
    approval/spend and concurrent balance/stock tests at the existing API boundary.
    Split preparatory refactors into buildable slices if this exceeds the review limit.
-3. Verify refresh behavior and replace any Postgres subscriptions with the smallest
+2. Verify refresh behavior and replace any Postgres subscriptions with the smallest
    equivalent refresh; complete end-to-end cutover verification and operational docs.
 
 Database portability will still require Supabase Auth for parent login; kid sessions

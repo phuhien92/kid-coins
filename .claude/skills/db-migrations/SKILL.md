@@ -12,7 +12,9 @@ description: >-
 Runtime database is **Supabase (Postgres)** via **Drizzle ORM** (postgres-js driver).
 The staged SQLite schema is `src/lib/sqlite/schema.ts`: generate with
 `pnpm db:sqlite:generate` into `drizzle-sqlite/`, and initialize an explicit
-absolute `SQLITE_PATH` with `pnpm db:sqlite:migrate`. This does not switch the app.
+absolute `SQLITE_PATH` with `pnpm db:sqlite:migrate`. Offline data transfer is
+`pnpm db:export:postgres` then `pnpm db:sqlite:import` (see `docs/SQLITE-MIGRATION.md`).
+This does not switch the app.
 
 ## Reference files
 
