@@ -6,7 +6,7 @@ import {
   kidProfiles,
   redemptionRequests,
   taskCompletions,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 /**
  * GET /api/parent/approvals

@@ -1,6 +1,6 @@
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 import type { Tx } from "@/lib/db";
-import { rewards } from "@/lib/schema";
+import { rewards } from "@/lib/sqlite/schema";
 
 export function getRemainingStock(
   quantity: number | null,
@@ -34,8 +34,8 @@ export function shouldDeactivateReward(
  * matches no row and gets `false`. Unlimited rewards (`quantity` null) always
  * succeed. Deactivates the reward once the last unit is taken.
  */
-export async function claimRewardStock(tx: Tx, rewardId: string): Promise<boolean> {
-  const [claimed] = await tx
+export function claimRewardStock(tx: Tx, rewardId: string): boolean {
+  const claimed = tx
     .update(rewards)
     .set({ quantityUsed: sql`${rewards.quantityUsed} + 1` })
     .where(
@@ -47,12 +47,13 @@ export async function claimRewardStock(tx: Tx, rewardId: string): Promise<boolea
         )
       )
     )
-    .returning({ quantity: rewards.quantity, quantityUsed: rewards.quantityUsed });
+    .returning({ quantity: rewards.quantity, quantityUsed: rewards.quantityUsed })
+    .get();
 
   if (!claimed) return false;
 
   if (shouldDeactivateReward(claimed.quantity, claimed.quantityUsed)) {
-    await tx.update(rewards).set({ isActive: false }).where(eq(rewards.id, rewardId));
+    tx.update(rewards).set({ isActive: false }).where(eq(rewards.id, rewardId)).run();
   }
 
   return true;

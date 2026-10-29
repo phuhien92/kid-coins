@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { verifyKidSession } from "@/lib/kid-session.server";
 import { withdrawFromSaveJar } from "@/lib/jars";
-import { activityLog, coinTransactions, kidProfiles } from "@/lib/schema";
+import { activityLog, coinTransactions, kidProfiles } from "@/lib/sqlite/schema";
 
 /**
  * Moves coins from the kid's Save jar back into their spendable Spend balance.
@@ -41,23 +41,23 @@ export async function POST(
       return NextResponse.json({ error: "Kid not found" }, { status: 404 });
     }
 
-    const result = await db.transaction(async (tx) => {
-      const balances = await withdrawFromSaveJar(tx, kidId, amount);
+    const result = await db.transaction((tx) => {
+      const balances = withdrawFromSaveJar(tx, kidId, amount);
       if (!balances) return null;
 
-      await tx.insert(coinTransactions).values({
+      tx.insert(coinTransactions).values({
         kidId,
         type: "allocated",
         amount, // Spend increases as coins return from the Save jar
         description: "Moved from Save jar",
-      });
+      }).run();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: kid.familyId,
         kidId,
         type: "coins_allocated",
         payload: { jarType: "save", amount, direction: "withdraw" },
-      });
+      }).run();
 
       return balances;
     });

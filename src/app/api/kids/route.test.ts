@@ -25,6 +25,7 @@ vi.mock("bcryptjs", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const PARENT_UID = "parent-uid-1";
 
@@ -43,14 +44,15 @@ beforeEach(() => {
     callback({
       insert: () => ({
         values: () => ({
-          returning: async () => [
+          ...syncResult(),
+          returning: () => syncResult([
             {
               id: "kid-1",
               name: "Emma",
               avatarColor: "var(--color-mint)",
               balance: 0,
             },
-          ],
+          ]),
         }),
       }),
     })

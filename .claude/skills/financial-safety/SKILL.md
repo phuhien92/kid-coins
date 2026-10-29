@@ -40,8 +40,8 @@ await tx.update(kidProfiles).set({ balance: kid.balance + amount })
 **Required** — use the helpers in `src/lib/kid-balance.ts`:
 
 ```ts
-await creditBalance(tx, kidId, amount)   // balance = balance + amount (atomic)
-await debitBalance(tx, kidId, amount)    // balance = GREATEST(0, balance - amount)
+creditBalance(tx, kidId, amount)   // balance = balance + amount (atomic)
+debitBalance(tx, kidId, amount)    // balance = max(0, balance - amount)
 ```
 
 Never bypass these helpers with inline ``sql`...` `` balance arithmetic.
@@ -66,8 +66,8 @@ both read the pre-spend state and both pass it. The condition has to be part of
 the write, and the write has to tell you whether it applied:
 
 ```ts
-await claimRewardStock(tx, rewardId)                 // false → sold out
-await debitBalanceIfAffordable(tx, kidId, amount)    // false → can't afford it
+claimRewardStock(tx, rewardId)                 // false → sold out
+debitBalanceIfAffordable(tx, kidId, amount)    // false → can't afford it
 ```
 
 Both live where the rest of that resource's rules do (`src/lib/rewards.ts`,
@@ -86,4 +86,5 @@ property.
 - [ ] Every approve/decline UPDATE carries an `eq(status, "pending")` guard.
 - [ ] `.returning()` is checked; missing row → **409**, never a silent credit.
 - [ ] Spending stock/coins uses the SQL-guarded helper and honors its `false` → **400**, not a pre-transaction check alone.
-- [ ] All of credit + transaction-log insert + activity-log insert happen inside one `db.transaction`.
+- [ ] All of credit + transaction-log insert + activity-log insert happen inside one `db.transaction`,
+      whose callback is synchronous (no `await`; end builders with `.run()`/`.get()`/`.all()`).

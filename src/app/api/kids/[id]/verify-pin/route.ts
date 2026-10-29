@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
-import { families, kidProfiles } from "@/lib/schema";
+import { families, kidProfiles } from "@/lib/sqlite/schema";
 import { issueKidSessionToken } from "@/lib/kid-session.server";
 
 export async function POST(

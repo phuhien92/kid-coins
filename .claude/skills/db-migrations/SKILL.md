@@ -9,29 +9,27 @@ description: >-
 
 # Database migrations
 
-Runtime database is **Supabase (Postgres)** via **Drizzle ORM** (postgres-js driver).
-The staged SQLite schema is `src/lib/sqlite/schema.ts`: generate with
-`pnpm db:sqlite:generate` into `drizzle-sqlite/`, and initialize an explicit
-absolute `SQLITE_PATH` with `pnpm db:sqlite:migrate`. Offline data transfer is
-`pnpm db:export:postgres` then `pnpm db:sqlite:import` (see `docs/SQLITE-MIGRATION.md`).
-This does not switch the app.
+Runtime database is a **SQLite** file at `SQLITE_PATH` via **Drizzle ORM** (better-sqlite3).
+Offline data transfer from the legacy Postgres database is `pnpm db:export:postgres`
+then `pnpm db:sqlite:import` (see `docs/SQLITE-MIGRATION.md`).
 
 ## Reference files
 
 | Thing | File |
 |---|---|
-| Schema — single source of truth for DB types | `src/lib/schema.ts` |
+| Schema — single source of truth for DB types | `src/lib/sqlite/schema.ts` |
 | Drizzle client | `src/lib/db.ts` |
-| Drizzle Kit config | `drizzle.config.ts` |
-| Generated migrations (do not hand-edit) | `drizzle/` |
+| Drizzle Kit config | `drizzle.sqlite.config.ts` |
+| Generated migrations (do not hand-edit) | `drizzle-sqlite/` |
+| Legacy Postgres schema + history (transfer only) | `src/lib/schema.ts`, `drizzle/` |
 
 Shared TypeScript types derive from the schema — see `src/types/index.ts`.
 
 ## Workflow — to add a column or table
 
-1. Edit the schema in `src/lib/schema.ts`.
-2. `pnpm db:generate` — creates a migration file in `drizzle/`.
-3. `pnpm db:migrate` — applies it (requires `DATABASE_URL`).
+1. Edit the schema in `src/lib/sqlite/schema.ts`.
+2. `pnpm db:sqlite:generate` — creates a migration file in `drizzle-sqlite/`.
+3. `pnpm db:sqlite:migrate` — applies it (requires an absolute `SQLITE_PATH`).
 
 Other DB commands: `pnpm db:studio` opens Drizzle Studio (DB GUI).
 
@@ -39,8 +37,6 @@ Other DB commands: `pnpm db:studio` opens Drizzle Studio (DB GUI).
 
 - **Never** hand-write or hand-edit the SQL in `drizzle/` or `drizzle-sqlite/` — it is generated from
   the schema. If the SQL is wrong, fix `schema.ts` and regenerate.
-- `DATABASE_URL` for serverless must be the Supabase **transaction pooler**
-  connection string.
 - Any code that mutates a coin balance or reward stock as part of a schema-touching
   change must still obey the `financial-safety` skill — schema changes don't exempt
   you from the atomic-write helpers.

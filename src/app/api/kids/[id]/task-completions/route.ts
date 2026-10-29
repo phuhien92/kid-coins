@@ -11,7 +11,7 @@ import {
   kidProfiles,
   taskCompletions,
   tasks,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 export async function POST(
   request: Request,
@@ -54,8 +54,8 @@ export async function POST(
 
     const autoApprove = settings?.requireTaskApproval === false;
 
-    const completion = await db.transaction(async (tx) => {
-      const [inserted] = await tx
+    const completion = await db.transaction((tx) => {
+      const inserted = tx
         .insert(taskCompletions)
         .values({
           taskId: task.id,
@@ -66,10 +66,10 @@ export async function POST(
           bonusCoins: 0,
           resolvedAt: autoApprove ? new Date() : null,
         })
-        .returning();
+        .returning().get();
 
       if (!autoApprove) {
-        await tx.insert(activityLog).values({
+        tx.insert(activityLog).values({
           familyId: kid.familyId,
           kidId,
           type: "task_completed",
@@ -78,20 +78,20 @@ export async function POST(
             completionId: inserted.id,
             coinsEarned: task.coinReward,
           },
-        });
+        }).run();
         return inserted;
       }
 
-      await creditBalance(tx, kidId, task.coinReward);
+      creditBalance(tx, kidId, task.coinReward);
 
-      await tx.insert(coinTransactions).values({
+      tx.insert(coinTransactions).values({
         kidId,
         type: "earned",
         amount: task.coinReward,
         description: task.title,
-      });
+      }).run();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: kid.familyId,
         kidId,
         type: "task_approved",
@@ -100,7 +100,7 @@ export async function POST(
           completionId: inserted.id,
           coinsEarned: task.coinReward,
         },
-      });
+      }).run();
 
       return inserted;
     });

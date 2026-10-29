@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { syncResult } from "@/test/sync-result";
 
 const mockGetAuthenticatedParentFamily = vi.fn();
 vi.mock("@/lib/parent-auth", () => ({
@@ -33,9 +34,9 @@ vi.mock("@/lib/db", () => ({
     transaction: (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
         update: () => ({
-          set: () => ({ where: () => ({ returning: () => mockReturning() }) }),
+          set: () => ({ where: () => ({ returning: () => syncResult(mockReturning()) }) }),
         }),
-        insert: () => ({ values: (...args: unknown[]) => mockInsertValues(...args) }),
+        insert: () => ({ values: (...args: unknown[]) => (mockInsertValues(...args), syncResult()) }),
       }),
   },
 }));
@@ -68,10 +69,10 @@ beforeEach(() => {
     quantityUsed: 1,
   });
   mockHasRewardStock.mockReturnValue(true);
-  mockClaimRewardStock.mockResolvedValue(true);
-  mockDebitBalanceIfAffordable.mockResolvedValue(true);
+  mockClaimRewardStock.mockReturnValue(true);
+  mockDebitBalanceIfAffordable.mockReturnValue(true);
   mockInsertValues.mockResolvedValue(undefined);
-  mockReturning.mockResolvedValue([
+  mockReturning.mockReturnValue([
     { id: "red-1", status: "approved", resolvedAt: new Date("2026-07-11T00:00:00Z") },
   ]);
 });
@@ -95,7 +96,7 @@ describe("POST /api/parent/approvals/redemption/[id]/approve", () => {
   });
 
   it("returns 409 without spending when the redemption is already resolved", async () => {
-    mockReturning.mockResolvedValueOnce([]);
+    mockReturning.mockReturnValueOnce([]);
 
     const res = await approve();
 
@@ -106,7 +107,7 @@ describe("POST /api/parent/approvals/redemption/[id]/approve", () => {
 
   it("rejects without debiting when the reward sold out under a concurrent approval", async () => {
     // The advisory pre-check passed; the guarded UPDATE is what actually settles it.
-    mockClaimRewardStock.mockResolvedValueOnce(false);
+    mockClaimRewardStock.mockReturnValueOnce(false);
 
     const res = await approve();
 
@@ -117,7 +118,7 @@ describe("POST /api/parent/approvals/redemption/[id]/approve", () => {
   });
 
   it("rejects without recording a spend when the coins were already spent", async () => {
-    mockDebitBalanceIfAffordable.mockResolvedValueOnce(false);
+    mockDebitBalanceIfAffordable.mockReturnValueOnce(false);
 
     const res = await approve();
 

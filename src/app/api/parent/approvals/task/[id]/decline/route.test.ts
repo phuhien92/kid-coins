@@ -23,6 +23,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const FAMILY = { id: "family-1", parentUserId: "parent-1", name: "Family" };
 
@@ -31,9 +32,9 @@ function withUpdateReturning(rows: unknown[]) {
   mockTransaction.mockImplementation(async (fn) =>
     fn({
       update: () => ({
-        set: () => ({ where: () => ({ returning: async () => rows }) }),
+        set: () => ({ where: () => ({ returning: () => syncResult(rows) }) }),
       }),
-      insert: () => ({ values: (...args: unknown[]) => mockInsertValues(...args) }),
+      insert: () => ({ values: (...args: unknown[]) => (mockInsertValues(...args), syncResult()) }),
     })
   );
 }

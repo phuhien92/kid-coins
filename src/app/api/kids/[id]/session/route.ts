@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
-import { families, kidProfiles } from "@/lib/schema";
+import { families, kidProfiles } from "@/lib/sqlite/schema";
 import { issueKidSessionToken } from "@/lib/kid-session.server";
 
 /**

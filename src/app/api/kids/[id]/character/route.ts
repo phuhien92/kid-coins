@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { verifyKidSession } from "@/lib/kid-session.server";
-import { characters } from "@/lib/schema";
+import { characters } from "@/lib/sqlite/schema";
 
 const CHARACTER_FIELDS = ["color", "hat", "eye", "extra", "bg", "outfit"] as const;
 

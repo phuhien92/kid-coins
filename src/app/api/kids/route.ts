@@ -10,7 +10,7 @@ import {
 } from "@/lib/character";
 import { getOrCreateFamily } from "@/lib/family";
 import { getDbErrorMessage } from "@/lib/utils";
-import { activityLog, characters, families, jars, kidProfiles } from "@/lib/schema";
+import { activityLog, characters, families, jars, kidProfiles } from "@/lib/sqlite/schema";
 
 export async function GET() {
   try {
@@ -96,8 +96,8 @@ export async function POST(request: Request) {
 
     const pinHash = await bcrypt.hash(pin, 10);
 
-    const kid = await db.transaction(async (tx) => {
-      const [inserted] = await tx
+    const kid = await db.transaction((tx) => {
+      const inserted = tx
         .insert(kidProfiles)
         .values({
           familyId: family.id,
@@ -110,9 +110,9 @@ export async function POST(request: Request) {
           name: kidProfiles.name,
           avatarColor: kidProfiles.avatarColor,
           balance: kidProfiles.balance,
-        });
+        }).get();
 
-      await tx.insert(characters).values(
+      tx.insert(characters).values(
         character
           ? {
               kidId: inserted.id,
@@ -124,21 +124,21 @@ export async function POST(request: Request) {
               outfit: character.outfit,
             }
           : { kidId: inserted.id }
-      );
+      ).run();
 
       // Provision the Save and Give jars alongside the profile so the savings
       // overlay always has its rows (Spend is kidProfiles.balance itself).
-      await tx.insert(jars).values([
+      tx.insert(jars).values([
         { kidId: inserted.id, type: "save" },
         { kidId: inserted.id, type: "give" },
-      ]);
+      ]).run();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: family.id,
         kidId: inserted.id,
         type: "kid_added",
         payload: { kidName: name },
-      });
+      }).run();
 
       return inserted;
     });

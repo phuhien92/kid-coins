@@ -23,6 +23,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const KID_ID = "kid-1";
 function makeReq(body: Record<string, unknown>) {
@@ -36,7 +37,7 @@ const ctx = () => ({ params: Promise.resolve({ id: KID_ID }) });
 
 /** tx whose inserts are no-ops. */
 const fakeTx = {
-  insert: () => ({ values: async () => undefined }),
+  insert: () => ({ values: () => syncResult() }),
 };
 
 beforeEach(() => {
@@ -73,7 +74,7 @@ describe("POST /api/kids/[id]/jars/allocate", () => {
   });
 
   it("reports the helper's authoritative post-move balances on success", async () => {
-    mockAllocateToJar.mockResolvedValueOnce({ spend: 15, jarBalance: 125 });
+    mockAllocateToJar.mockReturnValueOnce({ spend: 15, jarBalance: 125 });
     const res = await POST(makeReq({ jarType: "save", amount: 25 }), ctx());
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -82,7 +83,7 @@ describe("POST /api/kids/[id]/jars/allocate", () => {
   });
 
   it("returns 400 when the guarded allocate loses the race (no fall-through)", async () => {
-    mockAllocateToJar.mockResolvedValueOnce(null);
+    mockAllocateToJar.mockReturnValueOnce(null);
     const res = await POST(makeReq({ jarType: "give", amount: 25 }), ctx());
     expect(res.status).toBe(400);
   });

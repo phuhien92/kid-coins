@@ -6,6 +6,7 @@ import {
   hasRewardStock,
   shouldDeactivateReward,
 } from "./rewards";
+import { syncResult } from "@/test/sync-result";
 
 type Claimed = { quantity: number | null; quantityUsed: number };
 
@@ -17,10 +18,7 @@ function fakeTx(claimed: Claimed[]) {
       set: (values: Record<string, unknown>) => {
         sets.push(values);
         return {
-          where: () =>
-            Object.assign(Promise.resolve(undefined), {
-              returning: async () => claimed,
-            }),
+          where: () => ({ ...syncResult(), returning: () => syncResult(claimed) }),
         };
       },
     }),
@@ -49,7 +47,7 @@ describe("claimRewardStock", () => {
     // concurrent claim matches nothing, so it must not be told it took a unit.
     const { tx, sets } = fakeTx([]);
 
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(false);
+    expect(claimRewardStock(tx, "reward-1")).toBe(false);
     expect(sets).toHaveLength(1);
     expect(sets[0]).not.toHaveProperty("isActive");
   });
@@ -57,21 +55,21 @@ describe("claimRewardStock", () => {
   it("takes a unit and deactivates the reward once the last one is gone", async () => {
     const { tx, sets } = fakeTx([{ quantity: 3, quantityUsed: 3 }]);
 
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(true);
+    expect(claimRewardStock(tx, "reward-1")).toBe(true);
     expect(sets).toContainEqual({ isActive: false });
   });
 
   it("takes a unit and leaves the reward active while stock remains", async () => {
     const { tx, sets } = fakeTx([{ quantity: 3, quantityUsed: 1 }]);
 
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(true);
+    expect(claimRewardStock(tx, "reward-1")).toBe(true);
     expect(sets).toHaveLength(1);
   });
 
   it("always succeeds for an unlimited reward", async () => {
     const { tx, sets } = fakeTx([{ quantity: null, quantityUsed: 99 }]);
 
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(true);
+    expect(claimRewardStock(tx, "reward-1")).toBe(true);
     expect(sets).toHaveLength(1);
   });
 });

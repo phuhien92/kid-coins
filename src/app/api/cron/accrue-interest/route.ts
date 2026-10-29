@@ -6,7 +6,7 @@ import {
   calculateInterest,
   weeksElapsed,
 } from "@/lib/jars";
-import { activityLog, coinTransactions, jars } from "@/lib/schema";
+import { activityLog, coinTransactions, jars } from "@/lib/sqlite/schema";
 
 /**
  * Weekly Save-jar interest accrual, driven by an external scheduler
@@ -59,9 +59,9 @@ export async function POST(request: Request) {
       const interest = calculateInterest(jar.balance, bps, weeks);
       const nextInterestAt = new Date(baseline.getTime() + weeks * WEEK_MS);
 
-      const applied = await db.transaction(async (tx) => {
+      const applied = await db.transaction((tx) => {
         // Idempotency guard: only advance from the lastInterestAt we read.
-        const updated = await tx
+        const updated = tx
           .update(jars)
           .set(
             // When interest is 0, advance only lastInterestAt. Writing back the
@@ -81,24 +81,24 @@ export async function POST(request: Request) {
                 : eq(jars.lastInterestAt, jar.lastInterestAt)
             )
           )
-          .returning({ id: jars.id });
+          .returning({ id: jars.id }).all();
 
         if (updated.length === 0) return false; // lost the race; skip ledger writes
 
         if (interest > 0) {
-          await tx.insert(coinTransactions).values({
+          tx.insert(coinTransactions).values({
             kidId: jar.kidId,
             type: "interest",
             amount: interest,
             description: "Savings interest",
-          });
+          }).run();
 
-          await tx.insert(activityLog).values({
+          tx.insert(activityLog).values({
             familyId,
             kidId: jar.kidId,
             type: "interest_paid",
             payload: { interest, rateBps: bps, weeks },
-          });
+          }).run();
         }
 
         return true;
