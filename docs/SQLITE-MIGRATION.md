@@ -50,15 +50,18 @@ all rows in one transaction. It checks row counts, `integrity_check` and
 `-wal`/`-shm`/`-journal` sidecar is refused untouched, and any failure leaves nothing at
 `SQLITE_PATH`. The target directory must support hard links. Delete the export once the import is verified.
 
-## Remaining slices (each validated before stacking)
+## Transactions and their tests
 
 Transactions are synchronous better-sqlite3 transactions: callbacks never await, so
 each runs to completion before another request's statements, and a thrown error rolls
 it back. Money helpers keep their SQL guards (`max(0, …)` replaces `GREATEST`).
+Slice 3c tests them on real temporary databases: the helpers in `src/lib/*.test.ts`,
+and authorization, tenant isolation, duplicate and concurrent approvals, spends, jar
+moves and interest runs in `src/app/api/sqlite-boundary.test.ts`.
 
-1. Add real-SQLite API-boundary tests for authorization, tenant isolation, duplicate
-   approval/spend and concurrent balance/stock, replacing the mocked helper tests.
-2. Verify refresh behavior and replace any Postgres subscriptions with the smallest
+## Remaining slices (each validated before stacking)
+
+1. Verify refresh behavior and replace any Postgres subscriptions with the smallest
    equivalent refresh; complete end-to-end cutover verification and operational docs.
 
 Database portability will still require Supabase Auth for parent login; kid sessions

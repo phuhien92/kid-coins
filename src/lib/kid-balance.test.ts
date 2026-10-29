@@ -1,109 +1,65 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+// @vitest-environment node
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { eq } from "drizzle-orm";
+import { kidProfiles, redemptionRequests } from "@/lib/sqlite/schema";
+import { createTestSqlite, seedFamily, type TestSqlite } from "@/test/sqlite";
 
-const mockKidFindFirst = vi.fn();
-const mockSelect = vi.fn();
-const mockUpdate = vi.fn();
-
+const current = vi.hoisted(() => ({ database: undefined as TestSqlite | undefined }));
 vi.mock("@/lib/db", () => ({
-  db: {
-    query: {
-      kidProfiles: { findFirst: (...args: unknown[]) => mockKidFindFirst(...args) },
-    },
-    select: (...args: unknown[]) => mockSelect(...args),
-    transaction: vi.fn(),
+  get db() {
+    return current.database!.db;
   },
 }));
 
-import type { Tx } from "@/lib/db";
 import {
   getKidEffectiveBalance,
   creditBalance,
   debitBalance,
   debitBalanceIfAffordable,
 } from "./kid-balance";
-import { syncResult } from "@/test/sync-result";
 
-/** Stands in for a transaction whose guarded UPDATE returns `debited`. */
-function fakeTx(debited: Array<{ id: string }>) {
-  return {
-    update: () => ({
-      set: () => ({
-        where: () => ({ returning: () => syncResult(debited) }),
-      }),
-    }),
-  } as unknown as Tx;
-}
-
+// Seeded kid: balance 100 with one pending 30-coin redemption.
+let database: TestSqlite;
+let kidId: string;
 beforeEach(() => {
-  vi.clearAllMocks();
+  database = current.database = createTestSqlite();
+  kidId = seedFamily(database.db, 1).kid;
 });
+afterEach(() => database.cleanup());
+
+const balance = () => database.db.select().from(kidProfiles).where(eq(kidProfiles.id, kidId)).get()?.balance;
 
 describe("getKidEffectiveBalance", () => {
   it("returns null when kid is missing", async () => {
-    mockKidFindFirst.mockResolvedValueOnce(null);
-    await expect(getKidEffectiveBalance("kid-1")).resolves.toBeNull();
+    await expect(getKidEffectiveBalance("missing")).resolves.toBeNull();
   });
 
-  it("subtracts pending redemption reservations", async () => {
-    mockKidFindFirst.mockResolvedValueOnce({ balance: 50 });
-    mockSelect.mockReturnValueOnce({
-      from: () => ({
-        where: async () => [{ reserved: 15 }],
-      }),
-    });
-
-    await expect(getKidEffectiveBalance("kid-1")).resolves.toBe(35);
+  it("subtracts only pending redemption reservations", async () => {
+    await expect(getKidEffectiveBalance(kidId)).resolves.toBe(70);
+    database.db.update(redemptionRequests).set({ status: "approved" }).run();
+    await expect(getKidEffectiveBalance(kidId)).resolves.toBe(100);
   });
 });
 
-describe("creditBalance", () => {
-  it("issues an atomic increment update", async () => {
-    const setFn = vi.fn().mockReturnThis();
-    const whereFn = vi.fn().mockReturnValue(syncResult());
-    mockUpdate.mockReturnValue({ set: setFn });
-    setFn.mockReturnValue({ where: whereFn });
-
-    await creditBalance(
-      { update: mockUpdate } as unknown as Parameters<Parameters<typeof import("@/lib/db").db.transaction>[0]>[0],
-      "kid-1",
-      25
-    );
-
-    expect(mockUpdate).toHaveBeenCalledOnce();
-    expect(setFn).toHaveBeenCalledOnce();
-    expect(whereFn).toHaveBeenCalledOnce();
-  });
-});
-
-describe("debitBalance", () => {
-  it("issues an atomic decrement-with-floor update", async () => {
-    const setFn = vi.fn().mockReturnThis();
-    const whereFn = vi.fn().mockReturnValue(syncResult());
-    mockUpdate.mockReturnValue({ set: setFn });
-    setFn.mockReturnValue({ where: whereFn });
-
-    await debitBalance(
-      { update: mockUpdate } as unknown as Parameters<Parameters<typeof import("@/lib/db").db.transaction>[0]>[0],
-      "kid-1",
-      10
-    );
-
-    expect(mockUpdate).toHaveBeenCalledOnce();
-    expect(setFn).toHaveBeenCalledOnce();
-    expect(whereFn).toHaveBeenCalledOnce();
-  });
-});
-
-describe("debitBalanceIfAffordable", () => {
-  it("reports success when the guarded update debits a row", async () => {
-    expect(
-      debitBalanceIfAffordable(fakeTx([{ id: "kid-1" }]), "kid-1", 10)
-    ).toBe(true);
+describe("balance writes", () => {
+  it("credits atomically in SQL", () => {
+    database.db.transaction((tx) => creditBalance(tx, kidId, 25));
+    expect(balance()).toBe(125);
   });
 
-  it("reports failure when the balance no longer covers the amount", async () => {
-    // The coins were spent by a concurrent approval after the caller's advisory
-    // check, so the UPDATE matches no row and nothing is debited.
-    expect(debitBalanceIfAffordable(fakeTx([]), "kid-1", 10)).toBe(false);
+  it("debits with a floor of zero", () => {
+    database.db.transaction((tx) => debitBalance(tx, kidId, 30));
+    expect(balance()).toBe(70);
+    database.db.transaction((tx) => debitBalance(tx, kidId, 500));
+    expect(balance()).toBe(0);
+  });
+
+  it("debits only what the kid can still afford", () => {
+    const spend = (amount: number) => database.db.transaction((tx) => debitBalanceIfAffordable(tx, kidId, amount));
+    expect(spend(60)).toBe(true);
+    expect(spend(60)).toBe(false);
+    expect(balance()).toBe(40);
+    expect(spend(40)).toBe(true);
+    expect(balance()).toBe(0);
   });
 });
