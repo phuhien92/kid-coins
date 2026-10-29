@@ -7,7 +7,7 @@ import {
   kidProfiles,
   taskCompletions,
   tasks,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 async function getFamilyCompletion(completionId: string, familyId: string) {
   const completion = await db.query.taskCompletions.findFirst({
@@ -61,8 +61,8 @@ export async function POST(
         ? body.reason.trim()
         : undefined;
 
-    const updated = await db.transaction(async (tx) => {
-      const [completion] = await tx
+    const updated = await db.transaction((tx) => {
+      const completion = tx
         .update(taskCompletions)
         .set({
           status: "denied",
@@ -73,11 +73,11 @@ export async function POST(
           resolvedAt: new Date(),
         })
         .where(and(eq(taskCompletions.id, id), eq(taskCompletions.status, "pending")))
-        .returning();
+        .returning().get();
 
       if (!completion) return null;
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: auth.family.id,
         kidId: record.kid.id,
         type: "task_denied",
@@ -86,7 +86,7 @@ export async function POST(
           completionId: completion.id,
           reason,
         },
-      });
+      }).run();
 
       return completion;
     });

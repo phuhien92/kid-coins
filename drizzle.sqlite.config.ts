@@ -4,4 +4,7 @@ export default {
   schema: "./src/lib/sqlite/schema.ts",
   out: "./drizzle-sqlite",
   dialect: "sqlite",
+  dbCredentials: {
+    url: process.env.SQLITE_PATH!,
+  },
 } satisfies Config;

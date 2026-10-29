@@ -7,7 +7,7 @@ import {
   activityLog,
   coinTransactions,
   kidProfiles,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 export async function POST(
   request: Request,
@@ -46,22 +46,22 @@ export async function POST(
       return NextResponse.json({ error: "Kid not found" }, { status: 404 });
     }
 
-    await db.transaction(async (tx) => {
-      await debitBalance(tx, kidId, amount);
+    await db.transaction((tx) => {
+      debitBalance(tx, kidId, amount);
 
-      await tx.insert(coinTransactions).values({
+      tx.insert(coinTransactions).values({
         kidId,
         type: "adjusted",
         amount: -amount,
         description: reason,
-      });
+      }).run();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: auth.family.id,
         kidId,
         type: "coins_adjusted",
         payload: { delta: -amount, reason },
-      });
+      }).run();
     });
 
     return NextResponse.json({

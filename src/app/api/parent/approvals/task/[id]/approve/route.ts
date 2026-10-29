@@ -13,7 +13,7 @@ import {
   kidProfiles,
   taskCompletions,
   tasks,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 async function getFamilyCompletion(completionId: string, familyId: string) {
   const completion = await db.query.taskCompletions.findFirst({
@@ -81,8 +81,8 @@ export async function POST(
       bonusCoins
     );
 
-    const updated = await db.transaction(async (tx) => {
-      const [completion] = await tx
+    const updated = await db.transaction((tx) => {
+      const completion = tx
         .update(taskCompletions)
         .set({
           status: "approved",
@@ -97,22 +97,22 @@ export async function POST(
             eq(taskCompletions.status, "pending")
           )
         )
-        .returning();
+        .returning().get();
 
       if (!completion) return null;
 
       if (coinsEarned > 0) {
-        await creditBalance(tx, record.kid.id, coinsEarned);
+        creditBalance(tx, record.kid.id, coinsEarned);
 
-        await tx.insert(coinTransactions).values({
+        tx.insert(coinTransactions).values({
           kidId: record.kid.id,
           type: "earned",
           amount: coinsEarned,
           description: record.task.title,
-        });
+        }).run();
       }
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: auth.family.id,
         kidId: record.kid.id,
         type: "task_approved",
@@ -123,7 +123,7 @@ export async function POST(
           paymentPercent,
           bonusCoins,
         },
-      });
+      }).run();
 
       return completion;
     });

@@ -13,6 +13,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const SECRET = "test-cron-secret";
 
@@ -40,9 +41,9 @@ function saveJar(overrides: Record<string, unknown> = {}) {
 function fakeTx(updated: Array<{ id: string }>) {
   return {
     update: () => ({
-      set: () => ({ where: () => ({ returning: async () => updated }) }),
+      set: () => ({ where: () => ({ returning: () => syncResult(updated) }) }),
     }),
-    insert: () => ({ values: async () => undefined }),
+    insert: () => ({ values: () => syncResult() }),
   };
 }
 
@@ -80,10 +81,10 @@ describe("POST /api/cron/accrue-interest", () => {
         update: () => ({
           set: (v: Record<string, unknown>) => {
             setArg = v;
-            return { where: () => ({ returning: async () => [{ id: "jar-1" }] }) };
+            return { where: () => ({ returning: () => syncResult([{ id: "jar-1" }]) }) };
           },
         }),
-        insert: () => ({ values: async () => undefined }),
+        insert: () => ({ values: () => syncResult() }),
       })
     );
     mockJarsFindMany.mockResolvedValue([saveJar({ balance: 10 })]);

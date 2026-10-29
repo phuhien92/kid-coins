@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { verifyKidSession } from "@/lib/kid-session.server";
 import { allocateToJar } from "@/lib/jars";
-import { activityLog, coinTransactions, kidProfiles } from "@/lib/schema";
+import { activityLog, coinTransactions, kidProfiles } from "@/lib/sqlite/schema";
 
 const JAR_LABELS: Record<"save" | "give", string> = {
   save: "Save jar",
@@ -56,23 +56,23 @@ export async function POST(
       return NextResponse.json({ error: "Not enough coins to move" }, { status: 400 });
     }
 
-    const result = await db.transaction(async (tx) => {
-      const balances = await allocateToJar(tx, kidId, jarType, amount);
+    const result = await db.transaction((tx) => {
+      const balances = allocateToJar(tx, kidId, jarType, amount);
       if (!balances) return null;
 
-      await tx.insert(coinTransactions).values({
+      tx.insert(coinTransactions).values({
         kidId,
         type: "allocated",
         amount: -amount, // Spend decreases as coins leave for the jar
         description: `Moved to ${JAR_LABELS[jarType]}`,
-      });
+      }).run();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: kid.familyId,
         kidId,
         type: "coins_allocated",
         payload: { jarType, amount, direction: "deposit" },
-      });
+      }).run();
 
       return balances;
     });

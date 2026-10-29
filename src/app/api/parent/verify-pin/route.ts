@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
-import { families } from "@/lib/schema";
+import { families } from "@/lib/sqlite/schema";
 
 // NOTE: This endpoint has no rate limiting. Before production, add brute-force
 // protection (e.g. account lockout after N failures, or an edge-middleware

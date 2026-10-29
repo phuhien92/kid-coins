@@ -3,7 +3,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import { getTaskExpiresAt } from "@/lib/tasks";
-import { kidProfiles, tasks } from "@/lib/schema";
+import { kidProfiles, tasks } from "@/lib/sqlite/schema";
 
 function serializeTask(
   task: typeof tasks.$inferSelect,

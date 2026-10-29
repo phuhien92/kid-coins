@@ -9,7 +9,7 @@ import {
   kidProfiles,
   redemptionRequests,
   rewards,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 export async function POST(
   request: Request,
@@ -55,8 +55,8 @@ export async function POST(
       return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
 
-    const redemption = await db.transaction(async (tx) => {
-      const [inserted] = await tx
+    const redemption = await db.transaction((tx) => {
+      const inserted = tx
         .insert(redemptionRequests)
         .values({
           kidId,
@@ -64,9 +64,9 @@ export async function POST(
           coinsSpent: reward.coinCost,
           status: "pending",
         })
-        .returning();
+        .returning().get();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: kid.familyId,
         kidId,
         type: "reward_redeemed",
@@ -75,7 +75,7 @@ export async function POST(
           requestId: inserted.id,
           coinsSpent: reward.coinCost,
         },
-      });
+      }).run();
 
       return inserted;
     });

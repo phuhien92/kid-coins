@@ -7,7 +7,7 @@ import {
   kidProfiles,
   redemptionRequests,
   rewards,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 async function getFamilyRedemption(requestId: string, familyId: string) {
   const redemption = await db.query.redemptionRequests.findFirst({
@@ -61,8 +61,8 @@ export async function POST(
         ? body.reason.trim()
         : undefined;
 
-    const updated = await db.transaction(async (tx) => {
-      const [redemption] = await tx
+    const updated = await db.transaction((tx) => {
+      const redemption = tx
         .update(redemptionRequests)
         .set({
           status: "denied",
@@ -75,11 +75,11 @@ export async function POST(
             eq(redemptionRequests.status, "pending")
           )
         )
-        .returning();
+        .returning().get();
 
       if (!redemption) return null;
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: auth.family.id,
         kidId: record.kid.id,
         type: "reward_denied",
@@ -88,7 +88,7 @@ export async function POST(
           requestId: redemption.id,
           reason,
         },
-      });
+      }).run();
 
       return redemption;
     });

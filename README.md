@@ -115,7 +115,7 @@ AI coaching, elaborate character progression, advanced analytics, and real-money
 
 ## For builders
 
-Kid Coin uses **Next.js 16 and React 19**, **TypeScript**, **Tailwind CSS v4**, and **Framer Motion**. Data lives in **Supabase Postgres** through **Drizzle ORM**, with **Supabase Auth** for parent accounts. The repository also includes Anthropic SDK and PostHog integrations.
+Kid Coin uses **Next.js 16 and React 19**, **TypeScript**, **Tailwind CSS v4**, and **Framer Motion**. Data lives in a local **SQLite** file through **Drizzle ORM**, with **Supabase Auth** for parent accounts. The repository also includes Anthropic SDK and PostHog integrations.
 
 ### Run locally
 
@@ -126,10 +126,10 @@ pnpm install --frozen-lockfile
 cp .env.example .env.local
 ```
 
-Fill in the Supabase and database settings in `.env.local` using a development Supabase project. The example file also documents Anthropic, PostHog, and savings-jar cron settings for those integrations. Keep service-role credentials on the server.
+Fill in the Supabase settings in `.env.local` using a development Supabase project, and set `SQLITE_PATH` to an absolute file path outside the checkout. The example file also documents Anthropic, PostHog, and savings-jar cron settings for those integrations. Keep service-role credentials on the server.
 
 ```bash
-pnpm db:migrate
+SQLITE_PATH=/absolute/path/earnie.sqlite pnpm db:sqlite:migrate
 pnpm dev
 ```
 

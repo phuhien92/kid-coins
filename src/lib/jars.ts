@@ -1,7 +1,7 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 import type { Tx } from "@/lib/db";
 import { creditBalance, debitBalanceIfAffordable } from "@/lib/kid-balance";
-import { jars, kidProfiles } from "@/lib/schema";
+import { jars, kidProfiles } from "@/lib/sqlite/schema";
 
 /** Post-move balances, read authoritatively inside the same transaction. */
 export type JarMoveResult = { spend: number; jarBalance: number };
@@ -50,22 +50,23 @@ export function calculateInterest(
  * violation) after Spend was already debited, this throws to roll the whole
  * transaction back rather than silently losing the coins.
  */
-export async function allocateToJar(
+export function allocateToJar(
   tx: Tx,
   kidId: string,
   jarType: "save" | "give",
   amount: number
-): Promise<JarMoveResult | null> {
+): JarMoveResult | null {
   if (amount <= 0) return null;
 
-  const afforded = await debitBalanceIfAffordable(tx, kidId, amount);
+  const afforded = debitBalanceIfAffordable(tx, kidId, amount);
   if (!afforded) return null;
 
-  const credited = await tx
+  const credited = tx
     .update(jars)
     .set({ balance: sql`${jars.balance} + ${amount}` })
     .where(and(eq(jars.kidId, kidId), eq(jars.type, jarType)))
-    .returning({ balance: jars.balance });
+    .returning({ balance: jars.balance })
+    .all();
 
   if (credited.length === 0) {
     // Spend was already debited; the missing jar row means we'd lose the coins.
@@ -73,10 +74,11 @@ export async function allocateToJar(
     throw new Error(`Missing ${jarType} jar for kid ${kidId}`);
   }
 
-  const [kid] = await tx
+  const kid = tx
     .select({ balance: kidProfiles.balance })
     .from(kidProfiles)
-    .where(eq(kidProfiles.id, kidId));
+    .where(eq(kidProfiles.id, kidId))
+    .get();
 
   return { spend: kid?.balance ?? 0, jarBalance: credited[0].balance };
 }
@@ -90,14 +92,14 @@ export async function allocateToJar(
  * credited once the jar debit is confirmed. Give is one-way and cannot be
  * withdrawn — it is not accepted here.
  */
-export async function withdrawFromSaveJar(
+export function withdrawFromSaveJar(
   tx: Tx,
   kidId: string,
   amount: number
-): Promise<JarMoveResult | null> {
+): JarMoveResult | null {
   if (amount <= 0) return null;
 
-  const debited = await tx
+  const debited = tx
     .update(jars)
     .set({ balance: sql`${jars.balance} - ${amount}` })
     .where(
@@ -107,16 +109,18 @@ export async function withdrawFromSaveJar(
         gte(jars.balance, amount)
       )
     )
-    .returning({ balance: jars.balance });
+    .returning({ balance: jars.balance })
+    .all();
 
   if (debited.length === 0) return null;
 
-  await creditBalance(tx, kidId, amount);
+  creditBalance(tx, kidId, amount);
 
-  const [kid] = await tx
+  const kid = tx
     .select({ balance: kidProfiles.balance })
     .from(kidProfiles)
-    .where(eq(kidProfiles.id, kidId));
+    .where(eq(kidProfiles.id, kidId))
+    .get();
 
   return { spend: kid?.balance ?? 0, jarBalance: debited[0].balance };
 }

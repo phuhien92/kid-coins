@@ -21,13 +21,14 @@ import {
   debitBalance,
   debitBalanceIfAffordable,
 } from "./kid-balance";
+import { syncResult } from "@/test/sync-result";
 
 /** Stands in for a transaction whose guarded UPDATE returns `debited`. */
 function fakeTx(debited: Array<{ id: string }>) {
   return {
     update: () => ({
       set: () => ({
-        where: () => ({ returning: async () => debited }),
+        where: () => ({ returning: () => syncResult(debited) }),
       }),
     }),
   } as unknown as Tx;
@@ -58,7 +59,7 @@ describe("getKidEffectiveBalance", () => {
 describe("creditBalance", () => {
   it("issues an atomic increment update", async () => {
     const setFn = vi.fn().mockReturnThis();
-    const whereFn = vi.fn().mockResolvedValue(undefined);
+    const whereFn = vi.fn().mockReturnValue(syncResult());
     mockUpdate.mockReturnValue({ set: setFn });
     setFn.mockReturnValue({ where: whereFn });
 
@@ -77,7 +78,7 @@ describe("creditBalance", () => {
 describe("debitBalance", () => {
   it("issues an atomic decrement-with-floor update", async () => {
     const setFn = vi.fn().mockReturnThis();
-    const whereFn = vi.fn().mockResolvedValue(undefined);
+    const whereFn = vi.fn().mockReturnValue(syncResult());
     mockUpdate.mockReturnValue({ set: setFn });
     setFn.mockReturnValue({ where: whereFn });
 
@@ -95,14 +96,14 @@ describe("debitBalance", () => {
 
 describe("debitBalanceIfAffordable", () => {
   it("reports success when the guarded update debits a row", async () => {
-    await expect(
+    expect(
       debitBalanceIfAffordable(fakeTx([{ id: "kid-1" }]), "kid-1", 10)
-    ).resolves.toBe(true);
+    ).toBe(true);
   });
 
   it("reports failure when the balance no longer covers the amount", async () => {
     // The coins were spent by a concurrent approval after the caller's advisory
     // check, so the UPDATE matches no row and nothing is debited.
-    await expect(debitBalanceIfAffordable(fakeTx([]), "kid-1", 10)).resolves.toBe(false);
+    expect(debitBalanceIfAffordable(fakeTx([]), "kid-1", 10)).toBe(false);
   });
 });

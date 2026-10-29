@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import { getTaskExpiresAt } from "@/lib/tasks";
-import { kidProfiles, tasks } from "@/lib/schema";
+import { kidProfiles, tasks } from "@/lib/sqlite/schema";
 
 async function getFamilyTask(taskId: string, familyId: string) {
   const task = await db.query.tasks.findFirst({

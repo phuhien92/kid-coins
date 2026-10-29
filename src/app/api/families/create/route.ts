@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
 import { getOrCreateFamily } from "@/lib/family";
-import { families } from "@/lib/schema";
+import { families } from "@/lib/sqlite/schema";
 
 export async function POST(request: Request) {
   try {
