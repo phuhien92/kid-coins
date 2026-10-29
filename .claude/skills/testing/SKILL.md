@@ -48,8 +48,8 @@ design-token updates, and changes that only consume existing tested APIs.
   implementation details like class names or internal state.
 - **Hooks & utils** — pure logic. Cover the happy path, edge cases, and
   error/fallback behavior.
-- **SQLite integration** — use isolated temporary files with deterministic fixtures,
-  close connections and remove the temporary directory afterward. Never use family data.
+- **SQLite integration** — use `createTestSqlite()` / `seedFamily()` from `src/test/sqlite.ts`
+  (isolated temporary file, deterministic fixtures); call `cleanup()` afterward. Never use family data.
 - **API routes** — mock Supabase and Drizzle at the boundary (**never** hit a
   live DB). Assert on response status codes and body shape for success and error
   paths. For money routes, assert the concurrency guards too (see the

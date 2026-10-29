@@ -1,7 +1,9 @@
 # SQLite migration — staged delivery
 
 Slice 1 adds a disk-backed schema and initializer for all 14 application tables;
-slice 2 adds an offline Postgres → SQLite data transfer. The running app still uses
+slice 2 adds an offline Postgres → SQLite data transfer; slice 3a mirrors the Postgres
+relational-query relations in the SQLite schema (a parity test compares them) and adds
+the `src/test/sqlite.ts` temporary-database harness. The running app still uses
 Postgres, Supabase Auth and its existing refresh behavior. The export only reads its
 source; no command writes to Postgres. Keep `drizzle/` and `drizzle.config.ts` as the
 reproducible Postgres history throughout the transfer.

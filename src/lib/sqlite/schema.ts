@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { check, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
 // Staged SQLite schema. Runtime continues to use ../schema.ts until cutover.
@@ -168,3 +168,122 @@ export const activityLog = sqliteTable("activity_log", {
   check("activity_type_valid", sql`${t.type} in ('task_completed', 'task_approved', 'task_denied', 'reward_redeemed', 'reward_approved', 'reward_denied', 'coins_adjusted', 'kid_added', 'coins_allocated', 'interest_paid')`),
   check("activity_payload_valid", sql`${t.payload} is null or json_valid(${t.payload})`),
 ]);
+
+// ── Relations ──────────────────────────────────────────────────────────────
+
+export const familiesRelations = relations(families, ({ one, many }) => ({
+  settings: one(familySettings, {
+    fields: [families.id],
+    references: [familySettings.familyId],
+  }),
+  kids: many(kidProfiles),
+  rewards: many(rewards),
+  activityLog: many(activityLog),
+}));
+
+export const familySettingsRelations = relations(familySettings, ({ one }) => ({
+  family: one(families, {
+    fields: [familySettings.familyId],
+    references: [families.id],
+  }),
+}));
+
+export const kidProfilesRelations = relations(kidProfiles, ({ one, many }) => ({
+  family: one(families, {
+    fields: [kidProfiles.familyId],
+    references: [families.id],
+  }),
+  character: one(characters, {
+    fields: [kidProfiles.id],
+    references: [characters.kidId],
+  }),
+  tasks: many(tasks),
+  completions: many(taskCompletions),
+  transactions: many(coinTransactions),
+  redemptions: many(redemptionRequests),
+  goals: many(goals),
+  jars: many(jars),
+  badges: many(badges),
+  streak: one(streaks, {
+    fields: [kidProfiles.id],
+    references: [streaks.kidId],
+  }),
+  activityLog: many(activityLog),
+}));
+
+export const jarsRelations = relations(jars, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [jars.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const charactersRelations = relations(characters, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [characters.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  kid: one(kidProfiles, {
+    fields: [tasks.kidId],
+    references: [kidProfiles.id],
+  }),
+  completions: many(taskCompletions),
+}));
+
+export const taskCompletionsRelations = relations(taskCompletions, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskCompletions.taskId],
+    references: [tasks.id],
+  }),
+  kid: one(kidProfiles, {
+    fields: [taskCompletions.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const rewardsRelations = relations(rewards, ({ one, many }) => ({
+  family: one(families, {
+    fields: [rewards.familyId],
+    references: [families.id],
+  }),
+  redemptions: many(redemptionRequests),
+}));
+
+export const redemptionRequestsRelations = relations(redemptionRequests, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [redemptionRequests.kidId],
+    references: [kidProfiles.id],
+  }),
+  reward: one(rewards, {
+    fields: [redemptionRequests.rewardId],
+    references: [rewards.id],
+  }),
+}));
+
+export const streaksRelations = relations(streaks, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [streaks.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const badgesRelations = relations(badges, ({ one }) => ({
+  kid: one(kidProfiles, {
+    fields: [badges.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
+
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
+  family: one(families, {
+    fields: [activityLog.familyId],
+    references: [families.id],
+  }),
+  kid: one(kidProfiles, {
+    fields: [activityLog.kidId],
+    references: [kidProfiles.id],
+  }),
+}));
