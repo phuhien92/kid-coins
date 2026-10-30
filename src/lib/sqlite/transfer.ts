@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { existsSync, linkSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, linkSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join } from "node:path";
 import { count, getTableColumns } from "drizzle-orm";
 import type { SQLiteColumn, SQLiteTable } from "drizzle-orm/sqlite-core";
@@ -129,8 +129,8 @@ function assertAbsent(path: string) {
   if (present.length) throw new Error(`Refusing to overwrite existing ${present.join(", ")}`);
 }
 
-/** Build into a private sibling, then hard-link it into place; link never replaces an existing path. */
-function publishNew(target: string, build: (temp: string) => void) {
+/** Build into a private (mode 600) sibling, then hard-link it into place; link never replaces an existing path. */
+export function publishNew(target: string, build: (temp: string) => void) {
   if (!isAbsolute(target)) throw new Error("Target must be an absolute file path");
   assertAbsent(target);
   const temp = join(dirname(target), `.${basename(target)}.partial-${randomUUID()}`);
@@ -139,6 +139,7 @@ function publishNew(target: string, build: (temp: string) => void) {
     SIDECARS.slice(1).forEach((suffix) => {
       if (existsSync(temp + suffix)) throw new Error(`Unexpected ${suffix} left beside staged file`);
     });
+    chmodSync(temp, 0o600);
     linkSync(temp, target);
   } finally {
     SIDECARS.forEach((suffix) => rmSync(temp + suffix, { force: true }));

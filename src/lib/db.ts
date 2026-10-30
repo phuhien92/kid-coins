@@ -10,7 +10,11 @@ function getInstance(): DB {
       throw new Error("SQLITE_PATH environment variable is not set");
     }
     // One process-wide connection; run `pnpm db:sqlite:migrate` before starting the app.
-    _instance = openSqlite(process.env.SQLITE_PATH).db;
+    const connection = openSqlite(process.env.SQLITE_PATH);
+    // `next start` exits on SIGTERM/SIGINT; closing the last connection checkpoints the
+    // WAL into the main file and removes the sidecars, so a stopped app is one file.
+    process.once("exit", () => connection.close());
+    _instance = connection.db;
   }
   return _instance;
 }

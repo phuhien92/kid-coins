@@ -31,7 +31,7 @@ Shared TypeScript types derive from the schema — see `src/types/index.ts`.
 2. `pnpm db:sqlite:generate` — creates a migration file in `drizzle-sqlite/`.
 3. `pnpm db:sqlite:migrate` — applies it (requires an absolute `SQLITE_PATH`).
 
-Other DB commands: `pnpm db:sqlite:studio` opens Drizzle Studio (DB GUI) on `SQLITE_PATH`; `pnpm db:studio` is the legacy Postgres GUI.
+Other DB commands: `pnpm db:sqlite:studio` opens Drizzle Studio (DB GUI) on `SQLITE_PATH`; `pnpm db:sqlite:backup <new-file>` copies it safely (see `docs/SQLITE-MIGRATION.md`); `pnpm db:studio` is the legacy Postgres GUI.
 
 ## Rules
 
