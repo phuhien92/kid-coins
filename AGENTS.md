@@ -109,7 +109,7 @@ Copy `.env.example` → `.env.local` and fill in:
 - **Server Components** for data-fetching pages (parent dashboard, task lists)
 - **Client Components** (`"use client"`) for anything with Framer Motion, `useState`, or event handlers
 - **Optimistic UI** for task completion — update balance in KidContext immediately, then confirm via API
-- **Supabase Realtime** for parent→kid sync (approval triggers balance refresh in kid session)
+- **Fetch on load and after actions** for parent↔kid sync (no Realtime; a kid sees an approval on the next screen load)
 - **`localStorage`** persists character state (`earnie_char`) and streak; always read on mount, write on change
 - **Feature flags** via PostHog. When the user requests a new feature, ask if it should be gated behind a PostHog feature flag. Consult https://posthog.com/docs/feature-flags/best-practices for guidelines.
 

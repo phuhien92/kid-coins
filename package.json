@@ -21,7 +21,8 @@
     "db:sqlite:migrate": "tsx scripts/migrate-sqlite.ts",
     "db:sqlite:studio": "drizzle-kit studio --config drizzle.sqlite.config.ts",
     "db:export:postgres": "tsx scripts/export-postgres.ts",
-    "db:sqlite:import": "tsx scripts/import-sqlite.ts"
+    "db:sqlite:import": "tsx scripts/import-sqlite.ts",
+    "db:sqlite:backup": "tsx scripts/backup-sqlite.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",
