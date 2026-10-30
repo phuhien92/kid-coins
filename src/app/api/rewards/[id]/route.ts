@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getAuthenticatedParentFamily } from "@/lib/parent-auth";
 import { getRemainingStock } from "@/lib/rewards";
-import { rewards } from "@/lib/schema";
+import { rewards } from "@/lib/sqlite/schema";
 
 function serializeReward(reward: typeof rewards.$inferSelect) {
   return {

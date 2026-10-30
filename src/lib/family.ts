@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { families } from "@/lib/schema";
+import { families } from "@/lib/sqlite/schema";
 
 /**
  * Returns the parent's family row, creating one if the account predates

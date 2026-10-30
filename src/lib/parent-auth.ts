@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { db } from "@/lib/db";
-import { families } from "@/lib/schema";
+import { families } from "@/lib/sqlite/schema";
 
 type AuthError = { error: 401 };
 type FamilyError = { error: 404 };

@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { verifyKidSession } from "@/lib/kid-session.server";
 import { calculateInterest } from "@/lib/jars";
-import { familySettings, jars, kidProfiles } from "@/lib/schema";
+import { familySettings, jars, kidProfiles } from "@/lib/sqlite/schema";
 
 /**
  * Returns the kid's three buckets: Spend (kidProfiles.balance), Save, and Give,

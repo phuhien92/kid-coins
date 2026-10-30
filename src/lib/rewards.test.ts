@@ -1,33 +1,14 @@
-import { describe, it, expect } from "vitest";
-import type { Tx } from "@/lib/db";
+// @vitest-environment node
+import { afterEach, beforeEach, describe, it, expect } from "vitest";
+import { eq } from "drizzle-orm";
+import { rewards } from "@/lib/sqlite/schema";
+import { createTestSqlite, seedFamily, type TestSqlite } from "@/test/sqlite";
 import {
   claimRewardStock,
   getRemainingStock,
   hasRewardStock,
   shouldDeactivateReward,
 } from "./rewards";
-
-type Claimed = { quantity: number | null; quantityUsed: number };
-
-/** Stands in for a transaction whose guarded UPDATE returns `claimed`. */
-function fakeTx(claimed: Claimed[]) {
-  const sets: Record<string, unknown>[] = [];
-  const tx = {
-    update: () => ({
-      set: (values: Record<string, unknown>) => {
-        sets.push(values);
-        return {
-          where: () =>
-            Object.assign(Promise.resolve(undefined), {
-              returning: async () => claimed,
-            }),
-        };
-      },
-    }),
-  } as unknown as Tx;
-
-  return { tx, sets };
-}
 
 describe("reward stock helpers", () => {
   it("treats null quantity as unlimited", () => {
@@ -44,34 +25,41 @@ describe("reward stock helpers", () => {
 });
 
 describe("claimRewardStock", () => {
-  it("reports failure when the guarded update matches no row", async () => {
-    // The reward sold out after the caller's advisory check: the loser of a
-    // concurrent claim matches nothing, so it must not be told it took a unit.
-    const { tx, sets } = fakeTx([]);
+  let database: TestSqlite;
+  let ids: ReturnType<typeof seedFamily>;
+  beforeEach(() => {
+    database = createTestSqlite();
+    ids = seedFamily(database.db, 1);
+  });
+  afterEach(() => database.cleanup());
 
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(false);
-    expect(sets).toHaveLength(1);
-    expect(sets[0]).not.toHaveProperty("isActive");
+  const reward = () => database.db.select().from(rewards).where(eq(rewards.id, ids.reward)).get();
+  const setStock = (quantity: number | null, quantityUsed: number) =>
+    database.db.update(rewards).set({ quantity, quantityUsed }).where(eq(rewards.id, ids.reward)).run();
+  const claim = () => database.db.transaction((tx) => claimRewardStock(tx, ids.reward));
+
+  it("takes the last unit once, deactivates the reward, then reports sold out", () => {
+    expect(claim()).toBe(true);
+    expect(reward()).toMatchObject({ quantityUsed: 1, isActive: false });
+    expect(claim()).toBe(false);
+    expect(reward()?.quantityUsed).toBe(1);
   });
 
-  it("takes a unit and deactivates the reward once the last one is gone", async () => {
-    const { tx, sets } = fakeTx([{ quantity: 3, quantityUsed: 3 }]);
-
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(true);
-    expect(sets).toContainEqual({ isActive: false });
+  it("takes a unit and leaves the reward active while stock remains", () => {
+    setStock(3, 1);
+    expect(claim()).toBe(true);
+    expect(reward()).toMatchObject({ quantityUsed: 2, isActive: true });
   });
 
-  it("takes a unit and leaves the reward active while stock remains", async () => {
-    const { tx, sets } = fakeTx([{ quantity: 3, quantityUsed: 1 }]);
-
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(true);
-    expect(sets).toHaveLength(1);
+  it("refuses stock already lowered below what was used", () => {
+    setStock(1, 2);
+    expect(claim()).toBe(false);
+    expect(reward()?.quantityUsed).toBe(2);
   });
 
-  it("always succeeds for an unlimited reward", async () => {
-    const { tx, sets } = fakeTx([{ quantity: null, quantityUsed: 99 }]);
-
-    await expect(claimRewardStock(tx, "reward-1")).resolves.toBe(true);
-    expect(sets).toHaveLength(1);
+  it("always succeeds for an unlimited reward", () => {
+    setStock(null, 7);
+    expect(claim()).toBe(true);
+    expect(reward()).toMatchObject({ quantityUsed: 8, isActive: true });
   });
 });

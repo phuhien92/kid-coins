@@ -1,6 +1,6 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db";
-import { kidProfiles, redemptionRequests } from "@/lib/schema";
+import { kidProfiles, redemptionRequests } from "@/lib/sqlite/schema";
 
 export async function getKidEffectiveBalance(kidId: string): Promise<number | null> {
   const kid = await db.query.kidProfiles.findFirst({
@@ -25,18 +25,18 @@ export async function getKidEffectiveBalance(kidId: string): Promise<number | nu
   return kid.balance - Number(pending?.reserved ?? 0);
 }
 
-export async function creditBalance(tx: Tx, kidId: string, amount: number) {
-  await tx
-    .update(kidProfiles)
+export function creditBalance(tx: Tx, kidId: string, amount: number) {
+  tx.update(kidProfiles)
     .set({ balance: sql`${kidProfiles.balance} + ${amount}` })
-    .where(eq(kidProfiles.id, kidId));
+    .where(eq(kidProfiles.id, kidId))
+    .run();
 }
 
-export async function debitBalance(tx: Tx, kidId: string, amount: number) {
-  await tx
-    .update(kidProfiles)
-    .set({ balance: sql`GREATEST(0, ${kidProfiles.balance} - ${amount})` })
-    .where(eq(kidProfiles.id, kidId));
+export function debitBalance(tx: Tx, kidId: string, amount: number) {
+  tx.update(kidProfiles)
+    .set({ balance: sql`max(0, ${kidProfiles.balance} - ${amount})` })
+    .where(eq(kidProfiles.id, kidId))
+    .run();
 }
 
 /**
@@ -45,16 +45,17 @@ export async function debitBalance(tx: Tx, kidId: string, amount: number) {
  * spends of the same coins cannot both pass an earlier affordability check —
  * the loser matches no row and gets `false`.
  */
-export async function debitBalanceIfAffordable(
+export function debitBalanceIfAffordable(
   tx: Tx,
   kidId: string,
   amount: number
-): Promise<boolean> {
-  const debited = await tx
+): boolean {
+  const debited = tx
     .update(kidProfiles)
     .set({ balance: sql`${kidProfiles.balance} - ${amount}` })
     .where(and(eq(kidProfiles.id, kidId), gte(kidProfiles.balance, amount)))
-    .returning({ id: kidProfiles.id });
+    .returning({ id: kidProfiles.id })
+    .all();
 
   return debited.length > 0;
 }

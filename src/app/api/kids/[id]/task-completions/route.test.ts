@@ -27,6 +27,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const KID_ID = "kid-1";
 const TASK = {
@@ -62,7 +63,8 @@ beforeEach(() => {
     fn({
       insert: () => ({
         values: () => ({
-          returning: async () => [
+          ...syncResult(),
+          returning: () => syncResult([
             {
               id: "completion-1",
               taskId: TASK.id,
@@ -74,7 +76,7 @@ beforeEach(() => {
               completedAt: new Date("2026-06-01T00:00:00Z"),
               resolvedAt: null,
             },
-          ],
+          ]),
         }),
       }),
     })

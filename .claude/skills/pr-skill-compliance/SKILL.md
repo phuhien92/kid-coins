@@ -39,7 +39,7 @@ diff obeys the rules encoded in this repo's skills and `AGENTS.md`.
    | JSX/TSX, components, pages, styling | `component-authoring` |
    | coin balance, reward stock, approve/decline, pending-status transitions | `financial-safety` |
    | any new component / page / hook / util / lib / route | `testing` |
-   | `src/lib/schema.ts`, `drizzle/`, DB types | `db-migrations` |
+   | `src/lib/sqlite/schema.ts`, `drizzle-sqlite/`, legacy `src/lib/schema.ts` / `drizzle/`, DB types | `db-migrations` |
 
    Always also check `AGENTS.md` for the always-on rules (pnpm-only, branching,
    env-var handling).

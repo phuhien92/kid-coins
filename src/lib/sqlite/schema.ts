@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { relations, sql } from "drizzle-orm";
 import { check, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
-// Staged SQLite schema. Runtime continues to use ../schema.ts until cutover.
+// Runtime SQLite schema. ../schema.ts is the legacy Postgres schema kept for the offline transfer.
 const now = sql`(cast(unixepoch('subsec') * 1000 as integer))`;
 const id = () => text("id").primaryKey().notNull().$defaultFn(randomUUID);
 const date = (name: string) => integer(name, { mode: "timestamp_ms" });

@@ -10,7 +10,7 @@ import {
   kidProfiles,
   redemptionRequests,
   rewards,
-} from "@/lib/schema";
+} from "@/lib/sqlite/schema";
 
 /** Thrown inside the transaction to roll it back and answer 400 with a reason. */
 class RedemptionRejected extends Error {}
@@ -70,8 +70,8 @@ export async function POST(
       return NextResponse.json({ error: "Reward is sold out" }, { status: 400 });
     }
 
-    const updated = await db.transaction(async (tx) => {
-      const [redemption] = await tx
+    const updated = await db.transaction((tx) => {
+      const redemption = tx
         .update(redemptionRequests)
         .set({ status: "approved", resolvedAt: new Date() })
         .where(
@@ -80,32 +80,32 @@ export async function POST(
             eq(redemptionRequests.status, "pending")
           )
         )
-        .returning();
+        .returning().get();
 
       if (!redemption) return null;
 
-      if (!(await claimRewardStock(tx, record.reward.id))) {
+      if (!claimRewardStock(tx, record.reward.id)) {
         throw new RedemptionRejected("Reward is sold out");
       }
 
       if (
-        !(await debitBalanceIfAffordable(
+        !debitBalanceIfAffordable(
           tx,
           record.kid.id,
           record.redemption.coinsSpent
-        ))
+        )
       ) {
         throw new RedemptionRejected("Insufficient balance");
       }
 
-      await tx.insert(coinTransactions).values({
+      tx.insert(coinTransactions).values({
         kidId: record.kid.id,
         type: "redeemed",
         amount: -record.redemption.coinsSpent,
         description: record.reward.title,
-      });
+      }).run();
 
-      await tx.insert(activityLog).values({
+      tx.insert(activityLog).values({
         familyId: auth.family.id,
         kidId: record.kid.id,
         type: "reward_approved",
@@ -114,7 +114,7 @@ export async function POST(
           requestId: redemption.id,
           coinsSpent: record.redemption.coinsSpent,
         },
-      });
+      }).run();
 
       return redemption;
     });

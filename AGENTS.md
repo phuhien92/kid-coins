@@ -31,7 +31,7 @@ Read the matching skill **before** writing code in its area. Each skill carries 
 | `PRODUCT.md` | You need product context or the design principles behind a feature |
 | `DESIGN.md` | Full design-system spec — colors, typography, elevation, component inventory |
 | `design_handoff_earnie/` | The living visual spec — HTML prototypes + `README.md` |
-| `src/lib/schema.ts` | The DB schema, single source of truth for DB types |
+| `src/lib/sqlite/schema.ts` | The DB schema, single source of truth for DB types (`src/lib/schema.ts` is the legacy Postgres schema kept for data transfer) |
 | `src/types/index.ts` | Shared TypeScript types |
 | `docs/` | Feature planning docs (e.g. `docs/PLAN-task-reward-system.md`) |
 
@@ -53,7 +53,7 @@ Docs and skills diverge from reality the moment code moves past them. So, in the
 | Styling | Tailwind CSS v4 (design tokens in `globals.css`) |
 | Animations | Framer Motion |
 | State | React Context (`src/context/`) |
-| Database | Supabase (Postgres) via Drizzle ORM |
+| Database | SQLite file (`SQLITE_PATH`) via Drizzle ORM (better-sqlite3) |
 | Auth | Supabase Auth (parent: email/password; kid: 4-digit PIN) |
 | AI Coach | Anthropic Claude (`claude-haiku-4-5-20251001`) |
 | Testing | Vitest + Testing Library |
@@ -74,8 +74,9 @@ src/
 │   ├── parent/         # Parent-specific components
 │   └── shared/         # Cross-app components (CoinDisplay, GoalTracker, StreakBadge)
 ├── lib/
-│   ├── schema.ts       # Drizzle ORM schema (single source of truth for DB types)
-│   ├── db.ts           # Drizzle client (postgres-js driver)
+│   ├── sqlite/schema.ts # Drizzle ORM schema (single source of truth for DB types)
+│   ├── schema.ts       # Legacy Postgres schema, kept for data transfer
+│   ├── db.ts           # Drizzle client (better-sqlite3; synchronous transactions)
 │   ├── supabase.ts     # Supabase browser + server clients
 │   ├── ai.ts           # Anthropic client + model constant
 │   ├── kid-balance.ts  # Atomic coin balance helpers — see financial-safety skill
@@ -85,8 +86,8 @@ src/
 ├── hooks/              # useCoins, useStreak, useTasks, useApprovals
 ├── types/              # index.ts — shared TypeScript types
 └── test/               # setup.ts (Testing Library config)
-drizzle/                # Generated SQL migration files
-drizzle.config.ts       # Drizzle Kit config
+drizzle-sqlite/         # Generated SQLite migrations (drizzle.sqlite.config.ts)
+drizzle/                # Legacy Postgres migrations (drizzle.config.ts), kept for transfer
 ```
 
 ## Environment variables
@@ -94,7 +95,7 @@ drizzle.config.ts       # Drizzle Kit config
 Copy `.env.example` → `.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` (from Supabase dashboard)
 - `SUPABASE_SERVICE_ROLE_KEY` (server-side only — never expose client-side)
-- `DATABASE_URL` — use the **transaction pooler** connection string from Supabase for serverless
+- `SQLITE_PATH` — absolute path to the SQLite file on persistent disk (see `docs/SQLITE-MIGRATION.md`)
 - `ANTHROPIC_API_KEY`
 
 ## Auth model
@@ -122,9 +123,10 @@ Coins are real value to kids; the failure mode is silent balance corruption. **N
 pnpm dev           # start dev server (localhost:3000)
 pnpm build         # production build
 pnpm test:run      # run all tests
-pnpm db:generate   # generate Drizzle migration from schema changes
-pnpm db:migrate    # apply pending migrations
-pnpm db:studio     # open Drizzle Studio (DB GUI)
+pnpm db:sqlite:generate  # generate Drizzle migration from schema changes
+pnpm db:sqlite:migrate   # apply pending migrations to SQLITE_PATH
+pnpm db:sqlite:studio   # open Drizzle Studio (DB GUI) on SQLITE_PATH
+pnpm db:studio     # legacy Postgres Drizzle Studio (DATABASE_URL)
 ```
 
 ## Branching workflow
@@ -147,4 +149,4 @@ Before merging to `main`:
 - Skills: `.claude/skills/` — component-authoring, financial-safety, testing, db-migrations, pr-skill-compliance
 - Design spec: `design_handoff_earnie/README.md` · Full design system: `DESIGN.md`
 - Product context & design principles: `PRODUCT.md`
-- DB schema: `src/lib/schema.ts` · Type definitions: `src/types/index.ts`
+- DB schema: `src/lib/sqlite/schema.ts` · Type definitions: `src/types/index.ts`

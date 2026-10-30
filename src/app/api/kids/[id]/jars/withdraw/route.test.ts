@@ -23,6 +23,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const KID_ID = "kid-1";
 function makeReq(body: Record<string, unknown>) {
@@ -34,7 +35,7 @@ function makeReq(body: Record<string, unknown>) {
 }
 const ctx = () => ({ params: Promise.resolve({ id: KID_ID }) });
 
-const fakeTx = { insert: () => ({ values: async () => undefined }) };
+const fakeTx = { insert: () => ({ values: () => syncResult() }) };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -57,7 +58,7 @@ describe("POST /api/kids/[id]/jars/withdraw", () => {
   });
 
   it("moves coins back to Spend and reports balances on success", async () => {
-    mockWithdrawFromSaveJar.mockResolvedValueOnce({ spend: 70, jarBalance: 70 });
+    mockWithdrawFromSaveJar.mockReturnValueOnce({ spend: 70, jarBalance: 70 });
     const res = await POST(makeReq({ amount: 30 }), ctx());
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -66,7 +67,7 @@ describe("POST /api/kids/[id]/jars/withdraw", () => {
   });
 
   it("returns 400 when the Save jar lacks the coins (no fall-through)", async () => {
-    mockWithdrawFromSaveJar.mockResolvedValueOnce(null);
+    mockWithdrawFromSaveJar.mockReturnValueOnce(null);
     const res = await POST(makeReq({ amount: 30 }), ctx());
     expect(res.status).toBe(400);
   });

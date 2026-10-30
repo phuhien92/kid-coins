@@ -18,6 +18,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { POST } from "./route";
+import { syncResult } from "@/test/sync-result";
 
 const FAMILY = { id: "family-1", parentUserId: "parent-1", name: "Family" };
 
@@ -30,11 +31,12 @@ beforeEach(() => {
       update: () => ({
         set: () => ({
           where: () => ({
-            returning: async () => [{ balance: 20 }],
+            ...syncResult(),
+            returning: () => syncResult([{ balance: 20 }]),
           }),
         }),
       }),
-      insert: () => ({ values: async () => undefined }),
+      insert: () => ({ values: () => syncResult() }),
     })
   );
 });

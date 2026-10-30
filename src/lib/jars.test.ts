@@ -1,14 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-
-const mockDebitIfAffordable = vi.fn();
-const mockCreditBalance = vi.fn();
-
-vi.mock("@/lib/kid-balance", () => ({
-  debitBalanceIfAffordable: (...args: unknown[]) => mockDebitIfAffordable(...args),
-  creditBalance: (...args: unknown[]) => mockCreditBalance(...args),
-}));
-
-import type { Tx } from "@/lib/db";
+// @vitest-environment node
+import { afterEach, beforeEach, describe, it, expect } from "vitest";
+import { and, eq } from "drizzle-orm";
+import { jars, kidProfiles } from "@/lib/sqlite/schema";
+import { createTestSqlite, seedFamily, type TestSqlite } from "@/test/sqlite";
 import {
   calculateInterest,
   weeksElapsed,
@@ -16,33 +10,6 @@ import {
   withdrawFromSaveJar,
   WEEK_MS,
 } from "./jars";
-
-/**
- * Records jar UPDATEs. The guarded jar write returns `returning`, and the
- * post-move Spend read returns `kidBalance`.
- */
-function fakeTx({
-  returning = [{ balance: 25 }] as Array<{ balance: number }>,
-  kidBalance = 15,
-}: { returning?: Array<{ balance: number }>; kidBalance?: number } = {}) {
-  const setSpy = vi.fn();
-  const tx = {
-    update: () => ({
-      set: (v: unknown) => {
-        setSpy(v);
-        return {
-          where: () => ({ returning: async () => returning }),
-        };
-      },
-    }),
-    select: () => ({ from: () => ({ where: async () => [{ balance: kidBalance }] }) }),
-  } as unknown as Tx;
-  return { tx, setSpy };
-}
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 describe("weeksElapsed", () => {
   const base = new Date("2026-01-01T00:00:00Z");
@@ -80,62 +47,50 @@ describe("calculateInterest", () => {
   });
 });
 
-describe("allocateToJar", () => {
-  it("rejects non-positive amounts without touching balances", async () => {
-    const { tx } = fakeTx();
-    await expect(allocateToJar(tx, "kid-1", "save", 0)).resolves.toBeNull();
-    expect(mockDebitIfAffordable).not.toHaveBeenCalled();
+describe("jar moves", () => {
+  // Seeded kid: Spend 100, Save 40, Give 0.
+  let database: TestSqlite;
+  let kidId: string;
+  beforeEach(() => {
+    database = createTestSqlite();
+    kidId = seedFamily(database.db, 1).kid;
+  });
+  afterEach(() => database.cleanup());
+
+  const balances = () => ({
+    spend: database.db.select().from(kidProfiles).where(eq(kidProfiles.id, kidId)).get()?.balance,
+    save: database.db.select().from(jars).where(and(eq(jars.kidId, kidId), eq(jars.type, "save"))).get()?.balance,
+    give: database.db.select().from(jars).where(and(eq(jars.kidId, kidId), eq(jars.type, "give"))).get()?.balance,
+  });
+  const allocate = (type: "save" | "give", amount: number) =>
+    database.db.transaction((tx) => allocateToJar(tx, kidId, type, amount));
+  const withdraw = (amount: number) => database.db.transaction((tx) => withdrawFromSaveJar(tx, kidId, amount));
+
+  it("rejects non-positive amounts without touching balances", () => {
+    expect(allocate("save", 0)).toBeNull();
+    expect(withdraw(-5)).toBeNull();
+    expect(balances()).toEqual({ spend: 100, save: 40, give: 0 });
   });
 
-  it("credits the jar after Spend is debited and returns post-move balances", async () => {
-    mockDebitIfAffordable.mockResolvedValueOnce(true);
-    const { tx, setSpy } = fakeTx({ returning: [{ balance: 125 }], kidBalance: 15 });
-
-    await expect(allocateToJar(tx, "kid-1", "save", 25)).resolves.toEqual({
-      spend: 15,
-      jarBalance: 125,
-    });
-    expect(mockDebitIfAffordable).toHaveBeenCalledWith(tx, "kid-1", 25);
-    expect(setSpy).toHaveBeenCalledOnce(); // the jar increment ran
+  it("moves Spend into a jar and reports the post-move balances", () => {
+    expect(allocate("give", 25)).toEqual({ spend: 75, jarBalance: 25 });
+    expect(balances()).toEqual({ spend: 75, save: 40, give: 25 });
   });
 
-  it("does not credit the jar when Spend cannot afford the move", async () => {
-    mockDebitIfAffordable.mockResolvedValueOnce(false);
-    const { tx, setSpy } = fakeTx();
-
-    await expect(allocateToJar(tx, "kid-1", "give", 25)).resolves.toBeNull();
-    expect(setSpy).not.toHaveBeenCalled(); // jar never touched
+  it("refuses an allocation Spend cannot afford, leaving both balances intact", () => {
+    expect(allocate("save", 101)).toBeNull();
+    expect(balances()).toEqual({ spend: 100, save: 40, give: 0 });
   });
 
-  it("throws when the jar row is missing after Spend was debited", async () => {
-    // Spend was debited but the guarded jar credit matched no row, so throwing
-    // rolls the whole transaction back rather than losing the coins.
-    mockDebitIfAffordable.mockResolvedValueOnce(true);
-    const { tx } = fakeTx({ returning: [] });
-
-    await expect(allocateToJar(tx, "kid-1", "save", 25)).rejects.toThrow(/Missing save jar/);
-  });
-});
-
-describe("withdrawFromSaveJar", () => {
-  it("rejects non-positive amounts", async () => {
-    const { tx } = fakeTx();
-    await expect(withdrawFromSaveJar(tx, "kid-1", 0)).resolves.toBeNull();
-    expect(mockCreditBalance).not.toHaveBeenCalled();
+  it("rolls the Spend debit back when the jar row is missing", () => {
+    database.db.delete(jars).where(and(eq(jars.kidId, kidId), eq(jars.type, "give"))).run();
+    expect(() => allocate("give", 10)).toThrow(/Missing give jar/);
+    expect(balances().spend).toBe(100);
   });
 
-  it("credits Spend when the guarded jar debit applied and returns balances", async () => {
-    const { tx } = fakeTx({ returning: [{ balance: 70 }], kidBalance: 90 });
-    await expect(withdrawFromSaveJar(tx, "kid-1", 10)).resolves.toEqual({
-      spend: 90,
-      jarBalance: 70,
-    });
-    expect(mockCreditBalance).toHaveBeenCalledWith(tx, "kid-1", 10);
-  });
-
-  it("does not credit Spend when the jar lacked the coins", async () => {
-    const { tx } = fakeTx({ returning: [] }); // guarded UPDATE matched no row
-    await expect(withdrawFromSaveJar(tx, "kid-1", 10)).resolves.toBeNull();
-    expect(mockCreditBalance).not.toHaveBeenCalled();
+  it("withdraws from Save into Spend only while Save holds the coins", () => {
+    expect(withdraw(40)).toEqual({ spend: 140, jarBalance: 0 });
+    expect(withdraw(1)).toBeNull();
+    expect(balances()).toEqual({ spend: 140, save: 0, give: 0 });
   });
 });
